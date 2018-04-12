@@ -8,26 +8,20 @@ var con=mysql.createConnection({
 });
 
 
-exports.addUser=function(info){
-  con.query("INSERT INTO test VALUES ("+info+")");
+exports.addUser=function(info,callback){
+  con.query("INSERT INTO test VALUES ("+info+")",function(err){
+    callback(err);
+  });
 }
 
-var result;
-
-function check(name){
+exports.verifyUser=function(name,callback){
   con.query("SELECT * FROM test WHERE name='"+name+"'",function(err,results,fields){
-    if(err) throw err;
+    if(err) callback(err);
     if(Object.keys(results).length==0){
-      result="N";
+      callback(null,"N");
     }else{
-      result="Y";
+      callback(null,"Y");
 
     }
   });
-}
-exports.verifyUser=function(name){
-  result="";
-  check(name)
-  while(result===""){}
-  return result;
 }

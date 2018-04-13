@@ -1,38 +1,26 @@
-var mysql=require('mysql');
+var mysql = require("mysql");
 
-var con=mysql.createConnection({
-  host: "localhost",
-  user: "*****",
-  password: "******",
-  database: "erp"
+var con = mysql.createConnection({
+	host: "localhost",
+	user: "*****",
+	password: "******",
+	database: "erp"
 });
 
-
-exports.addUser=function(info){
-  return new Promise((resolve,reject)=>{
-    con.query("INSERT INTO test VALUES ("+info+")",function(err){
-      if(err) reject(err);
-      else resolve();
-    });
-  });
+exports.adminLogin = (username, password) => {
+	return new Promise((resolve, reject) => {
+		resolve(username == password);
+	});
 };
 
-exports.verifyUser=function(name){
-  return new Promise((resolve,reject)=>{
-    con.query("SELECT * FROM test WHERE name='"+name+"'",function(err,results,fields){
-      if(err) reject(err);
-      if(Object.keys(results).length==0){
-        resolve("N");
-      }else{
-        resolve("Y");
-      }
-    });
-  });
+exports.registerUser = (json) => {
+	return new Promise((resolve, reject) => {
+		resolve(false);
+	});
 };
 
-// Dummy function.
-exports.getUser=function(id){
-  return new Promise((resolve,reject)=>{
-    resolve({username: "test"});
-  });
+exports.userLogin = (username, password) => {
+	return new Promise((resolve, reject) => {
+		resolve(username == password);
+	});
 };

@@ -41,4 +41,8 @@ app.get("/user/:id(\\d+)/balance", async(req, res) => {
 	}
 });
 
-app.listen(8080); // TODO: Use HTTPS.
+if(require.main === module) {
+	app.listen(8080); // TODO: Use HTTPS.
+} else {
+	module.exports = app;
+}

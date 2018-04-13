@@ -4,7 +4,7 @@
   "description": "Source code for the application and database layers.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,9 @@
     "mysql": "^2.15.0",
     "truffle-contract": "^3.0.4",
     "web3": "^1.0.0-beta.33"
+  },
+  "devDependencies": {
+    "mocha": "^5.1.0",
+    "supertest": "^3.0.0"
   }
 }

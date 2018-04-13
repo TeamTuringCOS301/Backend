@@ -8,20 +8,31 @@ var con=mysql.createConnection({
 });
 
 
-exports.addUser=function(info,callback){
-  con.query("INSERT INTO test VALUES ("+info+")",function(err){
-    callback(err);
+exports.addUser=function(info){
+  return new Promise((resolve,reject)=>{
+    con.query("INSERT INTO test VALUES ("+info+")",function(err){
+      if(err) reject(err);
+      else resolve();
+    });
   });
-}
+};
 
-exports.verifyUser=function(name,callback){
-  con.query("SELECT * FROM test WHERE name='"+name+"'",function(err,results,fields){
-    if(err) callback(err);
-    if(Object.keys(results).length==0){
-      callback(null,"N");
-    }else{
-      callback(null,"Y");
-
-    }
+exports.verifyUser=function(name){
+  return new Promise((resolve,reject)=>{
+    con.query("SELECT * FROM test WHERE name='"+name+"'",function(err,results,fields){
+      if(err) reject(err);
+      if(Object.keys(results).length==0){
+        resolve("N");
+      }else{
+        resolve("Y");
+      }
+    });
   });
-}
+};
+
+// Dummy function.
+exports.getUser=function(id){
+  return new Promise((resolve,reject)=>{
+    resolve({username: "test"});
+  });
+};

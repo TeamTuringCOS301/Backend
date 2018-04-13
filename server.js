@@ -1,5 +1,6 @@
 const database = require("./database.js");
 const express = require("express");
+const token = require("./token.js");
 
 const app = express();
 app.use(express.json());
@@ -27,6 +28,16 @@ app.get("/user/:id(\\d+)", async (req, res) => {
 		res.send(await database.getUser(req.params.id));
 	} catch(error) {
 		res.status(404).send({username: null});
+	}
+});
+
+app.get("/user/:id(\\d+)/balance", async (req, res) => {
+	try {
+		const id = parseInt(req.params.id);
+		res.send({id, balance: await token.getBalance(id)});
+	} catch(err) {
+		console.log(err);
+		res.status(404).send({});
 	}
 });
 

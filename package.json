@@ -1,0 +1,28 @@
+{
+  "name": "erp-coin-backend",
+  "version": "1.0.0",
+  "description": "Source code for the application and database layers.",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeamTuringCOS301/back-end.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/TeamTuringCOS301/back-end/issues"
+  },
+  "homepage": "https://github.com/TeamTuringCOS301/back-end#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mysql": "^2.15.0",
+    "truffle-contract": "^3.0.4",
+    "web3": "^1.0.0-beta.33"
+  },
+  "devDependencies": {
+    "mocha": "^5.1.0",
+    "supertest": "^3.0.0"
+  }
+}

@@ -10,6 +10,7 @@ module.exports = db => {
 		}
 		req.body.password = await bcrypt.hash(req.body.password, 10);
 		const id = await db.addUser(req.body);
+		console.log(id);
 		let success = false;
 		if(id !== null) {
 			req.session.userId = id + 1;

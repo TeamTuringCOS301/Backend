@@ -1,0 +1,9 @@
+{
+	"cookieSecret": "correcthorsebatterystaple",
+	"mysql": {
+		"host": "localhost",
+		"user": "user",
+		"pass": "pass",
+		"database": "dbERPCoin"
+	}
+}

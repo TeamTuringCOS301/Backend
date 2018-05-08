@@ -43,8 +43,9 @@ module.exports = db => {
 		}
 	});
 
-	api.get("/test", (req, res) => {
-		res.send("hello, world");
+	api.get("/logout", (req, res) => {
+		req.session.userId = undefined;
+		res.send({success: true});
 	});
 
 	return api;

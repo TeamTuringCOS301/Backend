@@ -1,4 +1,5 @@
 const admin = require("./admin-api.js");
+const config = require("./config.js");
 const express = require("express");
 const session = require("express-session");
 const user = require("./user-api.js");
@@ -10,7 +11,7 @@ module.exports = db => {
 	app.use(session({ // TODO: set cookie.maxAge and cookie.secure
 		resave: false,
 		saveUninitialized: false,
-		secret: "correcthorsebatterystaple",
+		secret: config.cookieSecret,
 		store: db.sessionStore
 	}));
 

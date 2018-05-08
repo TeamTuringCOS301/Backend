@@ -4,7 +4,8 @@
   "description": "Source code for the application and database layers.",
   "main": "server.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "truffle": "cd token && truffle"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "mocha": "^5.1.0",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "truffle": "^4.1.8"
   }
 }

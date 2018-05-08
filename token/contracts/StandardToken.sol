@@ -12,7 +12,7 @@ contract StandardToken {
 	event Transfer(address indexed from, address indexed to, uint value);
 	event Approval(address indexed owner, address indexed spender, uint value);
 
-	function StandardToken(string n, string s, uint8 d, uint t) public {
+	constructor(string n, string s, uint8 d, uint t) public {
 		name = n;
 		symbol = s;
 		decimals = d;
@@ -33,7 +33,7 @@ contract StandardToken {
 
 	function approve(address spender, uint value) public returns (bool) {
 		allowance[msg.sender][spender] = value;
-		Approval(msg.sender, spender, value);
+		emit Approval(msg.sender, spender, value);
 		return true;
 	}
 
@@ -49,7 +49,7 @@ contract StandardToken {
 		} else {
 			balanceOf[to] += value;
 		}
-		Transfer(from, to, value);
+		emit Transfer(from, to, value);
 		return true;
 	}
 }

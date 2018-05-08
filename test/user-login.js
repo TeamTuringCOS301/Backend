@@ -1,4 +1,5 @@
-const app = require("../server.js");
+const db = require("../src/db-dummy.js");
+const app = require("../src/app.js")(db);
 const request = require("supertest");
 
 describe("user login", function() {

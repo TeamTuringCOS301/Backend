@@ -7,7 +7,12 @@ const db = {
 	sessionStore: new session.MemoryStore(),
 
 	verifyAdmin(json) {
-		return typeof json.username === "string" && typeof json.password === "string";
+		for(let key of ["username", "password", "email", "name", "surname", "cellNumber"]) {
+			if(typeof json[key] !== "string") {
+				return false;
+			}
+		}
+		return true;
 	},
 
 	async addAdmin(json) {
@@ -31,7 +36,12 @@ const db = {
 	},
 
 	verifyUser(json) {
-		return typeof json.username === "string" && typeof json.password === "string";
+		for(let key of ["username", "password", "email", "name", "surname", "cellNumber"]) {
+			if(typeof json[key] !== "string") {
+				return false;
+			}
+		}
+		return true;
 	},
 
 	async addUser(json) {

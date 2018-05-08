@@ -1,6 +1,7 @@
 const admin = require("./admin-api.js");
 const express = require("express");
 const user = require("./user-api.js");
+require("express-async-errors");
 
 module.exports = db => {
 	const app = express();

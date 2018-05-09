@@ -20,8 +20,8 @@ const db = {
 	sessionStore: new Store(config.mysql),
 
 	admin: {
-		verify(info) { // TODO: proper validation
-			for(let key of ["username", "email", "password", "name", "surname", "cellNumber"]) {
+		async verify(info) { // TODO: proper validation
+			for(let key of ["username", "email", "name", "surname", "cellNumber"]) {
 				if(typeof info[key] !== "string") {
 					return false;
 				}
@@ -38,7 +38,7 @@ const db = {
 
 		async find(username) {
 			const results = await query(
-				"SELECT admID from tblAdminUser WHERE admUsername = ?",
+				"SELECT admID FROM tblAdminUser WHERE admUsername = ?",
 				[username]
 			);
 			if(results.length) {
@@ -48,9 +48,17 @@ const db = {
 			}
 		},
 
+		async isSuperAdmin(id) {
+			const results = await query(
+				"SELECT admSuperAdmin FROM tblAdminUser WHERE admID = ?",
+				[id]
+			);
+			return results[0].admSuperAdmin === 1;
+		},
+
 		async getPassword(id) {
 			const results = await query(
-				"SELECT admPassword from tblAdminUser WHERE admID = ?",
+				"SELECT admPassword FROM tblAdminUser WHERE admID = ?",
 				[id]
 			);
 			return results[0].admPassword;
@@ -96,7 +104,7 @@ const db = {
 	},
 
 	user: {
-		verify(info) { // TODO: proper validation
+		async verify(info) { // TODO: proper validation
 			for(let key of ["username", "email", "password", "name", "surname", "cellNumber"]) {
 				if(typeof info[key] !== "string") {
 					return false;
@@ -114,7 +122,7 @@ const db = {
 
 		async find(username) {
 			const results = await query(
-				"SELECT usrID from tblUser WHERE usrUsername = ?",
+				"SELECT usrID FROM tblUser WHERE usrUsername = ?",
 				[username]
 			);
 			if(results.length) {
@@ -126,7 +134,7 @@ const db = {
 
 		async getPassword(id) {
 			const results = await query(
-				"SELECT usrPassword from tblUser WHERE usrID = ?",
+				"SELECT usrPassword FROM tblUser WHERE usrID = ?",
 				[id]
 			);
 			return results[0].usrPassword;

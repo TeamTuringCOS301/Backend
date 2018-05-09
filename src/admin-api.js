@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
+const generator = require("generate-password");
 
 module.exports = db => {
 	const api = express();
@@ -20,7 +21,7 @@ module.exports = db => {
 		res.send({success: false});
 	});
 
-	api.use((req, res, next) => {
+	api.use(async(req, res, next) => {
 		if(typeof req.session.adminId === "number") {
 			req.id = req.session.adminId;
 			next();
@@ -29,7 +30,7 @@ module.exports = db => {
 		}
 	});
 
-	api.get("/logout", (req, res) => {
+	api.get("/logout", async(req, res) => {
 		req.session.adminId = undefined;
 		res.end();
 	});
@@ -59,6 +60,27 @@ module.exports = db => {
 			success = true;
 		}
 		res.send({success});
+	});
+
+	api.use(async(req, res, next) => {
+		if(await db.admin.isSuperAdmin(req.id)) {
+			next();
+		} else {
+			res.sendStatus(401);
+		}
+	});
+
+	api.post("/register", async(req, res) => {
+		if(!await db.admin.verify(req.body)) {
+			return res.sendStatus(400);
+		}
+		if(await db.admin.find(req.body.username) === null) {
+			const password = generator.generate();
+			req.body.password = await bcrypt.hash(password, 10);
+			await db.admin.add(req.body);
+			return res.send({success: true, password});
+		}
+		res.send({success: false});
 	});
 
 	return api;

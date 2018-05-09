@@ -5,17 +5,15 @@ module.exports = db => {
 	const api = express();
 
 	api.post("/register", async(req, res) => {
-		if(!db.user.verify(req.body)) {
+		if(!await db.user.verify(req.body)) {
 			return res.sendStatus(400);
 		}
 		let success = false;
 		if(await db.user.find(req.body.username) === null) {
 			req.body.password = await bcrypt.hash(req.body.password, 10);
-			const id = await db.user.add(req.body);
-			if(id !== null) {
-				req.session.userId = id + 1;
-				success = true;
-			}
+			await db.user.add(req.body);
+			req.session.userId = db.user.find(req.body.username);
+			success = true;
 		}
 		res.send({success});
 	});
@@ -36,7 +34,7 @@ module.exports = db => {
 		res.send({success});
 	});
 
-	api.use((req, res, next) => {
+	api.use(async(req, res, next) => {
 		if(typeof req.session.userId === "number") {
 			req.id = req.session.userId;
 			next();
@@ -45,7 +43,7 @@ module.exports = db => {
 		}
 	});
 
-	api.get("/logout", (req, res) => {
+	api.get("/logout", async(req, res) => {
 		req.session.userId = undefined;
 		res.end();
 	});

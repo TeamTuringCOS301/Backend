@@ -186,3 +186,24 @@ The rest of the API requires that an admin has already logged in.
   old: string
   new: string
   ```
+
+The rest of the API is only available to a super admin.
+
+* `POST /admin/register` - Register a new admin.
+
+  Required request fields:
+
+  ```
+  username: string
+  email: string
+  name: string
+  surname: string
+  cellNumber: string
+  ```
+
+  Response fields:
+
+  ```
+  success: boolean
+  password: string
+  ```

@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
   `admName` VARCHAR(40) NOT NULL,
   `admSurname` VARCHAR(40) NOT NULL,
   `admCellNumber` VARCHAR(20) NULL DEFAULT NULL,
+  `admSuperAdmin` BIT(1) NOT NULL,
   PRIMARY KEY (`admID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;

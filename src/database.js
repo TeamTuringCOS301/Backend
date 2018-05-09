@@ -31,7 +31,7 @@ const db = {
 
 		async add(info) {
 			await query(
-				"INSERT INTO tblAdminUser (admUsername, admEmailAddress, admPassword, admName, admSurname, admCellNumber) VALUES (?, ?, ?, ?, ?, ?)",
+				"INSERT INTO tblAdminUser (admUsername, admEmailAddress, admPassword, admName, admSurname, admCellNumber, admSuperAdmin) VALUES (?, ?, ?, ?, ?, ?, 0)",
 				[info.username, info.email, info.password, info.name, info.surname, info.cellNumber]
 			);
 		},
@@ -54,6 +54,44 @@ const db = {
 				[id]
 			);
 			return results[0].admPassword;
+		},
+
+		async setPassword(id, password) {
+			await query(
+				"UPDATE tblAdminUser SET admPassword = ? WHERE admID = ?",
+				[password, id]
+			);
+		},
+
+		async getInfo(id) {
+			const results = await query(
+				"SELECT admUsername, admEmailAddress, admName, admSurname, admCellNumber FROM tblAdminUser WHERE admID = ?",
+				[id]
+			);
+			return {
+				username: results[0].admUsername,
+				email: results[0].admEmailAddress,
+				name: results[0].admName,
+				surname: results[0].admSurname,
+				cellNumber: results[0].admCellNumber
+			};
+		},
+
+		async updateInfo(id, info) {
+			const fields = {
+				email: "admEmailAddress",
+				name: "admName",
+				surname: "admSurname",
+				cellNumber: "admCellNumber"
+			};
+			for(let key in fields) {
+				if(typeof info[key] === "string") {
+					await query(
+						`UPDATE tblAdminUser SET ${fields[key]} = ? WHERE admID = ?`,
+						[info[key], id]
+					);
+				}
+			}
 		}
 	},
 

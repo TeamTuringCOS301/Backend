@@ -140,8 +140,49 @@ The rest of the API requires that a user has already logged in.
 
   ```
   success: boolean
+  superAdmin: boolean
   ```
 
 The rest of the API requires that an admin has already logged in.
 
 * `GET /admin/logout` - Terminate a login session.
+
+* `GET /admin/super` - Query whether the current admin may add other admins.
+
+  Response fields:
+
+  ```
+  superAdmin: boolean
+  ```
+
+* `GET /admin/info` - Request the information stored for the current admin.
+
+  Response fields:
+
+  ```
+  username: string
+  email: string
+  name: string
+  surname: string
+  cellNumber: string
+  ```
+
+* `POST /admin/info` - Update the information stored for the current admin.
+
+  Optional request fields:
+
+  ```
+  email: string
+  name: string
+  surname: string
+  cellNumber: string
+  ```
+
+* `POST /admin/password` - Change password.
+
+  Required request fields:
+
+  ```
+  old: string
+  new: string
+  ```

@@ -1,9 +1,11 @@
 {
+	"apiPort": 8080,
 	"cookieSecret": "correcthorsebatterystaple",
 	"mysql": {
 		"host": "localhost",
 		"user": "user",
 		"pass": "pass",
 		"database": "dbERPCOIN"
-	}
+	},
+	"web3Provider": "http://localhost:9545"
 }

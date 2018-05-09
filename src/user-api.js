@@ -5,15 +5,17 @@ module.exports = db => {
 	const api = express();
 
 	api.post("/register", async(req, res) => {
-		if(!await db.verifyUser(req.body)) {
+		if(!db.user.verify(req.body)) {
 			return res.sendStatus(400);
 		}
-		req.body.password = await bcrypt.hash(req.body.password, 10);
-		const id = await db.addUser(req.body);
 		let success = false;
-		if(id !== null) {
-			req.session.userId = id + 1;
-			success = true;
+		if(await db.user.find(req.body.username) === null) {
+			req.body.password = await bcrypt.hash(req.body.password, 10);
+			const id = await db.user.add(req.body);
+			if(id !== null) {
+				req.session.userId = id + 1;
+				success = true;
+			}
 		}
 		res.send({success});
 	});
@@ -22,10 +24,10 @@ module.exports = db => {
 		if(typeof req.body.username !== "string" || typeof req.body.password !== "string") {
 			return res.sendStatus(400);
 		}
-		const id = await db.findUser(req.body.username);
+		const id = await db.user.find(req.body.username);
 		let success = false;
 		if(id !== null) {
-			const hash = await db.getUserPassword(id);
+			const hash = await db.user.getPassword(id);
 			if(await bcrypt.compare(req.body.password, hash)) {
 				req.session.userId = id;
 				success = true;
@@ -44,7 +46,7 @@ module.exports = db => {
 
 	api.get("/logout", (req, res) => {
 		req.session.userId = undefined;
-		res.send({success: true});
+		res.end();
 	});
 
 	return api;

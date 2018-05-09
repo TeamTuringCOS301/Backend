@@ -38,6 +38,7 @@ module.exports = db => {
 
 	api.use((req, res, next) => {
 		if(typeof req.session.userId === "number") {
+			req.id = req.session.userId;
 			next();
 		} else {
 			res.sendStatus(401);
@@ -47,6 +48,29 @@ module.exports = db => {
 	api.get("/logout", (req, res) => {
 		req.session.userId = undefined;
 		res.end();
+	});
+
+	api.get("/info", async(req, res) => {
+		res.send(await db.user.getInfo(req.id));
+	});
+
+	api.post("/info", async(req, res) => {
+		await db.user.updateInfo(req.id, req.body);
+		res.end();
+	});
+
+	api.post("/password", async(req, res) => {
+		if(typeof req.body.old !== "string" || typeof req.body.new !== "string") {
+			return res.sendStatus(400);
+		}
+		let success = false;
+		let hash = await db.user.getPassword(req.id);
+		if(await bcrypt.compare(req.body.old, hash)) {
+			hash = await bcrypt.hash(req.body.new, 10);
+			await db.user.setPassword(req.id, hash);
+			success = true;
+		}
+		res.send({success});
 	});
 
 	return api;

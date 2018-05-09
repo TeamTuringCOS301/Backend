@@ -49,7 +49,7 @@ Then type `migrate --reset` to deploy the smart contract.
 
 The following APIs are provided over HTTP.
 The content of all `POST` requests should be encoded as JSON.
-Responses will also be given as JSON.
+Responses will also be given as JSON, unless no response fields are listed, in which case the body will be empty.
 Login sessions are managed using cookies.
 
 ### User API
@@ -57,7 +57,7 @@ Login sessions are managed using cookies.
 * `POST /user/register` - Register a new user.
   This will also perform a login.
 
-  Required fields:
+  Required request fields:
 
   ```
   username: string
@@ -76,7 +76,7 @@ Login sessions are managed using cookies.
 
 * `POST /user/login` - Login as an existing user.
 
-  Required fields:
+  Required request fields:
 
   ```
   username: string
@@ -93,13 +93,43 @@ The rest of the API requires that a user has already logged in.
 
 * `GET /user/logout` - Terminate a login session.
 
-  Response fields: none
+* `GET /user/info` - Request the information stored for the current user.
+
+  Response fields:
+
+  ```
+  username: string
+  email: string
+  name: string
+  surname: string
+  cellNumber: string
+  ```
+
+* `POST /user/info` - Update the information stored for the current user.
+
+  Optional request fields:
+
+  ```
+  email: string
+  name: string
+  surname: string
+  cellNumber: string
+  ```
+
+* `POST /user/password` - Change password.
+
+  Required request fields:
+
+  ```
+  old: string
+  new: string
+  ```
 
 ### Admin API
 
 * `POST /admin/login` - Login as an existing admin.
 
-  Required fields:
+  Required request fields:
 
   ```
   username: string
@@ -115,5 +145,3 @@ The rest of the API requires that a user has already logged in.
 The rest of the API requires that an admin has already logged in.
 
 * `GET /admin/logout` - Terminate a login session.
-
-  Response fields: none

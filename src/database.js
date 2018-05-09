@@ -20,19 +20,19 @@ const db = {
 	sessionStore: new Store(config.mysql),
 
 	admin: {
-		verify(json) { // TODO: proper validation
+		verify(info) { // TODO: proper validation
 			for(let key of ["username", "email", "password", "name", "surname", "cellNumber"]) {
-				if(typeof json[key] !== "string") {
+				if(typeof info[key] !== "string") {
 					return false;
 				}
 			}
 			return true;
 		},
 
-		async add(json) {
+		async add(info) {
 			await query(
 				"INSERT INTO tblAdminUser (admUsername, admEmailAddress, admPassword, admName, admSurname, admCellNumber) VALUES (?, ?, ?, ?, ?, ?)",
-				[json.username, json.email, json.password, json.name, json.surname, json.cellNumber]
+				[info.username, info.email, info.password, info.name, info.surname, info.cellNumber]
 			);
 		},
 
@@ -58,19 +58,19 @@ const db = {
 	},
 
 	user: {
-		verify(json) { // TODO: proper validation
+		verify(info) { // TODO: proper validation
 			for(let key of ["username", "email", "password", "name", "surname", "cellNumber"]) {
-				if(typeof json[key] !== "string") {
+				if(typeof info[key] !== "string") {
 					return false;
 				}
 			}
 			return true;
 		},
 
-		async add(json) {
+		async add(info) {
 			await query(
 				"INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname, usrCellNumber) VALUES (?, ?, ?, ?, ?, ?)",
-				[json.username, json.email, json.password, json.name, json.surname, json.cellNumber]
+				[info.username, info.email, info.password, info.name, info.surname, info.cellNumber]
 			);
 		},
 
@@ -92,6 +92,44 @@ const db = {
 				[id]
 			);
 			return results[0].usrPassword;
+		},
+
+		async setPassword(id, password) {
+			await query(
+				"UPDATE tblUser SET usrPassword = ? WHERE usrID = ?",
+				[password, id]
+			);
+		},
+
+		async getInfo(id) {
+			const results = await query(
+				"SELECT usrUsername, usrEmailAddress, usrName, usrSurname, usrCellNumber FROM tblUser WHERE usrID = ?",
+				[id]
+			);
+			return {
+				username: results[0].usrUsername,
+				email: results[0].usrEmailAddress,
+				name: results[0].usrName,
+				surname: results[0].usrSurname,
+				cellNumber: results[0].usrCellNumber
+			};
+		},
+
+		async updateInfo(id, info) {
+			const fields = {
+				email: "usrEmailAddress",
+				name: "usrName",
+				surname: "usrSurname",
+				cellNumber: "usrCellNumber"
+			};
+			for(let key in fields) {
+				if(typeof info[key] === "string") {
+					await query(
+						`UPDATE tblUser SET ${fields[key]} = ? WHERE usrID = ?`,
+						[info[key], id]
+					);
+				}
+			}
 		}
 	}
 };

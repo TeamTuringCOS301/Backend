@@ -22,6 +22,7 @@ module.exports = db => {
 
 	api.use((req, res, next) => {
 		if(typeof req.session.adminId === "number") {
+			req.id = req.session.adminId;
 			next();
 		} else {
 			res.sendStatus(401);

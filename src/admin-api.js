@@ -70,7 +70,7 @@ module.exports = db => {
 		}
 	});
 
-	api.post("/register", async(req, res) => {
+	api.post("/add", async(req, res) => {
 		if(!await db.admin.verify(req.body)) {
 			return res.sendStatus(400);
 		}
@@ -81,6 +81,22 @@ module.exports = db => {
 			return res.send({success: true, password});
 		}
 		res.send({success: false});
+	});
+
+	api.post("/remove", async(req, res) => {
+		if(typeof req.body.username !== "string") {
+			return res.sendStatus(400);
+		}
+		const id = await db.admin.find(req.body.username);
+		let success = false;
+		if(id !== null) {
+			await db.admin.remove(id);
+		}
+		res.send({success});
+	});
+
+	api.get("/list", async(req, res) => {
+		res.send({admins: await db.admin.list()});
 	});
 
 	return api;

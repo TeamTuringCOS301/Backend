@@ -36,6 +36,30 @@ const db = {
 			);
 		},
 
+		async remove(id) {
+			await query(
+				"DELETE FROM tblAdminUser WHERE admID = ?",
+				[id]
+			);
+		},
+
+		async list() {
+			const results = await query(
+				"SELECT admUsername, admEmailAddress, admName, admSurname, admCellNumber FROM tblAdminUser"
+			);
+			const admins = [];
+			for(let admin of results) {
+				admins.push({
+					username: admin.admUsername,
+					email: admin.admEmailAddress,
+					name: admin.admName,
+					surname: admin.admSurname,
+					cellNumber: admin.admCellNumber
+				});
+			}
+			return admins;
+		},
+
 		async find(username) {
 			const results = await query(
 				"SELECT admID FROM tblAdminUser WHERE admUsername = ?",

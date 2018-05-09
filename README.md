@@ -189,7 +189,7 @@ The rest of the API requires that an admin has already logged in.
 
 The rest of the API is only available to a super admin.
 
-* `POST /admin/register` - Register a new admin.
+* `POST /admin/add` - Create a new admin user.
 
   Required request fields:
 
@@ -206,4 +206,30 @@ The rest of the API is only available to a super admin.
   ```
   success: boolean
   password: string
+  ```
+
+* `POST /admin/remove` - Remove an admin user.
+
+  Required request fields:
+
+  ```
+  username: string
+  ```
+
+* `GET /admin/list` - List all non-super admins.
+
+  Response fields:
+
+  ```
+  admins: array
+  ```
+
+  Fields of each element:
+
+  ```
+  username: string
+  email: string
+  name: string
+  surname: string
+  cellNumber: string
   ```

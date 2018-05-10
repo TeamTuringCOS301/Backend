@@ -202,6 +202,87 @@ const db = {
 			}
 		}
 	}
+
+	conservationArea: {
+		async verify(info) { // TODO: proper validation
+			for(let key of ["name", "borderNodeObject", "middlePointCoordinate", "adminName"]) {
+				if(typeof info[key] !== "string") {
+					return false;
+				}
+			}
+			return true;
+		},
+
+		async add(adminId, info) {
+			await query(
+				"INSERT INTO tblConservationArea (conName, conBorderNodeJSONObject, conMiddlePointCoordinate, tblAdminUser_admID) VALUES (?, ?, ?, ?)",
+				[info.name, info.borderNodeObject, info.middlePointCoordinate, info.adminId]
+			);
+		},
+
+		async remove(id) {
+			await query(
+				"DELETE FROM tblConservationArea WHERE conID = ?",
+				[id]
+			);
+		},
+
+		async getAdmin(id) {
+			const results = await query(
+				"SELECT tblAdminUser_admID FROM tblConservationArea WHERE conID = ?",
+				[id]
+			);
+			if(results.length) {
+				return results[0].admID;
+			} else {
+				return null;
+			}
+		},
+
+		async list() {
+			const results = await query(
+				"SELECT conID, conName, conMiddlePointCoordinate FROM tblConservationArea"
+			);
+			const conservationAreas = [];
+			for(let conservationArea of results) {
+				conservationAreas.push({
+					id: conservationArea.conID,
+					name: conservationArea.conName,
+					middlePointCoordinate: conservationArea.conMiddlePointCoordinate
+				});
+			}
+			return conservationAreas;
+		},
+
+		async getInfo(id) {
+			const results = await query(
+				"SELECT conName, conMiddlePointCoordinate, conBorderNodeJSONObject FROM tblConservationArea WHERE conID = ?",
+				[id]
+			);
+			return {
+				name: results[0].conName,
+				middlePointCoordinate: conservationArea.conMiddlePointCoordinate,
+				borderNodeObject: conservationArea.conBorderNodeJSONObject
+			};
+		},
+
+		async updateInfo(id, info) {
+			const fields = {
+				name: "conName",
+				middlePointCoordinate: "conMiddlePointCoordinate",
+				borderNodeObject: "conBorderNodeJSONObject"
+			};
+			for(let key in fields) {
+				if(typeof info[key] === "string") {
+					await query(
+						`UPDATE tblConservationArea SET ${fields[key]} = ? WHERE conID = ?`,
+						[info[key], id]
+					);
+				}
+			}
+		}
+}
+
 };
 
 module.exports = db;

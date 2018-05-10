@@ -40,8 +40,8 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationArea` (
   `conID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `conName` VARCHAR(100) NOT NULL,
-  `conadmIDCreatedBy` INT(11) NOT NULL,
-  `conBorderNodeJSONObject` VARCHAR(1000),
+  `conBorderNodeJSONObject` VARCHAR(1000) NOT NULL,
+  `conMiddlePointCoordinate` VARCHAR(50) NOT NULL,
   `tblAdminUser_admID` INT(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`conID`, `tblAdminUser_admID`),
   INDEX `fk_tblConservationArea_tblAdminUser1_idx` (`tblAdminUser_admID` ASC),
@@ -52,26 +52,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationArea` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
--- Table `dbERPCOIN`.`tblBorderNodeCoordinate`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblBorderNodeCoordinate` (
-  `bncID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `bncCoordinateLongitude` VARCHAR(50) NOT NULL,
-  `bncCoordinateLatitude` VARCHAR(50) NOT NULL,
-  `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`bncID`, `tblConservationArea_conID`),
-  INDEX `fk_tblBorderNodeCoordinate_tblConservationArea_idx` (`tblConservationArea_conID` ASC),
-  CONSTRAINT `fk_tblBorderNodeCoordinate_tblConservationArea`
-    FOREIGN KEY (`tblConservationArea_conID`)
-    REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
 
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblHotspotNodeCoordinate`

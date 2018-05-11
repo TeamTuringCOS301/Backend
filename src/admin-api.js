@@ -22,8 +22,8 @@ module.exports = db => {
 	});
 
 	api.use(async(req, res, next) => {
-		if(typeof req.session.adminId === "number") {
-			req.id = req.session.adminId;
+		if(typeof req.session.adminId === "string") {
+			req.id = parseInt(req.session.adminId);
 			next();
 		} else {
 			res.sendStatus(401);

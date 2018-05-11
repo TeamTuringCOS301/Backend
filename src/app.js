@@ -18,11 +18,13 @@ module.exports = db => {
 		store: db.sessionStore
 	}));
 
-	app.use((req, res, next) => {
-		console.log(`${req.method} ${req.path}`);
-		console.log(req.body);
-		next();
-	});
+	if(!db.disableLogging) {
+		app.use((req, res, next) => {
+			console.log(`${req.method} ${req.path}`);
+			console.log(req.body);
+			next();
+		});
+	}
 
 	app.use("/admin", admin(db));
 	app.use("/area", area(db));

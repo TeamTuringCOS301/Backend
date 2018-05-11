@@ -12,7 +12,7 @@ module.exports = db => {
 		if(await db.user.find(req.body.username) === null) {
 			req.body.password = await bcrypt.hash(req.body.password, 10);
 			await db.user.add(req.body);
-			req.session.userId = db.user.find(req.body.username);
+			req.session.userId = await db.user.find(req.body.username);
 			success = true;
 		}
 		res.send({success});
@@ -35,8 +35,8 @@ module.exports = db => {
 	});
 
 	api.use(async(req, res, next) => {
-		if(typeof req.session.userId === "number") {
-			req.id = req.session.userId;
+		if(typeof req.session.userId === "string") {
+			req.id = parseInt(req.session.userId);
 			next();
 		} else {
 			res.sendStatus(401);

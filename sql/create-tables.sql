@@ -33,27 +33,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
--- -----------------------------------------------------
--- Table `dbERPCOIN`.`tblAlert`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
-	`aleID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`aleHeader` VARCHAR(30) NOT NULL,
-    `aleDescription` VARCHAR(100) NOT NULL,
-    `aleSeverity` INT(10) UNSIGNED NOT NULL,
-    `aleImage` BLOB ,
-    `aleLocation` VARCHAR(50) NOT NULL,
-    `tblUser_usrID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`aleID`, `tblUser_usrID`),
-  INDEX `fk_tblAlert_tblUser1_idx` (`tblUser_usrID` ASC),
-  CONSTRAINT `fk_tblAlert_tblUser1`
-    FOREIGN KEY (`tblUser_usrID`)
-    REFERENCES `dbERPCOIN`.`tblUser` (`usrID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
 
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblConservationArea`
@@ -63,6 +42,8 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationArea` (
   `conName` VARCHAR(100) NOT NULL,
   `conBorderNodeJSONObject` VARCHAR(1000) NOT NULL,
   `conMiddlePointCoordinate` VARCHAR(50) NOT NULL,
+  `conCity` VARCHAR(30) NOT NULL,
+  `conProvince` VARCHAR(30) NOT NULL,
   `tblAdminUser_admID` INT(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`conID`, `tblAdminUser_admID`),
   INDEX `fk_tblConservationArea_tblAdminUser1_idx` (`tblAdminUser_admID` ASC),
@@ -106,10 +87,32 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblUser` (
   `usrName` VARCHAR(40) NOT NULL,
   `usrSurname` VARCHAR(40) NOT NULL,
   `usrCellNumber` VARCHAR(20) NOT NULL,
+  `usrWalletAddress` varchar(50) NOT NULL,
   PRIMARY KEY (`usrID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+
+-- -----------------------------------------------------
+-- Table `dbERPCOIN`.`tblAlert`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
+	`aleID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`aleHeader` VARCHAR(30) NOT NULL,
+    `aleDescription` VARCHAR(100) NOT NULL,
+    `aleSeverity` INT(10) UNSIGNED NOT NULL,
+    `aleImage` BLOB ,
+    `aleLocation` VARCHAR(50) NOT NULL,
+    `tblUser_usrID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`aleID`, `tblUser_usrID`),
+  INDEX `fk_tblAlert_tblUser1_idx` (`tblUser_usrID` ASC),
+  CONSTRAINT `fk_tblAlert_tblUser1`
+    FOREIGN KEY (`tblUser_usrID`)
+    REFERENCES `dbERPCOIN`.`tblUser` (`usrID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
 
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblVehicle`
@@ -119,25 +122,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblVehicle` (
   `vehRegistrationNumber` VARCHAR(50) NOT NULL,
   `vehModel` VARCHAR(50) NULL DEFAULT NULL,
   PRIMARY KEY (`vehID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
--- Table `dbERPCOIN`.`tblWallet`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblWallet` (
-  `walID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `walDateAdded` DATETIME NOT NULL,
-  `walBalance` INT(11) NOT NULL,
-  `tblUser_usrID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`walID`, `tblUser_usrID`),
-  INDEX `fk_tblWallet_tblUser1_idx` (`tblUser_usrID` ASC),
-  CONSTRAINT `fk_tblWallet_tblUser1`
-    FOREIGN KEY (`tblUser_usrID`)
-    REFERENCES `dbERPCOIN`.`tblUser` (`usrID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 

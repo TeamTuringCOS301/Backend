@@ -4,7 +4,7 @@ const express = require("express");
 module.exports = db => {
 	const api = express();
 
-	api.post("/register", async(req, res) => {
+	api.post("/add", async(req, res) => {
 		if(!await db.user.verify(req.body)) {
 			return res.sendStatus(400);
 		}

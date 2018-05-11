@@ -201,11 +201,11 @@ const db = {
 				}
 			}
 		}
-	}
+	},
 
-	conservationArea: {
+	area: {
 		async verify(info) { // TODO: proper validation
-			for(let key of ["name", "borderNodeObject", "middlePointCoordinate", "adminName"]) {
+			for(let key of ["name", "city", "province"]) {
 				if(typeof info[key] !== "string") {
 					return false;
 				}
@@ -213,10 +213,10 @@ const db = {
 			return true;
 		},
 
-		async add(adminId, info) {
+		async add(info) {
 			await query(
-				"INSERT INTO tblConservationArea (conName, conBorderNodeJSONObject, conMiddlePointCoordinate, tblAdminUser_admID) VALUES (?, ?, ?, ?)",
-				[info.name, info.borderNodeObject, info.middlePointCoordinate, info.adminId]
+				"INSERT INTO tblConservationArea (conName, conCity, conProvince, conBorderNodeJSONObject, conMiddlePointCoordinate, tblAdminUser_admID) VALUES (?, ?, ?, ?, ?, ?)",
+				[info.name, info.city, info.province, info.border, info.middle, info.admin]
 			);
 		},
 
@@ -227,28 +227,38 @@ const db = {
 			);
 		},
 
-		async getAdmin(id) {
+		async find(id) {
 			const results = await query(
-				"SELECT tblAdminUser_admID FROM tblConservationArea WHERE conID = ?",
+				"SELECT conID FROM tblConservationArea WHERE conID = ?",
 				[id]
 			);
 			if(results.length) {
-				return results[0].admID;
+				return results[0].conID;
 			} else {
 				return null;
 			}
 		},
 
+		async getAdmin(id) {
+			const results = await query(
+				"SELECT tblAdminUser_admID FROM tblConservationArea WHERE conID = ?",
+				[id]
+			);
+			return results[0].admID;
+		},
+
 		async list() {
 			const results = await query(
-				"SELECT conID, conName, conMiddlePointCoordinate FROM tblConservationArea"
+				"SELECT conID, conName, conCity, conProvince, conMiddlePointCoordinate FROM tblConservationArea"
 			);
 			const conservationAreas = [];
 			for(let conservationArea of results) {
 				conservationAreas.push({
 					id: conservationArea.conID,
 					name: conservationArea.conName,
-					middlePointCoordinate: conservationArea.conMiddlePointCoordinate
+					city: conservationArea.conCity,
+					province: conservationArea.conProvince,
+					middle: conservationArea.conMiddlePointCoordinate
 				});
 			}
 			return conservationAreas;
@@ -256,21 +266,25 @@ const db = {
 
 		async getInfo(id) {
 			const results = await query(
-				"SELECT conName, conMiddlePointCoordinate, conBorderNodeJSONObject FROM tblConservationArea WHERE conID = ?",
+				"SELECT conName, conCity, conProvince, conMiddlePointCoordinate, conBorderNodeJSONObject FROM tblConservationArea WHERE conID = ?",
 				[id]
 			);
 			return {
 				name: results[0].conName,
-				middlePointCoordinate: conservationArea.conMiddlePointCoordinate,
-				borderNodeObject: conservationArea.conBorderNodeJSONObject
+				city: results[0].conCity,
+				province: results[0].conProvince,
+				middle: results[0].conMiddlePointCoordinate,
+				border: results[0].conBorderNodeJSONObject
 			};
 		},
 
 		async updateInfo(id, info) {
 			const fields = {
 				name: "conName",
-				middlePointCoordinate: "conMiddlePointCoordinate",
-				borderNodeObject: "conBorderNodeJSONObject"
+				city: "conCity",
+				province: "conProvince",
+				middle: "conMiddlePointCoordinate",
+				border: "conBorderNodeJSONObject"
 			};
 			for(let key in fields) {
 				if(typeof info[key] === "string") {
@@ -280,9 +294,14 @@ const db = {
 					);
 				}
 			}
+			if(typeof info.admin === number) {
+				await query(
+					"UPDATE tblConservationArea SET tblAdminUser_admID = ? WHERE conID = ?",
+					[info.admin, id]
+				);
+			}
 		}
-}
-
+	}
 };
 
 module.exports = db;

@@ -1,4 +1,5 @@
 const admin = require("./admin-api.js");
+const area = require("./area-api.js");
 const config = require("./config.js");
 const cors = require("cors");
 const express = require("express");
@@ -18,6 +19,7 @@ module.exports = db => {
 	}));
 
 	app.use("/admin", admin(db));
+	app.use("/area", area(db));
 	app.use("/user", user(db));
 
 	app.use((err, req, res, next) => {

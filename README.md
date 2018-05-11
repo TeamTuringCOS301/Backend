@@ -51,10 +51,11 @@ The following APIs are provided over HTTP.
 The content of all `POST` requests should be encoded as JSON.
 Responses will also be given as JSON, unless no response fields are listed, in which case the body will be empty.
 Login sessions are managed using cookies.
+The type `point` is an object with numeric fields `lat` and `lng`.
 
 ### User API
 
-* `POST /user/register` - Register a new user.
+* `POST /user/add` - Register a new user.
   This will also perform a login.
 
   Required request fields:
@@ -233,3 +234,63 @@ The rest of the API is only available to a super admin.
   surname: string
   cellNumber: string
   ```
+
+### Conservation Area API
+
+* `GET /area/list` - List all conservation areas.
+
+  Response fields:
+
+  ```
+  areas: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: number
+  name: string
+  city: string
+  province: string
+  middle: point
+  ```
+
+* `GET /area/info/:id` - Request information about the area with id `:id`.
+
+  Response fields:
+
+  ```
+  name: string
+  city: string
+  province: string
+  middle: point
+  border: array of points
+  ```
+
+The rest of the API is only available to a super admin.
+
+* `POST /area/info/:id` - Update the information stored for area `:id`.
+
+  Optional request fields:
+
+  ```
+  name: string
+  city: string
+  province: string
+  border: array of points
+  admin: string
+  ```
+
+* `POST /area/add` - Add a new conservation area.
+
+  Required request fields:
+
+  ```
+  name: string
+  city: string
+  province: string
+  border: array of points
+  admin: string
+  ```
+
+* `GET /area/remove/:id` - Remove the conservation area with admin `:id`.

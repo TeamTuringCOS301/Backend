@@ -33,6 +33,27 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+-- -----------------------------------------------------
+-- Table `dbERPCOIN`.`tblAlert`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
+	`aleID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`aleHeader` VARCHAR(30) NOT NULL,
+    `aleDescription` VARCHAR(100) NOT NULL,
+    `aleSeverity` INT(10) UNSIGNED NOT NULL,
+    `aleImage` BLOB ,
+    `aleLocation` VARCHAR(50) NOT NULL,
+    `tblUser_usrID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`aleID`, `tblUser_usrID`),
+  INDEX `fk_tblAlert_tblUser1_idx` (`tblUser_usrID` ASC),
+  CONSTRAINT `fk_tblAlert_tblUser1`
+    FOREIGN KEY (`tblUser_usrID`)
+    REFERENCES `dbERPCOIN`.`tblUser` (`usrID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
 
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblConservationArea`

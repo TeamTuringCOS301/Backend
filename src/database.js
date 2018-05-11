@@ -45,7 +45,7 @@ const db = {
 
 		async list() {
 			const results = await query(
-				"SELECT admUsername, admEmailAddress, admName, admSurname, admCellNumber FROM tblAdminUser"
+				"SELECT admUsername, admEmailAddress, admName, admSurname, admCellNumber FROM tblAdminUser WHERE admSuperAdmin = 0"
 			);
 			const admins = [];
 			for(let admin of results) {
@@ -62,7 +62,7 @@ const db = {
 
 		async find(username) {
 			const results = await query(
-				"SELECT admID FROM tblAdminUser WHERE admUsername = ? AND admSuperAdmin = 0",
+				"SELECT admID FROM tblAdminUser WHERE admUsername = ?",
 				[username]
 			);
 			if(results.length) {

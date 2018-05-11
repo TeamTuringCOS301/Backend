@@ -14,9 +14,10 @@ function verifyBorder(info) {
 	}
 	info.border = JSON.stringify(info.border);
 	info.middle = JSON.stringify({
-		lat: lat / points.length,
-		lng: lng / points.length
+		lat: lat / info.border.length,
+		lng: lng / info.border.length
 	});
+	return true;
 }
 
 module.exports = db => {
@@ -46,14 +47,15 @@ module.exports = db => {
 		res.send(await db.area.getInfo(req.id));
 	});
 
-	api.use(async(req, res, next) => {
-		if(typeof req.session.adminId === "number" && await db.admin.isSuperAdmin(req.session.adminId)) {
-			req.adminId = req.session.adminId;
-			next();
-		} else {
-			res.sendStatus(401);
-		}
-	});
+	// TODO: uncomment
+	// api.use(async(req, res, next) => {
+	// 	if(typeof req.session.adminId === "number" && await db.admin.isSuperAdmin(req.session.adminId)) {
+	// 		req.adminId = req.session.adminId;
+	// 		next();
+	// 	} else {
+	// 		res.sendStatus(401);
+	// 	}
+	// });
 
 	api.post("/info/:id", async(req, res) => {
 		if(typeof req.body.admin === "number") {
@@ -74,7 +76,7 @@ module.exports = db => {
 
 	api.post("/add", async(req, res) => {
 		if(typeof req.body.admin === "string") {
-			req.body.admin = db.admin.find(req.body.admin);
+			req.body.admin = await db.admin.find(req.body.admin);
 			if(req.body.admin !== null && verifyBorder(req.body) && await db.area.verify(req.body)) {
 				await db.area.add(req.body);
 				return res.end();

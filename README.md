@@ -67,6 +67,7 @@ The type `point` is an object with numeric fields `lat` and `lng`.
   name: string
   surname: string
   cellNumber: string
+  walletAddress: string
   ```
 
   Response fields:
@@ -104,6 +105,7 @@ The rest of the API requires that a user has already logged in.
   name: string
   surname: string
   cellNumber: string
+  walletAddress: string
   ```
 
 * `POST /user/info` - Update the information stored for the current user.
@@ -115,6 +117,7 @@ The rest of the API requires that a user has already logged in.
   name: string
   surname: string
   cellNumber: string
+  walletAddress: string
   ```
 
 * `POST /user/password` - Change password.

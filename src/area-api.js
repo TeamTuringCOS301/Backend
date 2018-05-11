@@ -25,7 +25,7 @@ module.exports = db => {
 
 	api.param("id", async(req, res, next, id) => {
 		req.id = parseInt(id);
-		if(isNan(req.id) || await db.area.find(id) === null) {
+		if(isNaN(req.id) || await db.area.find(id) === null) {
 			res.sendStatus(400);
 		} else {
 			next();
@@ -44,6 +44,7 @@ module.exports = db => {
 		const info = await db.area.getInfo(req.id);
 		info.border = JSON.parse(info.border);
 		info.middle = JSON.parse(info.middle);
+
 		res.send(await db.area.getInfo(req.id));
 	});
 

@@ -32,7 +32,7 @@ const db = {
 		},
 
 		async getInfo(id) {
-			return users[id];
+			return {username: users[id].username};
 		},
 
 		async updateInfo(id, info) {
@@ -46,7 +46,7 @@ const assert = require("assert");
 const request = require("supertest");
 
 describe("User API", () => {
-	let agent = request.agent(app);
+	const agent = request.agent(app);
 
 	describe("GET /user/add", () => {
 		it("fails on missing data", (done) => {
@@ -62,12 +62,12 @@ describe("User API", () => {
 				.expect(200, {success: true}, done);
 		});
 
-		it("adds the user to the database", async() => {
-			assert.notEqual(await db.user.find("user"), null);
+		it("adds the user to the database", () => {
+			assert.equal(users[0].username, "user");
 		});
 
-		it("hashes the password", async() => {
-			assert.notEqual(await db.user.getPassword(0), "pass");
+		it("hashes the password", () => {
+			assert.notEqual(users[0].password, "pass");
 		});
 
 		it("sets the session cookie", (done) => {
@@ -136,10 +136,7 @@ describe("User API", () => {
 
 		it("returns the correct information", (done) => {
 			agent.get("/user/info")
-				.expect((res) => {
-					assert.equal(res.body.username, "user");
-				})
-				.expect(200, done);
+				.expect(200, {username: "user"}, done);
 		});
 	});
 
@@ -155,18 +152,18 @@ describe("User API", () => {
 			agent.post("/user/info")
 				.send({username: "new"})
 				.expect(200)
-				.end(async() => {
-					assert.equal((await db.user.getInfo(0)).username, "new");
+				.end(() => {
+					assert.equal(users[0].username, "new");
 					done();
 				});
 		});
 	});
 
-	describe("POST /user/password", (done) => {
+	describe("POST /user/password", () => {
 		it("fails without a login session", (done) => {
 			request(app)
 				.post("/user/password")
-				.send({username: "new"})
+				.send({old: "pass", new: "new"})
 				.expect(401, done);
 		});
 

@@ -89,8 +89,9 @@ module.exports = db => {
 		}
 		const id = await db.admin.find(req.body.username);
 		let success = false;
-		if(id !== null) {
+		if(id !== null && !await db.admin.isSuperAdmin(id)) {
 			await db.admin.remove(id);
+			success = true;
 		}
 		res.send({success});
 	});

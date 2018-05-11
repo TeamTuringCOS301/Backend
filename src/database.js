@@ -62,7 +62,7 @@ const db = {
 
 		async find(username) {
 			const results = await query(
-				"SELECT admID FROM tblAdminUser WHERE admUsername = ?",
+				"SELECT admID FROM tblAdminUser WHERE admUsername = ? AND admSuperAdmin = 0",
 				[username]
 			);
 			if(results.length) {

@@ -50,8 +50,7 @@ module.exports = db => {
 
 	// TODO: uncomment
 	// api.use(async(req, res, next) => {
-	// 	if(typeof req.session.adminId === "number" && await db.admin.isSuperAdmin(req.session.adminId)) {
-	// 		req.adminId = req.session.adminId;
+	// 	if(typeof req.session.adminId === "string" && await db.admin.isSuperAdmin(parseInt(req.session.adminId)) {
 	// 		next();
 	// 	} else {
 	// 		res.sendStatus(401);

@@ -12,11 +12,11 @@ function verifyBorder(info) {
 		lat += point.lat;
 		lng += point.lng;
 	}
-	info.border = JSON.stringify(info.border);
 	info.middle = JSON.stringify({
 		lat: lat / info.border.length,
 		lng: lng / info.border.length
 	});
+	info.border = JSON.stringify(info.border);
 	return true;
 }
 

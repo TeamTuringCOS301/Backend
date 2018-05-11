@@ -40,8 +40,11 @@ const db = {
 		}
 	}
 };
+const config = {
+	cookieSecret: "correcthorsebatterystaple"
+};
 
-const app = require("../src/app.js")(db);
+const app = require("../src/app.js")(config, db);
 const assert = require("assert");
 const request = require("supertest");
 

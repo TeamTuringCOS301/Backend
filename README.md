@@ -66,7 +66,6 @@ The type `point` is an object with numeric fields `lat` and `lng`.
   password: string
   name: string
   surname: string
-  cellNumber: string
   walletAddress: string
   ```
 
@@ -104,7 +103,6 @@ The rest of the API requires that a user has already logged in.
   email: string
   name: string
   surname: string
-  cellNumber: string
   walletAddress: string
   ```
 
@@ -116,7 +114,6 @@ The rest of the API requires that a user has already logged in.
   email: string
   name: string
   surname: string
-  cellNumber: string
   walletAddress: string
   ```
 
@@ -168,7 +165,6 @@ The rest of the API requires that an admin has already logged in.
   email: string
   name: string
   surname: string
-  cellNumber: string
   ```
 
 * `POST /admin/info` - Update the information stored for the current admin.
@@ -179,7 +175,6 @@ The rest of the API requires that an admin has already logged in.
   email: string
   name: string
   surname: string
-  cellNumber: string
   ```
 
 * `POST /admin/password` - Change password.
@@ -202,7 +197,6 @@ The rest of the API is only available to a super admin.
   email: string
   name: string
   surname: string
-  cellNumber: string
   ```
 
   Response fields:
@@ -235,7 +229,6 @@ The rest of the API is only available to a super admin.
   email: string
   name: string
   surname: string
-  cellNumber: string
   ```
 
 ### Conservation Area API

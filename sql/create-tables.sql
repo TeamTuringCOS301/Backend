@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
   `admPassword` VARCHAR(60) NOT NULL,
   `admName` VARCHAR(40) NOT NULL,
   `admSurname` VARCHAR(40) NOT NULL,
-  `admCellNumber` VARCHAR(20) NULL DEFAULT NULL,
   `admSuperAdmin` BIT(1) NOT NULL,
   PRIMARY KEY (`admID`))
 ENGINE = InnoDB
@@ -86,7 +85,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblUser` (
   `usrPassword` VARCHAR(60) NOT NULL,
   `usrName` VARCHAR(40) NOT NULL,
   `usrSurname` VARCHAR(40) NOT NULL,
-  `usrCellNumber` VARCHAR(20) NOT NULL,
   `usrWalletAddress` varchar(50) NOT NULL,
   PRIMARY KEY (`usrID`))
 ENGINE = InnoDB

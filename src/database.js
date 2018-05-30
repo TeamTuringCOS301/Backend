@@ -21,7 +21,7 @@ const db = {
 
 	admin: {
 		async verify(info) { // TODO: proper validation
-			for(let key of ["username", "email", "name", "surname", "cellNumber"]) {
+			for(let key of ["username", "email", "name", "surname"]) {
 				if(typeof info[key] !== "string") {
 					return false;
 				}
@@ -31,8 +31,8 @@ const db = {
 
 		async add(info) {
 			await query(
-				"INSERT INTO tblAdminUser (admUsername, admEmailAddress, admPassword, admName, admSurname, admCellNumber, admSuperAdmin) VALUES (?, ?, ?, ?, ?, ?, 0)",
-				[info.username, info.email, info.password, info.name, info.surname, info.cellNumber]
+				"INSERT INTO tblAdminUser (admUsername, admEmailAddress, admPassword, admName, admSurname, admSuperAdmin) VALUES (?, ?, ?, ?, ?, 0)",
+				[info.username, info.email, info.password, info.name, info.surname]
 			);
 		},
 
@@ -45,7 +45,7 @@ const db = {
 
 		async list() {
 			const results = await query(
-				"SELECT admUsername, admEmailAddress, admName, admSurname, admCellNumber FROM tblAdminUser WHERE admSuperAdmin = 0"
+				"SELECT admUsername, admEmailAddress, admName, admSurname FROM tblAdminUser WHERE admSuperAdmin = 0"
 			);
 			const admins = [];
 			for(let admin of results) {
@@ -54,7 +54,6 @@ const db = {
 					email: admin.admEmailAddress,
 					name: admin.admName,
 					surname: admin.admSurname,
-					cellNumber: admin.admCellNumber
 				});
 			}
 			return admins;
@@ -97,7 +96,7 @@ const db = {
 
 		async getInfo(id) {
 			const results = await query(
-				"SELECT admUsername, admEmailAddress, admName, admSurname, admCellNumber FROM tblAdminUser WHERE admID = ?",
+				"SELECT admUsername, admEmailAddress, admName, admSurname FROM tblAdminUser WHERE admID = ?",
 				[id]
 			);
 			return {
@@ -105,7 +104,6 @@ const db = {
 				email: results[0].admEmailAddress,
 				name: results[0].admName,
 				surname: results[0].admSurname,
-				cellNumber: results[0].admCellNumber
 			};
 		},
 
@@ -114,7 +112,6 @@ const db = {
 				email: "admEmailAddress",
 				name: "admName",
 				surname: "admSurname",
-				cellNumber: "admCellNumber"
 			};
 			for(let key in fields) {
 				if(typeof info[key] === "string") {
@@ -129,7 +126,7 @@ const db = {
 
 	user: {
 		async verify(info) { // TODO: proper validation
-			for(let key of ["username", "email", "password", "name", "surname", "cellNumber", "walletAddress"]) {
+			for(let key of ["username", "email", "password", "name", "surname", "walletAddress"]) {
 				if(typeof info[key] !== "string") {
 					return false;
 				}
@@ -139,8 +136,8 @@ const db = {
 
 		async add(info) {
 			await query(
-				"INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname, usrCellNumber, usrWalletAddress) VALUES (?, ?, ?, ?, ?, ?, ?)",
-				[info.username, info.email, info.password, info.name, info.surname, info.cellNumber, info.walletAddress]
+				"INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname, usrWalletAddress) VALUES (?, ?, ?, ?, ?, ?)",
+				[info.username, info.email, info.password, info.name, info.surname, info.walletAddress]
 			);
 		},
 
@@ -173,7 +170,7 @@ const db = {
 
 		async getInfo(id) {
 			const results = await query(
-				"SELECT usrUsername, usrEmailAddress, usrName, usrSurname, usrCellNumber, usrWalletAddress FROM tblUser WHERE usrID = ?",
+				"SELECT usrUsername, usrEmailAddress, usrName, usrSurname, usrWalletAddress FROM tblUser WHERE usrID = ?",
 				[id]
 			);
 			return {
@@ -181,7 +178,6 @@ const db = {
 				email: results[0].usrEmailAddress,
 				name: results[0].usrName,
 				surname: results[0].usrSurname,
-				cellNumber: results[0].usrCellNumber,
 				walletAddress: results[0].usrWalletAddress
 			};
 		},
@@ -191,7 +187,6 @@ const db = {
 				email: "usrEmailAddress",
 				name: "usrName",
 				surname: "usrSurname",
-				cellNumber: "usrCellNumber",
 				walletAddress: "usrWalletAddress",
 			};
 			for(let key in fields) {

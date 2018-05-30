@@ -2,6 +2,7 @@ const admin = require("./admin-api.js");
 const area = require("./area-api.js");
 const cors = require("cors");
 const express = require("express");
+const point = require("./point-api.js");
 const session = require("express-session");
 const user = require("./user-api.js");
 require("express-async-errors");
@@ -27,6 +28,7 @@ module.exports = (config, db) => {
 
 	app.use("/admin", admin(db));
 	app.use("/area", area(db));
+	app.use("/point", point(db));
 	app.use("/user", user(db));
 
 	app.use((err, req, res, next) => {

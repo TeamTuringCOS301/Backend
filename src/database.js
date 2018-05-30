@@ -197,6 +197,14 @@ const db = {
 					);
 				}
 			}
+		},
+
+		async getLatestTime(id){
+			const result= await query(
+				'SELECT usrLastPointTime FROM tblUser WHERE userID=?',
+				[id]
+			);
+			return result[0].usrLastPointTime;
 		}
 	},
 
@@ -297,6 +305,31 @@ const db = {
 					[info.admin, id]
 				);
 			}
+		}
+	},
+
+	point:{
+		async getNumPoints(id,point) {
+			const results = await query(
+				`SELECT
+					2 * 3961 * asin(sqrt((sin(radians((? - cupLocationLatitude) / 2))) ^ 2
+					+ cos(radians(cupLocationLatitude)) * cos(radians(?)) * (sin(radians((? - cupLocationLongitude) / 2))) ^ 2)) as distance
+					FROM tblConservationAreaUserPoints
+					WHERE conID=? AND distance<100`,
+				[point.lat,point.lat,point.lng,id]
+			);
+			return results.length;
+		},
+
+		async add(point,userId,conId,time){
+			await query(
+				'UPDATE tblUser SET usrLastPointTime=? WHERE usrID=?'
+			,[time,userId]);
+
+			await query(
+				'INSERT INTO tblConservationAreaUserPoints VALUES(?,?,?,?)',
+				[time,point.lat,point.lng,conId]
+			);
 		}
 	}
 };

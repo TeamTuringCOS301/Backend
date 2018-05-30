@@ -296,4 +296,4 @@ The rest of the API is only available to a super admin.
   admin: string
   ```
 
-* `GET /area/remove/:id` - Remove the conservation area with admin `:id`.
+* `GET /area/remove/:id` - Remove the conservation area with id `:id`.

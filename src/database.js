@@ -136,7 +136,7 @@ const db = {
 
 		async add(info) {
 			await query(
-				"INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname, usrWalletAddress) VALUES (?, ?, ?, ?, ?, ?)",
+				"INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname, usrWalletAddress, usrLastPointTime) VALUES (?, ?, ?, ?, ?, ?, 0)",
 				[info.username, info.email, info.password, info.name, info.surname, info.walletAddress]
 			);
 		},

@@ -86,14 +86,8 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblUser` (
   `usrName` VARCHAR(40) NOT NULL,
   `usrSurname` VARCHAR(40) NOT NULL,
   `usrWalletAddress` varchar(50) NOT NULL,
-  `tblConservationAreaUserPoints_cupID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`usrID`, `tblConservationAreaUserPoints_cupID`),
-  INDEX `fk_tblUser_tblConservationAreaUserPoint1_idx` (`tblConservationAreaUserPoint_cupID` ASC),
-  CONSTRAINT `fk_tblUser_tblConservationAreaUserPoint1`
-    FOREIGN KEY (`tblConservationAreaUserPoints_cupID`)
-    REFERENCES `dbERPCOIN`.`tblConservationAreaUserPoint` (`cupID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  `usrLastPointTime` BIGINT NOT NULL,
+  PRIMARY KEY (`usrID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 

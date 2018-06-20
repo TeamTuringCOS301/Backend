@@ -53,11 +53,12 @@ module.exports = db => {
 
 	api.post("/add/:id", async(req, res) => {
 		const currentTime= new Date().getTime();
-		const userLatestTime=await db.user.getLatestTime(req.userId);
-		if(currentTime-userLatestTime<60000){
-			 res.sendStatus(400);
-			 return;
-		}
+		//Change back to req.userId
+		const userLatestTime=await db.user.getLatestTime(1);
+			//if(currentTime-userLatestTime<10000){
+			 	//res.sendStatus(400);
+			 	//return;
+			//}
 
 		const numPoints= await db.point.getNumPoints(req.body);
 		const prob= 0.07*Math.exp(-numPoints*0.001);
@@ -65,10 +66,10 @@ module.exports = db => {
 		let coin=false;
 		if(Math.random()<prob){
 			//TODO: Award coin
-			result=true;
+			coin=true;
 		}
-
-		await db.point.add(req.body,req.userId,req.id,currentTime);
+		//Change back to req.userId
+		await db.point.add(req.body,1,req.id,currentTime);
 
 		res.send({coin});
 	});

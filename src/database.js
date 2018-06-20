@@ -201,7 +201,7 @@ const db = {
 
 		async getLatestTime(id){
 			const result= await query(
-				'SELECT usrLastPointTime FROM tblUser WHERE userID=?',
+				'SELECT usrLastPointTime FROM tblUser WHERE usrID=?',
 				[id]
 			);
 			return result[0].usrLastPointTime;
@@ -310,15 +310,16 @@ const db = {
 
 	point:{
 		async getNumPoints(id,point) {
-			const results = await query(
+			/*const results = await query(
 				`SELECT
 					2 * 3961 * asin(sqrt((sin(radians((? - cupLocationLatitude) / 2))) ^ 2
 					+ cos(radians(cupLocationLatitude)) * cos(radians(?)) * (sin(radians((? - cupLocationLongitude) / 2))) ^ 2)) as distance
 					FROM tblConservationAreaUserPoints
 					WHERE conID=? AND distance<100`,
 				[point.lat,point.lat,point.lng,id]
-			);
-			return results.length;
+			);*/
+			//return results.length;
+			return 0;
 		},
 
 		async add(point,userId,conId,time){
@@ -327,7 +328,7 @@ const db = {
 			,[time,userId]);
 
 			await query(
-				'INSERT INTO tblConservationAreaUserPoints VALUES(?,?,?,?)',
+				'INSERT INTO tblConservationAreaUserPoints (cupDateTime,cupLocationLatitude,cupLocationLongitude,tblConservationArea_conID) VALUES(?,?,?,?)',
 				[time,point.lat,point.lng,conId]
 			);
 		}

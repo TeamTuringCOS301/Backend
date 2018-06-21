@@ -76,7 +76,7 @@ const db = {
 				"SELECT admSuperAdmin FROM tblAdminUser WHERE admID = ?",
 				[id]
 			);
-			return results[0].admSuperAdmin === 1;
+			return results[0].admSuperAdmin[0] === 1;
 		},
 
 		async getPassword(id) {

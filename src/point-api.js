@@ -57,8 +57,7 @@ module.exports = db => {
 		}
 
 		const currentTime= new Date().getTime();
-		//Change back to req.userId
-		const userLatestTime=await db.user.getLatestTime(1);
+		const userLatestTime=await db.user.getLatestTime(req.userId);
 		if(currentTime-userLatestTime<10000){
 			 res.sendStatus(400);
 			 return;
@@ -72,8 +71,7 @@ module.exports = db => {
 			//TODO: Award coin
 			coin=true;
 		}
-		//Change back to req.userId
-		await db.point.add(req.body,1,req.id,currentTime);
+		await db.point.add(req.body,req.userId,req.id,currentTime);
 
 		res.send({coin});
 	});

@@ -188,6 +188,27 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAreaUserPoints` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+-- -----------------------------------------------------
+-- Table `dbERPCOIN`.`tblConservationAdminStock`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAdminStock` (
+	`casID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `casName` VARCHAR(50) NOT NULL,
+    `casRandValue` INT(10) UNSIGNED NOT NULL,
+    `casDescription` VARCHAR(255) NOT NULL,
+    `casImage` BLOB,
+    `tblAdminUser_admID` INT(10) UNSIGNED NOT NULL,
+	PRIMARY KEY (`casID`, `tblAdminUser_admID`),
+	INDEX `fk_tblConservationAdminStock_tblAdminUser1_idx` (`tblAdminUser_admID` ASC),
+	CONSTRAINT `fk_tblConservationAdminStock_tblAdminUser1`
+	FOREIGN KEY (`tblAdminUser_admID`)
+	REFERENCES `dbERPCOIN`.`tblAdminUser` (`admID`)
+	ON DELETE NO ACTION
+	ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

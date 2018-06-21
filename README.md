@@ -290,3 +290,34 @@ The rest of the API is only available to a super admin.
   ```
 
 * `GET /area/remove/:id` - Remove the conservation area with id `:id`.
+
+### Visited Point API
+
+This API is only available to registered users.
+
+* `GET /point/list/:id` - List the recently visited points in conservation area `:id`.
+
+  Response fields:
+
+  ```
+  points: array of points
+  latest: integer
+  ```
+
+* `GET /point/list/:id/:since` - List the points visited since time `:since` (the `latest` field of a previous a request).
+
+  Response fields:
+
+  ```
+  points: array of points
+  latest: integer
+  ```
+
+* `POST /point/add/:id` - Report the user's current location in conservation area `:id`.
+  This will sometimes award the user a coin, but can only be used at limited intervals.
+
+  Response fields:
+
+  ```
+  coin: boolean
+  ```

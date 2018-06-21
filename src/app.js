@@ -9,7 +9,7 @@ require("express-async-errors");
 
 module.exports = (config, db) => {
 	const app = express();
-	app.use(cors());
+	app.use(cors({origin: true, credentials: true}));
 	app.use(express.json());
 	app.use(session({ // TODO: set cookie.maxAge and cookie.secure
 		resave: false,

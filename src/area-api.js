@@ -48,14 +48,13 @@ module.exports = db => {
 		res.send(await db.area.getInfo(req.id));
 	});
 
-	// TODO: uncomment
-	// api.use(async(req, res, next) => {
-	// 	if(typeof req.session.adminId === "string" && await db.admin.isSuperAdmin(parseInt(req.session.adminId)) {
-	// 		next();
-	// 	} else {
-	// 		res.sendStatus(401);
-	// 	}
-	// });
+	api.use(async(req, res, next) => {
+		if("adminId" in req.session && await db.admin.isSuperAdmin(parseInt(req.session.adminId))) {
+			next();
+		} else {
+			res.sendStatus(401);
+		}
+	});
 
 	api.post("/info/:id", async(req, res) => {
 		if(typeof req.body.admin === "number") {

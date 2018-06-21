@@ -21,15 +21,14 @@ module.exports = db => {
 		}
 	});
 
-	// TODO: uncomment
-	// api.use(async(req, res, next) => {
-	// 	if(typeof req.session.userId === "string") {
-	// 		req.userId=parseInt(req.session.userId);
-	// 		next();
-	// 	} else {
-	// 		res.sendStatus(401);
-	// 	}
-	// });
+	api.use(async(req, res, next) => {
+		if("userId" in req.session) {
+			req.userId=parseInt(req.session.userId);
+			next();
+		} else {
+			res.sendStatus(401);
+		}
+	});
 
 	api.get("/list/:id", async(req, res) => {
 		const points = await db.point.list(req.id);

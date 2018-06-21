@@ -21,15 +21,14 @@ module.exports = db => {
 		res.send({success: false});
 	});
 
-	// TODO: uncomment
-	// api.use(async(req, res, next) => {
-	// 	if(typeof req.session.adminId === "string") {
-	// 		req.id = parseInt(req.session.adminId);
-	// 		next();
-	// 	} else {
-	// 		res.sendStatus(401);
-	// 	}
-	// });
+	api.use(async(req, res, next) => {
+		if("adminId" in req.session) {
+			req.id = parseInt(req.session.adminId);
+			next();
+		} else {
+			res.sendStatus(401);
+		}
+	});
 
 	api.get("/logout", async(req, res) => {
 		req.session.adminId = undefined;

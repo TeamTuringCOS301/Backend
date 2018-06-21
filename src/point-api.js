@@ -21,16 +21,6 @@ module.exports = db => {
 		}
 	});
 
-	// TODO: uncomment
-	// api.use(async(req, res, next) => {
-	// 	if(typeof req.session.userId === "string") {
-	// 		req.userId=parseInt(req.session.userId);
-	// 		next();
-	// 	} else {
-	// 		res.sendStatus(401);
-	// 	}
-	// });
-
 	api.get("/list/:id", async(req, res) => {
 		const points = await db.point.list(req.id);
 		let latest=0;
@@ -51,7 +41,21 @@ module.exports = db => {
 		res.send({points,latest});
 	});
 
+	api.use(async(req, res, next) => {
+		if("userId" in req.session) {
+			req.userId=parseInt(req.session.userId);
+			next();
+		} else {
+			res.sendStatus(401);
+		}
+	});
+
 	api.post("/add/:id", async(req, res) => {
+		// TODO: Confirm that point is in conservation area.
+		if(typeof req.body.lat !== "number" || typeof req.body.lng !== "number") {
+			return res.sendStatus(400);
+		}
+
 		const currentTime= new Date().getTime();
 		//Change back to req.userId
 		const userLatestTime=await db.user.getLatestTime(1);

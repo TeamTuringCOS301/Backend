@@ -290,3 +290,122 @@ The rest of the API is only available to a super admin.
   ```
 
 * `GET /area/remove/:id` - Remove the conservation area with id `:id`.
+
+### Visited Point API
+
+* `GET /point/list/:id` - List the recently visited points in conservation area `:id`.
+
+  Response fields:
+
+  ```
+  points: array of points
+  latest: integer
+  ```
+
+* `GET /point/list/:id/:since` - List the points visited since time `:since` (the `latest` field of a previous a request).
+
+  Response fields:
+
+  ```
+  points: array of points
+  latest: integer
+  ```
+
+The rest of the API is only available to a registered user.
+
+* `POST /point/add/:id` - Report the user's current location in conservation area `:id`.
+  This will sometimes award the user a coin, but can only be used at limited intervals.
+
+  Response fields:
+
+  ```
+  coin: boolean
+  ```
+
+### Reward Store API
+
+* `GET /reward/list` - List available awards.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  coinValue: integer
+  ```
+
+The rest of the API is only available to an admin.
+
+* `POST /reward/add` - Suggest a new reward.
+
+  Required request fields:
+
+  ```
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  ```
+
+* `GET /reward/remove/:id` - Remove the reward with id `:id`.
+
+* `GET /reward/list/own` - List rewards added by this user.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  coinValue: integer
+  verified: boolean
+  ```
+
+The rest of the API is only available to a super admin.
+
+* `GET /reward/list/new` - List rewards that have not yet been verified.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  ```
+
+* `POST /reward/verify/:id` - Verify a suggested reward and set its coin value.
+
+  Required request fields:
+
+  ```
+  coinValue: integer
+  ```

@@ -51,6 +51,11 @@ module.exports = db => {
 	});
 
 	api.post("/add/:id", async(req, res) => {
+		// TODO: Confirm that point is in conservation area.
+		if(typeof req.body.lat !== "number" || typeof req.body.lng !== "number") {
+			return res.sendStatus(400);
+		}
+
 		const currentTime= new Date().getTime();
 		//Change back to req.userId
 		const userLatestTime=await db.user.getLatestTime(1);

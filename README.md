@@ -293,8 +293,6 @@ The rest of the API is only available to a super admin.
 
 ### Visited Point API
 
-This API is only available to registered users.
-
 * `GET /point/list/:id` - List the recently visited points in conservation area `:id`.
 
   Response fields:
@@ -312,6 +310,8 @@ This API is only available to registered users.
   points: array of points
   latest: integer
   ```
+
+The rest of the API is only available to a registered user.
 
 * `POST /point/add/:id` - Report the user's current location in conservation area `:id`.
   This will sometimes award the user a coin, but can only be used at limited intervals.

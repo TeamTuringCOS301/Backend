@@ -21,15 +21,6 @@ module.exports = db => {
 		}
 	});
 
-	api.use(async(req, res, next) => {
-		if("userId" in req.session) {
-			req.userId=parseInt(req.session.userId);
-			next();
-		} else {
-			res.sendStatus(401);
-		}
-	});
-
 	api.get("/list/:id", async(req, res) => {
 		const points = await db.point.list(req.id);
 		let latest=0;
@@ -48,6 +39,15 @@ module.exports = db => {
 			point.time=undefined;
 		}
 		res.send({points,latest});
+	});
+
+	api.use(async(req, res, next) => {
+		if("userId" in req.session) {
+			req.userId=parseInt(req.session.userId);
+			next();
+		} else {
+			res.sendStatus(401);
+		}
 	});
 
 	api.post("/add/:id", async(req, res) => {

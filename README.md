@@ -321,3 +321,91 @@ The rest of the API is only available to a registered user.
   ```
   coin: boolean
   ```
+
+### Reward Store API
+
+* `GET /reward/list` - List available awards.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  coinValue: integer
+  ```
+
+The rest of the API is only available to an admin.
+
+* `POST /reward/add` - Suggest a new reward.
+
+  Required request fields:
+
+  ```
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  ```
+
+* `GET /reward/remove/:id` - Remove the reward with id `:id`.
+
+* `GET /reward/list/own` - List rewards added by this user.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  coinValue: integer
+  verified: boolean
+  ```
+
+The rest of the API is only available to a super admin.
+
+* `GET /reward/list/new` - List rewards that have not yet been verified.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  ```
+
+* `POST /reward/verify/:id` - Verify a suggested reward and set its coin value.
+
+  Required request fields:
+
+  ```
+  coinValue: integer
+  ```

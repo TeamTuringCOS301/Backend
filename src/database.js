@@ -310,16 +310,33 @@ const db = {
 
 	point:{
 		async getNumPoints(id,point) {
-			/*const results = await query(
-				`SELECT
-					2 * 3961 * asin(sqrt((sin(radians((? - cupLocationLatitude) / 2))) ^ 2
-					+ cos(radians(cupLocationLatitude)) * cos(radians(?)) * (sin(radians((? - cupLocationLongitude) / 2))) ^ 2)) as distance
-					FROM tblConservationAreaUserPoints
-					WHERE conID=? AND distance<100`,
-				[point.lat,point.lat,point.lng,id]
-			);*/
-			//return results.length;
-			return 0;
+			const results = await query(
+				`SELECT a,tblConservationArea_conID FROM (SELECT
+					sin(radians(cupLocationLatitude-?)/2)*sin(radians(cupLocationLatitude-?)/2)+
+    			cos(radians(?))*cos(radians(cupLocationLatitude))*
+					sin(radians(cupLocationLongitude-?)/2)*sin(radians(cupLocationLongitude-?)/2) as a,tblConservationArea_conID
+					FROM tblConservationAreaUserPoints) AS alias
+					WHERE alias.tblConservationArea_conID=? AND 6371*2*atan(sqrt(alias.a),sqrt(1-alias.a))<100`,
+				[point.lat,point.lat,point.lat,point.lng,point.lng,id]
+			);
+			//console.log(6371*2*Math.atan(Math.sqrt(results[0].a),Math.sqrt(1-results[0].a)));
+			return results.length;
+		},
+
+		async checkMaxSize(id){
+			const size = await query(
+				'SELECT * FROM tblConservationAreaUserPoints WHERE tblConservationArea_conID=?'
+			);
+			if(size.length>100){
+				await query(
+					`DELETE FROM tblConservationAreaUserPoints
+					 WHERE cupDateTime IN (
+						 SELECT TOP ? cupDateTime
+						 FROM tblConservationAreaUserPoints
+						 order by cupDateTime DESC
+					 )`,[size.length-100]
+				);
+			}
 		},
 
 		async add(point,userId,conId,time){

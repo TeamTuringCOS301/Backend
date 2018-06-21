@@ -55,12 +55,12 @@ module.exports = db => {
 		const currentTime= new Date().getTime();
 		//Change back to req.userId
 		const userLatestTime=await db.user.getLatestTime(1);
-			//if(currentTime-userLatestTime<10000){
-			 	//res.sendStatus(400);
-			 	//return;
-			//}
+		if(currentTime-userLatestTime<10000){
+			 res.sendStatus(400);
+			 return;
+		}
 
-		const numPoints= await db.point.getNumPoints(req.body);
+		const numPoints= await db.point.getNumPoints(req.id,req.body);
 		const prob= 0.07*Math.exp(-numPoints*0.001);
 
 		let coin=false;

@@ -5,7 +5,7 @@ module.exports = (db) => {
 
 	api.param("id", async(req, res, next, id) => {
 		req.id = parseInt(id);
-		if(isNaN(req.id) || await db.stock.find(id) === null) {
+		if(isNaN(req.id) || await db.reward.find(id) === null) {
 			res.sendStatus(400);
 		} else {
 			next();

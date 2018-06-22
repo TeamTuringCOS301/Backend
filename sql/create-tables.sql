@@ -61,7 +61,14 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
   `admName` VARCHAR(40) NOT NULL,
   `admSurname` VARCHAR(40) NOT NULL,
   `admSuperAdmin` BIT(1) NOT NULL,
-  PRIMARY KEY (`admID`))
+  `tblConservationArea_conID` INT(10) UNSIGNED,
+  PRIMARY KEY (`admID`),
+  INDEX `fk_tblAdminUser_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
+  CONSTRAINT `fk_tblAdminUser_tblConservationArea1`
+    FOREIGN KEY (`tblConservationArea_conID`)
+    REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
@@ -81,38 +88,9 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationArea` (
   `conMiddlePointCoordinate` VARCHAR(100) NOT NULL,
   `conCity` VARCHAR(30) NOT NULL,
   `conProvince` VARCHAR(30) NOT NULL,
-  `tblAdminUser_admID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`conID`, `tblAdminUser_admID`),
-  INDEX `fk_tblConservationArea_tblAdminUser1_idx` (`tblAdminUser_admID` ASC),
-  CONSTRAINT `fk_tblConservationArea_tblAdminUser1`
-    FOREIGN KEY (`tblAdminUser_admID`)
-    REFERENCES `dbERPCOIN`.`tblAdminUser` (`admID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`conID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
-
--- -----------------------------------------------------
--- Table `dbERPCOIN`.`tblHotspotNodeCoordinate`
--- -----------------------------------------------------
--- Description: Stores informtion about a ERP conservation area's hotspots
-CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblHotspotNodeCoordinate` (
-  `hncID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `hncCoordinateLongitude` VARCHAR(50) NOT NULL,
-  `hncCoordinateLatitude` VARCHAR(50) NOT NULL,
-  `hncHotLevel` INT(10) UNSIGNED NOT NULL,
-  `hncFrequency` INT(10) UNSIGNED NOT NULL,
-  `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`hncID`, `tblConservationArea_conID`),
-  INDEX `fk_tblHotspotNodeCoordinate_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
-  CONSTRAINT `fk_tblHotspotNodeCoordinate_tblConservationArea1`
-    FOREIGN KEY (`tblConservationArea_conID`)
-    REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
 
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblUser`
@@ -133,7 +111,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblUser` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
-
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblAlert`
 -- -----------------------------------------------------
@@ -153,17 +130,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
     REFERENCES `dbERPCOIN`.`tblUser` (`usrID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
--- -----------------------------------------------------
--- Table `dbERPCOIN`.`tblVehicle`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblVehicle` (
-  `vehID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `vehRegistrationNumber` VARCHAR(50) NOT NULL,
-  `vehModel` VARCHAR(50) NULL DEFAULT NULL,
-  PRIMARY KEY (`vehID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 

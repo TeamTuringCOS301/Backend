@@ -1,5 +1,5 @@
 const express = require("express");
-const inPolygon = require("./in-polygon.js");
+const inPolygon = require("../in-polygon.js");
 
 module.exports = (db) => {
 	const api = express();

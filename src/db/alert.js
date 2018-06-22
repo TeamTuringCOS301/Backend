@@ -12,11 +12,12 @@ module.exports = (query) => ({
 				return false;
 			}
 		}
-		return [0, 1, 2].includes(info.severity) && (!("image" in info) || isBase64(info.image));
+		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image));
 	},
 
 	async add(info, area, user) {
-		if("image" in info) {
+		console.log("Hello there!");
+		if(info.image) {
 			await query(`
 				INSERT INTO tblAlert (aleHeader, aleDescription, aleSeverity, aleImage,
 					aleBroadcast, aleLocation, tblConservationArea_conID, tblUser_usrID)
@@ -28,7 +29,7 @@ module.exports = (query) => ({
 				INSERT INTO tblAlert (aleHeader, aleDescription, aleSeverity, aleBroadcast,
 					aleLocation, tblUser_usrID)
 				VALUES (?, ?, ?, 0, ?, ?, ?)`,
-				[info.title, info.description, info.severity, JSON.stringify(ale.location), area,
+				[info.title, info.description, info.severity, JSON.stringify(info.location), area,
 					user]);
 		}
 	},

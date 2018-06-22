@@ -13,7 +13,7 @@ npm install
 
 A file named `config.json` must be created.
 See [`config.template.json`] for an example.
-To set up the servers referenced in this file, see the following sections.
+See the following sections for more information on what is required.
 To start the server, run:
 
 ```
@@ -45,9 +45,19 @@ Then type `migrate --reset` to deploy the smart contract.
 
 [Truffle]: http://truffleframework.com/
 
+### TLS Certificate
+
+A self-signed certificate, to be used for testing, can be generated with:
+
+```
+openssl req -new -x509 -out tls-cert.pem -keyout tls-key.pem -nodes -batch
+```
+
+Note that this certificate will have to be added to the browser.
+
 ## APIs
 
-The following APIs are provided over HTTP.
+The following APIs are provided over HTTPS.
 The content of all `POST` requests should be encoded as JSON.
 Responses will also be given as JSON, unless no response fields are listed, in which case the body will be empty.
 Login sessions are managed using cookies.

@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
     FOREIGN KEY (`tblConservationArea_conID`)
     REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   INDEX `fk_tblAlert_tblUser1_idx` (`tblUser_usrID` ASC),
   CONSTRAINT `fk_tblAlert_tblUser1`
     FOREIGN KEY (`tblUser_usrID`)

@@ -36,6 +36,15 @@ module.exports = (query) => ({
 		}
 	},
 
+	async getBorder(id) {
+		const results = await query(`
+			SELECT conBorderNodeJSONObject
+			FROM tblConservationArea
+			WHERE conID = ?`,
+			[id]);
+		return JSON.parse(results[0].conBorderNodeJSONObject);
+	},
+
 	async getAdmin(id) {
 		const results = await query(`
 			SELECT tblAdminUser_admID

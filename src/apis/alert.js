@@ -1,4 +1,5 @@
 const express = require("express");
+const inPolygon = require("./in-polygon.js");
 
 module.exports = (db) => {
 	const api = express();
@@ -26,7 +27,8 @@ module.exports = (db) => {
 				&& await db.area.getAdmin(req.area) === parseInt(req.session.adminId))) {
 			return res.sendStatus(401);
 		}
-		if(!await db.alert.verify(req.body)) {
+		if(!await db.alert.verify(req.body)
+				|| !inPolygon(req.body.location, await db.area.getBorder(req.area))) {
 			return res.sendStatus(400);
 		}
 		await db.alert.add(req.body, req.area, parseInt(req.session.userId));

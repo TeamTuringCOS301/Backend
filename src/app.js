@@ -22,7 +22,7 @@ module.exports = (config, db) => {
 		});
 	}
 
-	for(let api of ["admin", "area", "point", "reward", "user"]) {
+	for(let api of ["admin", "alert", "area", "point", "reward", "user"]) {
 		app.use(`/${api}`, require(`./apis/${api}.js`)(db));
 	}
 

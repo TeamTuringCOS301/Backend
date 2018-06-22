@@ -316,11 +316,76 @@ The rest of the API is only available to a registered user.
 * `POST /point/add/:id` - Report the user's current location in conservation area `:id`.
   This will sometimes award the user a coin, but can only be used at limited intervals.
 
+  Required request fields:
+
+  ```
+  lat: number
+  lng: number
+  ```
+
   Response fields:
 
   ```
   coin: boolean
   ```
+
+### Alert API
+
+* `POST /alert/add/:area` - Post a new alert in the conservation area `:area`
+  This is only available to a user or the admin of the conservation area.
+
+  Required request fields:
+
+  ```
+  title: string
+  description: string
+  severity: 0, 1 or 2
+  location: point
+  ```
+
+  Optional request fields:
+
+  ```
+  image: base64 string
+  ```
+
+* `GET /alert/list/broadcast/:area` - List broadcasted alerts for the given area.
+
+  Response fields:
+
+  ```
+  title: string
+  description: string
+  severity: 0, 1 or 2
+  image: base64 string
+  location: point
+  ```
+
+The rest of the API is only available to the admin associated with the conservation area.
+
+* `GET /alert/list/all/:area` - List all alerts for the given area.
+
+  Response fields:
+
+  ```
+  id: integer
+  title: string
+  description: string
+  severity: 0, 1 or 2
+  image: base64 string
+  broadcast: boolean
+  location: point
+  ```
+
+* `POST /alert/broadcast/:area/:id` - Broadcast alert `:id` to users in the conservation area.
+
+  Required request field:
+
+  ```
+  broadcast: boolean
+  ```
+
+* `GET /alert/remove/:area/:id` - Remove an alert.
 
 ### Reward Store API
 

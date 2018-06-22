@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
 
-module.exports = db => {
+module.exports = (db) => {
 	const api = express();
 
 	api.post("/add", async(req, res) => {

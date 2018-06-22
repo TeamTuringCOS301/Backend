@@ -4,8 +4,13 @@
 	"mysql": {
 		"host": "localhost",
 		"user": "user",
-		"pass": "pass",
+		"password": "pass",
 		"database": "dbERPCOIN"
+	},
+	"tls": {
+		"cert": "tls-cert.pem",
+		"key": "tls-key.pem",
+		"passphrase": ""
 	},
 	"web3Provider": "http://localhost:9545"
 }

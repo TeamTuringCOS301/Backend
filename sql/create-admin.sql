@@ -4,12 +4,14 @@ INSERT INTO dbERPCOIN.tblAdminUser (
 	admPassword,
 	admName,
 	admSurname,
-	admSuperAdmin
+	admSuperAdmin,
+    tblConservationArea_conID
 ) VALUES (
 	"admin",
 	"admin@erp.coin",
 	"$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS", 
 	"John",
 	"Smith",
-	1
+	1,
+    1
 );

@@ -1,4 +1,5 @@
 const express = require("express");
+const inPolygon = require("../in-polygon.js");
 
 module.exports = (db) => {
 	const api = express();
@@ -51,8 +52,8 @@ module.exports = (db) => {
 	});
 
 	api.post("/add/:id", async(req, res) => {
-		// TODO: Confirm that point is in conservation area.
-		if(typeof req.body.lat !== "number" || typeof req.body.lng !== "number") {
+		if(typeof req.body.lat !== "number" || typeof req.body.lng !== "number"
+				|| !inPolygon(req.body, await db.area.getBorder(req.id))) {
 			return res.sendStatus(400);
 		}
 		const currentTime = new Date().getTime();

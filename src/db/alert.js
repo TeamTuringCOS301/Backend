@@ -16,7 +16,6 @@ module.exports = (query) => ({
 	},
 
 	async add(info, area, user) {
-		console.log("Hello there!");
 		if(info.image) {
 			await query(`
 				INSERT INTO tblAlert (aleHeader, aleDescription, aleSeverity, aleImage,

@@ -1,11 +1,6 @@
-const admin = require("./admin-api.js");
-const area = require("./area-api.js");
 const cors = require("cors");
 const express = require("express");
-const point = require("./point-api.js");
 const session = require("express-session");
-const reward = require("./reward-api.js");
-const user = require("./user-api.js");
 require("express-async-errors");
 
 module.exports = (config, db) => {
@@ -27,11 +22,9 @@ module.exports = (config, db) => {
 		});
 	}
 
-	app.use("/admin", admin(db));
-	app.use("/area", area(db));
-	app.use("/point", point(db));
-	app.use("/reward", reward(db));
-	app.use("/user", user(db));
+	for(let api of ["admin", "alert", "area", "point", "reward", "user"]) {
+		app.use(`/${api}`, require(`./apis/${api}.js`)(db));
+	}
 
 	app.use((err, req, res, next) => {
 		console.error(err);

@@ -121,9 +121,17 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
   `aleDescription` VARCHAR(100) NOT NULL,
   `aleSeverity` INT(10) UNSIGNED NOT NULL,
   `aleImage` BLOB ,
+  `aleBroadcast` BIT(1) NOT NULL,
   `aleLocation` VARCHAR(50) NOT NULL,
-  `tblUser_usrID` INT(10) UNSIGNED NOT NULL,
+  `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
+  `tblUser_usrID` INT(10) UNSIGNED,
   PRIMARY KEY (`aleID`, `tblUser_usrID`),
+  INDEX `fk_tblAlert_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
+  CONSTRAINT `fk_tblAlert_tblConservationArea1`
+    FOREIGN KEY (`tblConservationArea_conID`)
+    REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
   INDEX `fk_tblAlert_tblUser1_idx` (`tblUser_usrID` ASC),
   CONSTRAINT `fk_tblAlert_tblUser1`
     FOREIGN KEY (`tblUser_usrID`)

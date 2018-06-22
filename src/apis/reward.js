@@ -1,11 +1,11 @@
 const express = require("express");
 
-module.exports = db => {
+module.exports = (db) => {
 	const api = express();
 
 	api.param("id", async(req, res, next, id) => {
 		req.id = parseInt(id);
-		if(isNaN(req.id) || await db.stock.find(id) === null) {
+		if(isNaN(req.id) || await db.reward.find(req.id) === null) {
 			res.sendStatus(400);
 		} else {
 			next();
@@ -35,7 +35,8 @@ module.exports = db => {
 	});
 
 	api.get("/remove/:id", async(req, res) => {
-		if(await db.reward.getAdmin(req.id) !== req.adminId && !await db.admin.isSuperAdmin(req.adminId)) {
+		if(await db.reward.getAdmin(req.id) !== req.adminId
+				&& !await db.admin.isSuperAdmin(req.adminId)) {
 			return res.sendStatus(401);
 		}
 		await db.reward.remove(req.id);

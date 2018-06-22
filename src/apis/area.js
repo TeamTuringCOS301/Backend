@@ -20,12 +20,12 @@ function verifyBorder(info) {
 	return true;
 }
 
-module.exports = db => {
+module.exports = (db) => {
 	const api = express();
 
 	api.param("id", async(req, res, next, id) => {
 		req.id = parseInt(id);
-		if(isNaN(req.id) || await db.area.find(id) === null) {
+		if(isNaN(req.id) || await db.area.find(req.id) === null) {
 			res.sendStatus(400);
 		} else {
 			next();
@@ -76,7 +76,8 @@ module.exports = db => {
 	api.post("/add", async(req, res) => {
 		if(typeof req.body.admin === "string") {
 			req.body.admin = await db.admin.find(req.body.admin);
-			if(req.body.admin !== null && verifyBorder(req.body) && await db.area.verify(req.body)) {
+			if(req.body.admin !== null && verifyBorder(req.body)
+					&& await db.area.verify(req.body)) {
 				await db.area.add(req.body);
 				return res.end();
 			}

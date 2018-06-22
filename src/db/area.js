@@ -1,4 +1,4 @@
-module.exports = (query) => ({
+module.exports = (config, query) => ({
 	async verify(info) { // TODO: proper validation
 		for(let key of ["name", "city", "province"]) {
 			if(typeof info[key] !== "string") {

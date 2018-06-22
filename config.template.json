@@ -1,6 +1,16 @@
 {
 	"apiPort": 8080,
-	"cookieSecret": "correcthorsebatterystaple",
+	"coinRewards": {
+		"expScale": 0.001,
+		"maxProbability": 0.07,
+		"nearRadius": 1000,
+		"newPointInterval": 1000,
+		"pointsPerArea": 100
+	},
+	"sessionCookie": {
+		"maxAge": 86400,
+		"secret": "correcthorsebatterystaple"
+	},
 	"mysql": {
 		"host": "localhost",
 		"user": "user",

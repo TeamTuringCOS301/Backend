@@ -1,4 +1,4 @@
-module.exports = (query) => ({
+module.exports = (config, query) => ({
 	async add(point, area, userId, time){
 		await query(`
 			UPDATE tblUser
@@ -13,7 +13,6 @@ module.exports = (query) => ({
 	},
 
 	async countNearbyPoints(point, id) {
-		const limit = 0.1; // TODO: Update limit.
 		const results = await query(`
 			SELECT a
 			FROM (
@@ -24,8 +23,9 @@ module.exports = (query) => ({
 						* SIN(RADIANS(cupLocationLongitude - ?) / 2) AS a
 				FROM tblConservationAreaUserPoints
 				WHERE tblConservationArea_conID = ?) AS alias
-			WHERE 6371 * ATAN2(SQRT(alias.a), SQRT(1 - alias.a)) < ?`,
-			[point.lat, point.lat, point.lat, point.lng, point.lng, id, limit]);
+			WHERE 6371000 * ATAN2(SQRT(alias.a), SQRT(1 - alias.a)) < ?`,
+			[point.lat, point.lat, point.lat, point.lng, point.lng, id,
+				config.coinRewards.nearRadius]);
 		return results.length;
 	},
 
@@ -34,15 +34,14 @@ module.exports = (query) => ({
 			SELECT cupID
 			FROM tblConservationAreaUserPoints
 			WHERE tblConservationArea_conID = ?`);
-		const limit = 100; // TODO: Update limit.
-		if(results.length > limit) {
+		if(results.length > config.coinRewards.pointsPerArea) {
 			await query(`
 				DELETE FROM tblConservationAreaUserPoints
 				WHERE cupID IN (
 					SELECT TOP ? cupID
 					FROM tblConservationAreaUserPoints
 					ORDER BY cupDateTime)`,
-				[results.length - limit]);
+				[results.length - config.coinRewards.pointsPerArea]);
 		}
 	},
 

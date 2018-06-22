@@ -9,12 +9,12 @@ module.exports = (config, db) => {
 	app.use(express.json());
 	app.use(session({
 		cookie: {
-			maxAge: 86400, // TODO: update
+			maxAge: config.sessionCookie.maxAge,
 			secure: true
 		},
 		resave: false,
 		saveUninitialized: false,
-		secret: config.cookieSecret,
+		secret: config.sessionCookie.secret,
 		store: db.sessionStore
 	}));
 
@@ -29,7 +29,7 @@ module.exports = (config, db) => {
 	}
 
 	for(let api of ["admin", "alert", "area", "point", "reward", "user"]) {
-		app.use(`/${api}`, require(`./apis/${api}.js`)(db));
+		app.use(`/${api}`, require(`./apis/${api}.js`)(config, db));
 	}
 
 	app.use((err, req, res, next) => {

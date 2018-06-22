@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const generator = require("generate-password");
 
-module.exports = (db) => {
+module.exports = (config, db) => {
 	const api = express();
 
 	api.post("/login", async(req, res) => {

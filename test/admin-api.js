@@ -1,3 +1,4 @@
+const fs = require("fs");
 const session = require("express-session");
 
 const users = [{
@@ -61,9 +62,7 @@ const db = {
 		}
 	}
 };
-const config = {
-	cookieSecret: "correcthorsebatterystaple"
-};
+const config = JSON.parse(fs.readFileSync("config.template.json"));
 
 const app = require("../src/app.js")(config, db);
 const assert = require("assert");

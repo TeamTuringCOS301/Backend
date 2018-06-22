@@ -1,6 +1,6 @@
 const isBase64 = require("is-base64");
 
-module.exports = (query) => ({
+module.exports = (config, query) => ({
 	async verify(info) { // TODO: proper validation
 		for(let key of ["name", "description", "image"]) {
 			if(typeof info[key] !== "string") {

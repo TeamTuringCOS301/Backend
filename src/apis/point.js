@@ -1,7 +1,7 @@
 const express = require("express");
 const inPolygon = require("../in-polygon.js");
 
-module.exports = (db) => {
+module.exports = (config, db) => {
 	const api = express();
 
 	api.param("id", async(req, res, next, id) => {
@@ -58,12 +58,13 @@ module.exports = (db) => {
 		}
 		const currentTime = new Date().getTime();
 		const latestTime = await db.user.getLatestTime(req.userId);
-		if(currentTime - latestTime < 10000) { // TODO: Update limit.
+		if(currentTime - latestTime < config.coinRewards.newPointInterval) {
 			 return res.sendStatus(400);
 		}
 
 		const numPoints = await db.point.countNearbyPoints(req.body, req.id);
-		const prob = 0.07 * Math.exp(-numPoints * 0.001); // TODO: Update parameters.
+		const prob = config.coinRewards.maxProbability
+			* Math.exp(-numPoints * config.coinRewards.expScale);
 		let coin = false;
 		if(Math.random() < prob){
 			// TODO: Award coin.

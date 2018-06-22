@@ -18,7 +18,7 @@ function query(...args) {
 
 const db = {sessionStore: new Store(config.mysql)};
 for(let object of ["admin", "alert", "area", "point", "reward", "user"]) {
-	db[object] = require(`./db/${object}.js`)(query);
+	db[object] = require(`./db/${object}.js`)(config, query);
 }
 
 module.exports = db;

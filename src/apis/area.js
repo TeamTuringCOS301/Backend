@@ -20,7 +20,7 @@ function verifyBorder(info) {
 	return true;
 }
 
-module.exports = (db) => {
+module.exports = (config, db) => {
 	const api = express();
 
 	api.param("id", async(req, res, next, id) => {

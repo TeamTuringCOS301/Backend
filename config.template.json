@@ -4,7 +4,7 @@
 	"mysql": {
 		"host": "localhost",
 		"user": "user",
-		"pass": "pass",
+		"password": "pass",
 		"database": "dbERPCOIN"
 	},
 	"web3Provider": "http://localhost:9545"

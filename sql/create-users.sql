@@ -1,4 +1,4 @@
-INSERT INTO dbERPCOIN.tblSuperAdmin (
+INSERT INTO dbERPCOIN.tblSuperAdminUser (
 	sadUsername,
 	sadEmailAddress,
 	sadPassword,

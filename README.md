@@ -27,7 +27,7 @@ npm start
 
 A running MySQL server is required.
 Use [`create-tables.sql`] to create the required tables.
-[`create-admin.sql`] is provided to create an admin user for testing, with username `admin` and password `admin`.
+[`create-users.sql`] is provided to create an admin user for testing, with username `admin` and password `admin`.
 
 [`create-admin.sql`]: sql/create-admin.sql
 [`create-tables.sql`]: sql/create-tables.sql

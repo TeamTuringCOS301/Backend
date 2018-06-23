@@ -85,8 +85,6 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
-
-
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblConservationArea`
 -- -----------------------------------------------------

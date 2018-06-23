@@ -21,12 +21,17 @@ module.exports = (config, db, coins) => {
 		store: db.sessionStore
 	}));
 
-	// TODO: remove
-	if(!db.disableLogging) {
+	if(config.logRequests) {
 		app.use((req, res, next) => {
 			console.log(`${req.method} ${req.path}`);
 			console.log(req.headers);
-			console.log(req.body);
+			const body = Object.assign({}, req.body);
+			for(let key of ["password", "old", "new", "image"]) {
+				if(typeof body[key] === "string") {
+					body[key] = "...";
+				}
+			}
+			console.log(body);
 			next();
 		});
 	}

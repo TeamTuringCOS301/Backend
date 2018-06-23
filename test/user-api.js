@@ -3,7 +3,6 @@ const session = require("express-session");
 
 const users = [];
 const db = {
-	disableLogging: true,
 	sessionStore: new session.MemoryStore(),
 
 	user: {

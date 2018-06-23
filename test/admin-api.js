@@ -6,7 +6,6 @@ const users = [{
 	password: "$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS"
 }];
 const db = {
-	disableLogging: true,
 	sessionStore: new session.MemoryStore(),
 
 	admin: {

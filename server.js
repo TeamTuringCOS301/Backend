@@ -1,6 +1,7 @@
+const coins = require("./src/coins.js");
 const config = require("./src/config.js");
 const db = require("./src/database.js");
-const app = require("./src/app.js")(config, db);
+const app = require("./src/app.js")(config, db, coins);
 const fs = require("fs");
 const https = require("https");
 

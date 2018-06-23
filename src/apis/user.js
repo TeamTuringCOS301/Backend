@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const objects = require("../objects.js");
 
-module.exports = (config, db) => {
+module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info) { // TODO: proper validation
@@ -77,6 +77,14 @@ module.exports = (config, db) => {
 			success = true;
 		}
 		res.send({success});
+	});
+
+	api.get("/coins", async(req, res) => {
+		await auth.requireUser(req);
+		const address = await db.user.getWalletAddress(req.userId);
+		const balance = await coins.getBalance(address);
+		const totalEarned = await coins.getTotalEarned(address);
+		res.send({balance, totalEarned});
 	});
 
 	api.post("/remove", async(req, res) => {

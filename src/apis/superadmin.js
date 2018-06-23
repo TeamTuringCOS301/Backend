@@ -3,7 +3,7 @@ const express = require("express");
 const generator = require("generate-password");
 const objects = require("../objects.js");
 
-module.exports = (config, db) => {
+module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info) { // TODO: proper validation

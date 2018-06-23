@@ -4,7 +4,7 @@ const session = require("express-session");
 const objects = require("./objects.js");
 require("express-async-errors");
 
-module.exports = (config, db) => {
+module.exports = (config, db, coins) => {
 	const auth = require("./auth.js")(db);
 
 	const app = express();
@@ -32,7 +32,7 @@ module.exports = (config, db) => {
 	}
 
 	for(let object of objects.all) {
-		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db));
+		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins));
 	}
 
 	app.use((err, req, res, next) => {

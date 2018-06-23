@@ -27,7 +27,8 @@ npm start
 
 A running MySQL server is required.
 Use [`create-tables.sql`] to create the required tables.
-[`create-users.sql`] is provided to create an admin user for testing, with username `admin` and password `admin`.
+[`create-users.sql`] is provided to create users for testing.
+It will create a super admin with username `admin` and password `admin`, as well as six users named `darius`, `kyle`, `richard`, `sewis`, `tristan` and `ulrik`, each with the password `password`.
 
 [`create-admin.sql`]: sql/create-admin.sql
 [`create-tables.sql`]: sql/create-tables.sql
@@ -158,7 +159,16 @@ The rest of the API requires that a user has already logged in.
   success: boolean
   ```
 
-* `POST /user/remove` - Delete the current user'a account.
+* `GET /user/coins` - View the user's current balance and the total number of coins earned.
+
+  Response fields:
+
+  ```
+  balance: integer
+  totalEarned: integer
+  ```
+
+* `POST /user/remove` - Delete the current user's account.
 
   Required request fields:
 

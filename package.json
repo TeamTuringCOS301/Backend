@@ -26,7 +26,8 @@
     "generate-password": "^1.4.0",
     "is-base64": "0.0.5",
     "mysql": "^2.15.0",
-    "truffle-contract": "^3.0.4"
+    "truffle-contract": "^3.0.4",
+    "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
     "mocha": "^5.1.0",

@@ -87,12 +87,21 @@ module.exports = (config, query) => ({
 		}
 	},
 
-	async getLatestTime(id){
-		const result = await query(`
+	async getWalletAddress(id) {
+		const results = await query(`
+			SELECT usrWalletAddress
+			FROM tblUser
+			WHERE usrID = ?`,
+			[id]);
+		return results[0].usrWalletAddress;
+	},
+
+	async getLatestTime(id) {
+		const results = await query(`
 			SELECT usrLastPointTime
 			FROM tblUser
 			WHERE usrID = ?`,
 			[id]);
-		return result[0].usrLastPointTime;
+		return results[0].usrLastPointTime;
 	}
 });

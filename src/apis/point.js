@@ -2,7 +2,7 @@ const express = require("express");
 const inPolygon = require("../in-polygon.js");
 const objects = require("../objects.js");
 
-module.exports = (config, db) => {
+module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info) { // TODO: proper validation
@@ -42,7 +42,7 @@ module.exports = (config, db) => {
 			* Math.exp(-numPoints * config.coinRewards.expScale);
 		let coin = false;
 		if(Math.random() < prob){
-			// TODO: Award coin.
+			await coins.rewardCoin(await db.user.getWalletAddress(req.userId));
 			coin = true;
 		}
 		await db.point.add(req.body);

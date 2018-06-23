@@ -1,35 +1,20 @@
-const isBase64 = require("is-base64");
-
 module.exports = (config, query) => ({
-	async verify(info) { // TODO: proper validation
-		for(let key of ["title", "description"]) {
-			if(typeof info[key] !== "string") {
-				return false;
-			}
-		}
-		for(let key of ["lat", "lng"]) {
-			if(!("location" in info) || typeof info.location[key] !== "number") {
-				return false;
-			}
-		}
-		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image));
-	},
-
-	async add(info, area, user) {
+	async add(info) {
 		if(info.image) {
 			await query(`
-				INSERT INTO tblAlert (aleHeader, aleDescription, aleSeverity, aleImage,
+				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage,
 					aleBroadcast, aleLocation, tblConservationArea_conID, tblUser_usrID)
-				VALUES (?, ?, ?, ?, 0, ?, ?, ?)`,
-				[info.title, info.description, info.severity, Buffer.from(info.image, "base64"),
-					JSON.stringify(ale.location), area, user]);
+				VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)`,
+				[info.time, info.title, info.description, info.severity,
+					Buffer.from(info.image, "base64"), JSON.stringify(ale.location), info.area,
+					info.user]);
 		} else {
 			await query(`
-				INSERT INTO tblAlert (aleHeader, aleDescription, aleSeverity, aleBroadcast,
-					aleLocation, tblUser_usrID)
-				VALUES (?, ?, ?, 0, ?, ?, ?)`,
-				[info.title, info.description, info.severity, JSON.stringify(info.location), area,
-					user]);
+				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity,
+					aleBroadcast, aleLocation, tblUser_usrID)
+				VALUES (?, ?, ?, ?, 0, ?, ?, ?)`,
+				[info.time, info.title, info.description, info.severity,
+					JSON.stringify(info.location), info.area, info.user]);
 		}
 	},
 
@@ -40,36 +25,18 @@ module.exports = (config, query) => ({
 			[id]);
 	},
 
-	async list(area) {
+	async list(area, since) {
 		const results = await query(`
-			SELECT aleHeader, aleDescription, aleSeverity, aleImage, aleLocation
+			SELECT aleID, aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage,
+				aleBroadcast, aleLocation
 			FROM tblAlert
-			WHERE casBroadcast = 1 AND tblConservationArea_conID = ?`,
-			[area]);
-		const alerts = [];
-		for(let alert of results) {
-			alerts.push({
-				title: alert.aleHeader,
-				description: alert.aleDescription,
-				severity: alert.aleSeverity,
-				image: alert.aleImage.toString("base64"),
-				location: JSON.parse(alert.aleLocation)
-			});
-		}
-		return rewards;
-	},
-
-	async listAll(area) {
-		const results = await query(`
-			SELECT aleID, aleHeader, aleDescription, aleSeverity, aleImage, aleBroadcast,
-				aleLocation
-			FROM tblAlert
-			WHERE tblConservationArea_conID = ?`,
-			[area]);
+			WHERE tblConservationArea_conID = ? AND aleTimeSent > ?`,
+			[area, since]);
 		const alerts = [];
 		for(let alert of results) {
 			alerts.push({
 				id: alert.aleID,
+				time: alert.aleTimeSent,
 				title: alert.aleHeader,
 				description: alert.aleDescription,
 				severity: alert.aleSeverity,
@@ -81,17 +48,42 @@ module.exports = (config, query) => ({
 		return rewards;
 	},
 
+	async broadcasts(area, since) {
+		const results = await query(`
+			SELECT aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage, aleLocation
+			FROM tblAlert
+			WHERE aleBroadcast = 1 AND tblConservationArea_conID = ? AND aleTimeSent > ?`,
+			[area, since]);
+		const alerts = [];
+		for(let alert of results) {
+			alerts.push({
+				time: alert.aleTimeSent,
+				title: alert.aleHeader,
+				description: alert.aleDescription,
+				severity: alert.aleSeverity,
+				image: alert.aleImage.toString("base64"),
+				location: JSON.parse(alert.aleLocation)
+			});
+		}
+		return rewards;
+	},
+
+	async validId(id) {
+		const results = await query(`
+			SELECT aleID
+			FROM tblAlert
+			WHERE aleID = ?`,
+			[id]);
+		return results.length === 1;
+	},
+
 	async getArea(id) {
 		const results = await query(`
 			SELECT tblConservationArea_conID
 			FROM tblAlert
 			WHERE aleID = ?`,
 			[id]);
-		if(results.length) {
-			return results[0].tblConservationArea_conID;
-		} else {
-			return null;
-		}
+		return results[0].tblConservationArea_conID;
 	},
 
 	async setBroadcast(id, broadcast) {

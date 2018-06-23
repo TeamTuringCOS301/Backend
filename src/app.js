@@ -28,8 +28,26 @@ module.exports = (config, db) => {
 		});
 	}
 
-	for(let api of ["admin", "alert", "area", "point", "reward", "user"]) {
-		app.use(`/${api}`, require(`./apis/${api}.js`)(config, db));
+	api.param("since", async(req, res, next, since) => {
+		req.since = parseInt(since);
+		if(isNaN(req.since)) {
+			return res.sendStatus(400);
+		}
+		next();
+	});
+
+	const objects = ["admin", "alert", "area", "point", "reward", "superadmin", "user"];
+	for(let object of objects) {
+		app.param(object, async(req, res, next, id) => {
+			req[object] = parseInt(id);
+			if(isNaN(req[object]) || !await db[object].validId(req[object])) {
+				return res.sendStatus(400);
+			}
+			next();
+		});
+	}
+	for(let object of objects) {
+		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db));
 	}
 
 	app.use((err, req, res, next) => {

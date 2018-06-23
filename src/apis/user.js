@@ -2,10 +2,19 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 
 module.exports = (config, db) => {
+	async function validate(info) { // TODO: proper validation
+		for(let key of ["username", "email", "password", "name", "surname", "walletAddress"]) {
+			if(typeof info[key] !== "string") {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	const api = express();
 
 	api.post("/add", async(req, res) => {
-		if(!await db.user.verify(req.body)) {
+		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
 		let success = false;
@@ -22,8 +31,8 @@ module.exports = (config, db) => {
 		if(typeof req.body.username !== "string" || typeof req.body.password !== "string") {
 			return res.sendStatus(400);
 		}
-		const id = await db.user.find(req.body.username);
 		let success = false;
+		const id = await db.user.find(req.body.username);
 		if(id !== null) {
 			const hash = await db.user.getPassword(id);
 			if(await bcrypt.compare(req.body.password, hash)) {
@@ -36,24 +45,25 @@ module.exports = (config, db) => {
 
 	api.use(async(req, res, next) => {
 		if("userId" in req.session) {
-			req.id = parseInt(req.session.userId);
-			next();
-		} else {
-			res.sendStatus(401);
+			req.userId = parseInt(req.session.userId);
+			if(await db.user.validId(req.userId)) {
+				return next();
+			}
 		}
+		res.sendStatus(401);
 	});
 
 	api.get("/logout", async(req, res) => {
 		req.session.userId = undefined;
-		res.end();
+		res.send({});
 	});
 
 	api.get("/info", async(req, res) => {
-		res.send(await db.user.getInfo(req.id));
+		res.send(await db.user.getInfo(req.userId));
 	});
 
 	api.post("/info", async(req, res) => {
-		await db.user.updateInfo(req.id, req.body);
+		await db.user.updateInfo(req.userId, req.body);
 		res.end();
 	});
 
@@ -62,10 +72,24 @@ module.exports = (config, db) => {
 			return res.sendStatus(400);
 		}
 		let success = false;
-		let hash = await db.user.getPassword(req.id);
+		let hash = await db.user.getPassword(req.userId);
 		if(await bcrypt.compare(req.body.old, hash)) {
 			hash = await bcrypt.hash(req.body.new, 10);
-			await db.user.setPassword(req.id, hash);
+			await db.user.setPassword(req.userId, hash);
+			success = true;
+		}
+		res.send({success});
+	});
+
+	api.post("/remove", async(req, res) => {
+		if(typeof req.body.password !== "string") {
+			return res.sendStatus(400);
+		}
+		let success = false;
+		let hash = await db.user.getPassword(req.userId);
+		if(await bcrypt.compare(req.body.old, hash)) {
+			await db.user.remove(req.userId);
+			req.session.userId = undefined;
 			success = true;
 		}
 		res.send({success});

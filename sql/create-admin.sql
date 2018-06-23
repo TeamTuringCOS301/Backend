@@ -1,17 +1,13 @@
-INSERT INTO dbERPCOIN.tblAdminUser (
-	admUsername,
-	admEmailAddress,
-	admPassword,
-	admName,
-	admSurname,
-	admSuperAdmin,
-    tblConservationArea_conID
+INSERT INTO dbERPCOIN.tblSuperAdmin (
+	sadUsername,
+	sadEmailAddress,
+	sadPassword,
+	sadName,
+	sadSurname
 ) VALUES (
 	"admin",
 	"admin@erp.coin",
-	"$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS", 
+	"$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS",
 	"John",
-	"Smith",
-	1,
-    1
+	"Smith"
 );

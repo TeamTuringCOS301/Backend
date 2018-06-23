@@ -2,38 +2,21 @@ const express = require("express");
 const inPolygon = require("../in-polygon.js");
 
 module.exports = (config, db) => {
+	async function validate(info) { // TODO: proper validation
+		for(let key of ["lat", "lng"]) {
+			if(typeof info[key] !== "string") {
+				return false;
+			}
+		}
+		return info.time - await db.user.getLatestTime(info.user)
+				< config.coinRewards.newPointInterval
+			&& inPolygon(info, await db.area.getBorder(info.area));
+	}
+
 	const api = express();
 
-	api.param("id", async(req, res, next, id) => {
-		req.id = parseInt(id);
-		if(isNaN(req.id) || await db.area.find(req.id) === null) {
-			res.sendStatus(400);
-		} else {
-			next();
-		}
-	});
-
-	api.param("since", async(req, res, next, since) => {
-		req.since = parseInt(since);
-		if(isNaN(req.since)) {
-			res.sendStatus(400);
-		} else {
-			next();
-		}
-	});
-
-	api.get("/list/:id", async(req, res) => {
-		const points = await db.point.list(req.id);
-		let latest = 0;
-		for(let point of points) {
-			latest = Math.max(latest, point.time);
-			point.time = undefined;
-		}
-		res.send({points, latest});
-	});
-
-	api.get("/list/:id/:since", async(req, res) => {
-		const points = await db.point.listSince(req.id, req.since);
+	api.get("/list/:area/:since", async(req, res) => {
+		const points = await db.point.list(req.id, req.since);
 		let latest = 0;
 		for(let point of points) {
 			latest = Math.max(latest, point.time);
@@ -45,24 +28,21 @@ module.exports = (config, db) => {
 	api.use(async(req, res, next) => {
 		if("userId" in req.session) {
 			req.userId = parseInt(req.session.userId);
-			next();
-		} else {
-			res.sendStatus(401);
+			if(await db.user.validId(req.userId)) {
+				return next();
+			}
 		}
+		res.sendStatus(401);
 	});
 
-	api.post("/add/:id", async(req, res) => {
-		if(typeof req.body.lat !== "number" || typeof req.body.lng !== "number"
-				|| !inPolygon(req.body, await db.area.getBorder(req.id))) {
+	api.post("/add/:area", async(req, res) => {
+		req.body.time = new Date().getTime();
+		req.body.area = req.area;
+		req.body.user = req.userId;
+		if(!await validate(info)) {
 			return res.sendStatus(400);
 		}
-		const currentTime = new Date().getTime();
-		const latestTime = await db.user.getLatestTime(req.userId);
-		if(currentTime - latestTime < config.coinRewards.newPointInterval) {
-			 return res.sendStatus(400);
-		}
-
-		const numPoints = await db.point.countNearbyPoints(req.body, req.id);
+		const numPoints = await db.point.countNearbyPoints(req.body);
 		const prob = config.coinRewards.maxProbability
 			* Math.exp(-numPoints * config.coinRewards.expScale);
 		let coin = false;
@@ -70,7 +50,7 @@ module.exports = (config, db) => {
 			// TODO: Award coin.
 			coin = true;
 		}
-		await db.point.add(req.body, req.id, req.userId, currentTime);
+		await db.point.add(req.body);
 		res.send({coin});
 	});
 

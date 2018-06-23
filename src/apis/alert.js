@@ -1,70 +1,87 @@
 const express = require("express");
 const inPolygon = require("../in-polygon.js");
+const isBase64 = require("is-base64");
 
 module.exports = (config, db) => {
+	async function validate(info) { // TODO: proper validation
+		for(let key of ["title", "description"]) {
+			if(typeof info[key] !== "string") {
+				return false;
+			}
+		}
+		for(let key of ["lat", "lng"]) {
+			if(!("location" in info) || typeof info.location[key] !== "number") {
+				return false;
+			}
+		}
+		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image))
+			&& inPolygon(info.location, await db.area.getBorder(info.area));
+	}
+
 	const api = express();
 
-	api.param("area", async(req, res, next, id) => {
-		req.area = parseInt(id);
-		if(isNaN(req.area) || await db.area.find(req.area) === null) {
-			res.sendStatus(400);
-		} else {
-			next();
-		}
-	});
-
-	api.param("id", async(req, res, next, id) => {
-		req.id = parseInt(id);
-		if(isNaN(req.id) || await db.alert.getArea(req.id) === req.area) {
-			res.sendStatus(400);
-		} else {
-			next();
-		}
-	});
-
 	api.post("/add/:area", async(req, res) => {
-		if(!("userId" in req.session || "adminId" in req.session
-				&& await db.area.getAdmin(req.area) === parseInt(req.session.adminId))) {
+		req.body.time = new Date().getTime();
+		req.body.area = req.area;
+		let auth = false;
+		if("userId" in req.session) {
+			req.body.user = parseInt(req.session.userId);
+			if(await db.user.validId(req.body.user)) {
+				auth = true;
+			}
+		} else if("adminId" in req.session
+				&& await db.admin.validId(parseInt(req.session.adminId))) {
+			auth = true;
+		}
+		if(!auth) {
 			return res.sendStatus(401);
 		}
-		if(!await db.alert.verify(req.body)
-				|| !inPolygon(req.body.location, await db.area.getBorder(req.area))) {
+		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
-		await db.alert.add(req.body, req.area, parseInt(req.session.userId));
-		res.end();
+		await db.alert.add(req.body);
+		res.send({});
 	});
 
-	api.get("/list/broadcast/:area", async(req, res) => {
-		const alerts = await db.alert.list();
+	api.get("/broadcasts/:area/:since", async(req, res) => {
+		const alerts = await db.alert.listBroadcasts(req.area, req.since);
 		res.send({alerts});
 	});
 
 	api.use(async(req, res, next) => {
 		if("adminId" in req.session) {
 			req.adminId = parseInt(req.session.adminId);
-			if(await db.area.getAdmin(req.area) === req.adminId) {
-				next();
+			if(await db.area.validId(req.adminId)) {
+				return next();
 			}
 		}
 		res.sendStatus(401);
 	});
 
-	api.get("/list/all/:area", async(req, res) => {
-		const alerts = await db.alert.list();
+	api.get("/list/:area/:since", async(req, res) => {
+		if(await db.admin.getArea(req.adminId) !== req.area) {
+			return res.sendStatus(401);
+		}
+		const alerts = await db.alert.list(req.area, req.since);
 		res.send({alerts});
 	});
 
-	api.post("/broadcast/:area/:id", async(req, res) => {
+	api.post("/broadcast/:alert", async(req, res) => {
+		if(await db.admin.getArea(req.adminId) !== await db.alert.getArea(req.alert)) {
+			return res.sendStatus(401);
+		}
 		if(typeof req.body.broadcast !== "boolean") {
 			return res.sendStatus(400);
 		}
-		await db.alert.broadcast(req.id, req.body.broadcast);
+		await db.alert.setBroadcast(req.alert, req.body.broadcast);
 		res.end();
 	});
 
-	api.get("/remove/:area/:id", async(req, res) => {
-		await db.alert.remove(req.id);
+	api.get("/remove/:alert", async(req, res) => {
+		if(await db.admin.getArea(req.adminId) !== await db.alert.getArea(req.alert)) {
+			return res.sendStatus(401);
+		}
+		await db.alert.remove(req.alert);
 		res.end();
 	});
 

@@ -9,7 +9,7 @@ module.exports = (config, db) => {
 				return false;
 			}
 		}
-		return typeof info.area === "number" && await db.area.validId(info.area);
+		return true;
 	}
 
 	const api = express();
@@ -19,63 +19,13 @@ module.exports = (config, db) => {
 			return res.sendStatus(400);
 		}
 		let success = false;
-		const id = await db.admin.find(req.body.username);
+		const id = await db.superadmin.find(req.body.username);
 		if(id !== null) {
-			const hash = await db.admin.getPassword(id);
+			const hash = await db.superadmin.getPassword(id);
 			if(await bcrypt.compare(req.body.password, hash)) {
-				req.session.adminId = id;
+				req.session.superId = id;
 				success = true;
 			}
-		}
-		res.send({success});
-	});
-
-	api.use(async(req, res, next) => {
-		if("adminId" in req.session) {
-			req.adminId = parseInt(req.session.adminId);
-			if(!await db.admin.validId(req.adminId)) {
-				return res.sendStatus(401);
-			}
-		}
-		next();
-	});
-
-	api.get("/logout", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
-		req.session.adminId = undefined;
-		res.send({});
-	});
-
-	api.get("/info", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
-		res.send(await db.admin.getInfo(req.adminId));
-	});
-
-	api.post("/info", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
-		await db.admin.updateInfo(req.adminId, req.body);
-		res.send({});
-	});
-
-	api.post("/password", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
-		if(typeof req.body.old !== "string" || typeof req.body.new !== "string") {
-			return res.sendStatus(400);
-		}
-		let success = false;
-		let hash = await db.admin.getPassword(req.adminId);
-		if(await bcrypt.compare(req.body.old, hash)) {
-			hash = await bcrypt.hash(req.body.new, 10);
-			await db.admin.setPassword(req.adminId, hash);
-			success = true;
 		}
 		res.send({success});
 	});
@@ -90,26 +40,57 @@ module.exports = (config, db) => {
 		res.sendStatus(401);
 	});
 
+	api.get("/logout", async(req, res) => {
+		req.session.superId = undefined;
+		res.send({});
+	});
+
+	api.get("/info", async(req, res) => {
+		res.send(await db.superadmin.getInfo(req.superId));
+	});
+
+	api.post("/info", async(req, res) => {
+		await db.superadmin.updateInfo(req.superId, req.body);
+		res.send({});
+	});
+
+	api.post("/password", async(req, res) => {
+		if(typeof req.body.old !== "string" || typeof req.body.new !== "string") {
+			return res.sendStatus(400);
+		}
+		let success = false;
+		let hash = await db.superadmin.getPassword(req.superId);
+		if(await bcrypt.compare(req.body.old, hash)) {
+			hash = await bcrypt.hash(req.body.new, 10);
+			await db.superadmin.setPassword(req.superId, hash);
+			success = true;
+		}
+		res.send({success});
+	});
+
 	api.post("/add", async(req, res) => {
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
-		if(await db.admin.find(req.body.username) === null) {
+		if(await db.superadmin.find(req.body.username) === null) {
 			const password = generator.generate();
 			req.body.password = await bcrypt.hash(password, 10);
-			await db.admin.add(req.body);
+			await db.superadmin.add(req.body);
 			return res.send({success: true, password});
 		}
 		res.send({success: false});
 	});
 
-	api.get("/remove/:admin", async(req, res) => {
-		await db.admin.remove(req.admin);
+	api.get("/remove/:superadmin", async(req, res) => {
+		if(req.id === req.superId) {
+			return res.sendStatus(400);
+		}
+		await db.superadmin.remove(req.superadmin);
 		res.send({});
 	});
 
 	api.get("/list", async(req, res) => {
-		res.send({admins: await db.admin.list()});
+		res.send({admins: await db.superadmin.list()});
 	});
 
 	return api;

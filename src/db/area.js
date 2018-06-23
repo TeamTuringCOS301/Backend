@@ -1,19 +1,10 @@
 module.exports = (config, query) => ({
-	async verify(info) { // TODO: proper validation
-		for(let key of ["name", "city", "province"]) {
-			if(typeof info[key] !== "string") {
-				return false;
-			}
-		}
-		return true;
-	},
-
 	async add(info) {
 		await query(`
 			INSERT INTO tblConservationArea (conName, conCity, conProvince, conBorderNodeJSONObject,
-				conMiddlePointCoordinate, tblAdminUser_admID)
-			VALUES (?, ?, ?, ?, ?, ?)`,
-			[info.name, info.city, info.province, info.border, info.middle, info.admin]);
+				conMiddlePointCoordinate)
+			VALUES (?, ?, ?, ?, ?)`,
+			[info.name, info.city, info.province, info.border, info.middle]);
 	},
 
 	async remove(id) {
@@ -21,37 +12,6 @@ module.exports = (config, query) => ({
 			DELETE FROM tblConservationArea
 			WHERE conID = ?`,
 			[id]);
-	},
-
-	async find(id) {
-		const results = await query(`
-			SELECT conID
-			FROM tblConservationArea
-			WHERE conID = ?`,
-			[id]);
-		if(results.length) {
-			return results[0].conID;
-		} else {
-			return null;
-		}
-	},
-
-	async getBorder(id) {
-		const results = await query(`
-			SELECT conBorderNodeJSONObject
-			FROM tblConservationArea
-			WHERE conID = ?`,
-			[id]);
-		return JSON.parse(results[0].conBorderNodeJSONObject);
-	},
-
-	async getAdmin(id) {
-		const results = await query(`
-			SELECT tblAdminUser_admID
-			FROM tblConservationArea
-			WHERE conID = ?`,
-			[id]);
-		return results[0].tblAdminUser_admID;
 	},
 
 	async list() {
@@ -71,17 +31,36 @@ module.exports = (config, query) => ({
 		return areas;
 	},
 
+	async validId(id) {
+		const results = await query(`
+			SELECT conID
+			FROM tblConservationArea
+			WHERE conID = ?`,
+			[id]);
+		return results.length === 1;
+	},
+
+	async getBorder(id) {
+		const results = await query(`
+			SELECT conBorderNodeJSONObject
+			FROM tblConservationArea
+			WHERE conID = ?`,
+			[id]);
+		return JSON.parse(results[0].conBorderNodeJSONObject);
+	},
+
 	async getInfo(id) {
 		const results = await query(`
 			SELECT conName, conCity, conProvince, conMiddlePointCoordinate, conBorderNodeJSONObject
-			FROM tblConservationArea WHERE conID = ?`,
+			FROM tblConservationArea
+			WHERE conID = ?`,
 			[id]);
 		return {
 			name: results[0].conName,
 			city: results[0].conCity,
 			province: results[0].conProvince,
-			middle: results[0].conMiddlePointCoordinate,
-			border: results[0].conBorderNodeJSONObject
+			middle: JSON.parse(results[0].conMiddlePointCoordinate),
+			border: JSON.parse(results[0].conBorderNodeJSONObject)
 		};
 	},
 
@@ -101,13 +80,6 @@ module.exports = (config, query) => ({
 					WHERE conID = ?`,
 					[info[key], id]);
 			}
-		}
-		if(typeof info.admin === number) {
-			await query(`
-				UPDATE tblConservationArea
-				SET tblAdminUser_admID = ?
-				WHERE conID = ?`,
-				[info.admin, id]);
 		}
 	}
 });

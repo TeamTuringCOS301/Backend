@@ -1,16 +1,22 @@
 const express = require("express");
+const isBase64 = require("is-base64");
 
 module.exports = (config, db) => {
-	const api = express();
-
-	api.param("id", async(req, res, next, id) => {
-		req.id = parseInt(id);
-		if(isNaN(req.id) || await db.reward.find(req.id) === null) {
-			res.sendStatus(400);
-		} else {
-			next();
+	async function validate(info) { // TODO: proper validation
+		for(let key of ["name", "description", "image"]) {
+			if(typeof info[key] !== "string") {
+				return false;
+			}
 		}
-	});
+		for(let key of ["amount", "randValue"]) {
+			if(typeof info[key] !== "number") {
+				return false;
+			}
+		}
+		return isBase64(info.image);
+	}
+
+	const api = express();
 
 	api.get("/list", async(req, res) => {
 		const rewards = await db.reward.list();
@@ -18,29 +24,42 @@ module.exports = (config, db) => {
 	});
 
 	api.use(async(req, res, next) => {
-		if("adminId" in req.session) {
-			req.adminId = parseInt(req.session.adminId);
-			next();
-		} else {
-			res.sendStatus(401);
+		if("superId" in req.session) {
+			req.superId = parseInt(req.session.superId);
+			if(!await db.superadmin.validId(req.superId)) {
+				return res.sendStatus(401);
+			}
 		}
+		next();
 	});
 
-	api.post("/add", async(req, res) => {
-		if(!await db.reward.verify(req.body)) {
-			return res.sendStatus(400);
-		}
-		await db.reward.add(req.body, req.adminId);
-		res.end();
-	});
-
-	api.get("/remove/:id", async(req, res) => {
-		if(await db.reward.getAdmin(req.id) !== req.adminId
-				&& !await db.admin.isSuperAdmin(req.adminId)) {
+	api.get("/list/new", async(req, res) => {
+		if(typeof req.superId !== "number") {
 			return res.sendStatus(401);
 		}
-		await db.reward.remove(req.id);
+		const rewards = await db.reward.listNew();
+		res.send({rewards});
+	});
+
+	api.post("/verify/:reward", async(req, res) => {
+		if(typeof req.superId !== "number") {
+			return res.sendStatus(401);
+		}
+		if(typeof req.body.coinValue !== "number" || req.body.coinValue <= 0) {
+			return res.sendStatus(400);
+		}
+		await db.reward.verifyCoinValue(req.reward, req.body.coinValue);
 		res.end();
+	});
+
+	api.use(async(req, res, next) => {
+		if("adminId" in req.session) {
+			req.adminId = parseInt(req.session.adminId);
+			if(await db.admin.validId(req.adminId)) {
+				return next();
+			}
+		}
+		res.sendStatus(401);
 	});
 
 	api.get("/list/own", async(req, res) => {
@@ -48,24 +67,20 @@ module.exports = (config, db) => {
 		res.send({rewards});
 	});
 
-	api.use(async(req, res, next) => {
-		if(await db.admin.isSuperAdmin(req.id)) {
-			next();
-		} else {
-			res.sendStatus(401);
-		}
-	});
-
-	api.get("/list/new", async(req, res) => {
-		const rewards = await db.reward.listNew();
-		res.send({rewards});
-	});
-
-	api.post("/verify/:id", async(req, res) => {
-		if(typeof req.body.coinValue !== "number" || req.body.coinValue <= 0) {
+	api.post("/add", async(req, res) => {
+		req.body.admin = req.adminId;
+		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
-		await db.reward.verifyCoinValue(req.id, req.body.coinValue);
+		await db.reward.add(req.body);
+		res.end();
+	});
+
+	api.get("/remove/:reward", async(req, res) => {
+		if(await db.reward.getAdmin(req.reward) !== req.adminId) {
+			return res.sendStatus(401);
+		}
+		await db.reward.remove(req.reward);
 		res.end();
 	});
 

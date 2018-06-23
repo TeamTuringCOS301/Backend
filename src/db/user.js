@@ -1,13 +1,4 @@
 module.exports = (config, query) => ({
-	async verify(info) { // TODO: proper validation
-		for(let key of ["username", "email", "password", "name", "surname", "walletAddress"]) {
-			if(typeof info[key] !== "string") {
-				return false;
-			}
-		}
-		return true;
-	},
-
 	async add(info) {
 		await query(`
 			INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname,
@@ -15,6 +6,22 @@ module.exports = (config, query) => ({
 			VALUES (?, ?, ?, ?, ?, ?, 0)`,
 			[info.username, info.email, info.password, info.name, info.surname,
 				info.walletAddress]);
+	},
+
+	async remove(id) {
+		await query(`
+			DELETE FROM tblUser
+			WHERE usrID = ?`,
+			[id]);
+	},
+
+	async validId(id) {
+		const results = await query(`
+			SELECT usrID
+			FROM tblUser
+			WHERE usrID = ?`,
+			[id]);
+		return results.length === 1;
 	},
 
 	async find(username) {
@@ -81,10 +88,10 @@ module.exports = (config, query) => ({
 	},
 
 	async getLatestTime(id){
-		const result= await query(`
+		const result = await query(`
 			SELECT usrLastPointTime
 			FROM tblUser
-			WHERE usrID=?`,
+			WHERE usrID = ?`,
 			[id]);
 		return result[0].usrLastPointTime;
 	}

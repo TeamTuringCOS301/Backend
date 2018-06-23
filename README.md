@@ -534,6 +534,7 @@ The rest of the API is only available to the admin associated with the conservat
   amount: integer
   randValue: integer
   coinValue: integer
+  area: integer
   ```
 
 The rest of the API is only available to an admin.
@@ -592,6 +593,7 @@ The rest of the API is only available to a super admin.
   image: base64 string
   amount: integer
   randValue: integer
+  area: integer
   ```
 
 * `POST /reward/verify/:reward` - Verify a suggested reward and set its coin value.

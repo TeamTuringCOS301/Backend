@@ -60,9 +60,8 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
   `admPassword` VARCHAR(60) NOT NULL,
   `admName` VARCHAR(40) NOT NULL,
   `admSurname` VARCHAR(40) NOT NULL,
-  `admSuperAdmin` BIT(1) NOT NULL,
-  `tblConservationArea_conID` INT(10) UNSIGNED,
-  PRIMARY KEY (`admID`),
+  `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`admID`, `tblConservationArea_conID`),
   INDEX `fk_tblAdminUser_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
   CONSTRAINT `fk_tblAdminUser_tblConservationArea1`
     FOREIGN KEY (`tblConservationArea_conID`)
@@ -71,6 +70,21 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
+
+-- -----------------------------------------------------
+-- Table `dbERPCOIN`.`tblSuperAdmin`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
+	`sadID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `sadUsername` VARCHAR(50) NOT NULL,
+	`sadEmailAddress` VARCHAR(100) NOT NULL,
+	`sadPassword` VARCHAR(60) NOT NULL,
+	`sadName` VARCHAR(40) NOT NULL,
+	`sadSurname` VARCHAR(40) NOT NULL,
+	PRIMARY KEY(`sadID`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
 
 
 -- -----------------------------------------------------

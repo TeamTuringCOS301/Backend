@@ -74,7 +74,7 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Table `dbERPCOIN`.`tblSuperAdmin`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
+CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblSuperAdminUser` (
 	`sadID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `sadUsername` VARCHAR(50) NOT NULL,
 	`sadEmailAddress` VARCHAR(100) NOT NULL,
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
 	`aleHeader` VARCHAR(30) NOT NULL,
   `aleDescription` VARCHAR(100) NOT NULL,
   `aleSeverity` INT(10) UNSIGNED NOT NULL,
-  `aleImage` BLOB ,
+  `aleImage` mediumblob ,
   `aleBroadcast` BIT(1) NOT NULL,
   `aleLocation` VARCHAR(50) NOT NULL,
   `aleTimeSent`  BIGINT NOT NULL,
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAdminStock` (
     `casRandValue` INT(10) UNSIGNED NOT NULL,
     `casCoinValue` INT(10) UNSIGNED NOT NULL,
     `casDescription` VARCHAR(255) NOT NULL,
-    `casImage` BLOB,
+    `casImage` mediumblob,
     `casVerified` BIT(1) NOT NULL,
     `casStockAmount` INT(10) NOT NULL,    
     `tblAdminUser_admID` INT(10) UNSIGNED NOT NULL,

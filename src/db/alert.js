@@ -1,18 +1,18 @@
 module.exports = (config, query) => ({
 	async add(info) {
-		if(info.image) {
+		if(info.image) {//TODO: Change default for broadcast to 0
 			await query(`
 				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage,
 					aleBroadcast, aleLocation, tblConservationArea_conID, tblUser_usrID)
-				VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)`,
+				VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
 				[info.time, info.title, info.description, info.severity,
-					Buffer.from(info.image, "base64"), JSON.stringify(ale.location), info.area,
+					Buffer.from(info.image, "base64"), JSON.stringify(info.location), info.area,
 					info.user]);
 		} else {
 			await query(`
 				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity,
 					aleBroadcast, aleLocation, tblUser_usrID)
-				VALUES (?, ?, ?, ?, 0, ?, ?, ?)`,
+				VALUES (?, ?, ?, ?, 1, ?, ?, ?)`,
 				[info.time, info.title, info.description, info.severity,
 					JSON.stringify(info.location), info.area, info.user]);
 		}
@@ -48,7 +48,7 @@ module.exports = (config, query) => ({
 		return rewards;
 	},
 
-	async broadcasts(area, since) {
+	async listBroadcasts(area, since) {
 		const results = await query(`
 			SELECT aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage, aleLocation
 			FROM tblAlert
@@ -65,7 +65,7 @@ module.exports = (config, query) => ({
 				location: JSON.parse(alert.aleLocation)
 			});
 		}
-		return rewards;
+		return alerts;
 	},
 
 	async validId(id) {

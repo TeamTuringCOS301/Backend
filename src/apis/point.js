@@ -5,12 +5,12 @@ const objects = require("../objects.js");
 module.exports = (config, db) => {
 	async function validate(info) { // TODO: proper validation
 		for(let key of ["lat", "lng"]) {
-			if(typeof info[key] !== "string") {
+			if(typeof info[key] !== "number") {
 				return false;
 			}
 		}
 		return info.time - await db.user.getLatestTime(info.user)
-				< config.coinRewards.newPointInterval
+				>= config.coinRewards.newPointInterval
 			&& inPolygon(info, await db.area.getBorder(info.area));
 	}
 
@@ -18,7 +18,7 @@ module.exports = (config, db) => {
 	objects.addParams(api, db);
 
 	api.get("/list/:area/:since", async(req, res) => {
-		const points = await db.point.list(req.id, req.since);
+		const points = await db.point.list(req.area, req.since);
 		let latest = 0;
 		for(let point of points) {
 			latest = Math.max(latest, point.time);

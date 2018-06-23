@@ -1,4 +1,4 @@
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 -- Project:	ERP-Coin
 -- Version Number:	1.0.0 / 2018
 
@@ -15,9 +15,9 @@
 
 -- Purpose Statement: Create the whole bulk of the database structure, without
 -- any data.
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 
--- Database Administrater: Darius Scheepers
+-- Database Administrator: Darius Scheepers
 
 -- Naming conventions:
 --    object names have a prefix that is one of following acronyms followed by
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
   `aleSeverity` INT(10) UNSIGNED NOT NULL,
   `aleImage` mediumblob ,
   `aleBroadcast` BIT(1) NOT NULL,
-  `aleLocation` VARCHAR(50) NOT NULL,
+  `aleLocation` VARCHAR(100) NOT NULL,
   `aleTimeSent`  BIGINT NOT NULL,
   `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
   `tblUser_usrID` INT(10) UNSIGNED,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAdminStock` (
     `casDescription` VARCHAR(255) NOT NULL,
     `casImage` mediumblob,
     `casVerified` BIT(1) NOT NULL,
-    `casStockAmount` INT(10) NOT NULL,    
+    `casStockAmount` INT(10) NOT NULL,
     `tblAdminUser_admID` INT(10) UNSIGNED NOT NULL,
 	PRIMARY KEY (`casID`, `tblAdminUser_admID`),
 	INDEX `fk_tblConservationAdminStock_tblAdminUser1_idx` (`tblAdminUser_admID` ASC),

@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
   `aleImage` BLOB ,
   `aleBroadcast` BIT(1) NOT NULL,
   `aleLocation` VARCHAR(50) NOT NULL,
+  `aleTimeSent`  BIGINT NOT NULL,
   `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
   `tblUser_usrID` INT(10) UNSIGNED,
   PRIMARY KEY (`aleID`, `tblUser_usrID`),

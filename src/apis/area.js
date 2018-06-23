@@ -2,6 +2,8 @@ const express = require("express");
 const objects = require("../objects.js");
 
 module.exports = (config, db) => {
+	const auth = require("../auth.js")(db);
+
 	function validateBorder(info) {
 		info.middle = undefined;
 		if(!(info.border instanceof Array)) {
@@ -48,17 +50,8 @@ module.exports = (config, db) => {
 		res.send(await db.area.getInfo(req.area));
 	});
 
-	api.use(async(req, res, next) => {
-		if("superId" in req.session) {
-			req.superId = parseInt(req.session.superId);
-			if(await db.superadmin.validId(req.superId)) {
-				return next();
-			}
-		}
-		res.sendStatus(401);
-	});
-
 	api.post("/info/:area", async(req, res) => {
+		await auth.requireSuperAdmin(req);
 		if(req.body.border instanceof Array && !verifyBorder(req.body)) {
 			return res.sendStatus(400);
 		}
@@ -67,6 +60,7 @@ module.exports = (config, db) => {
 	});
 
 	api.post("/add", async(req, res) => {
+		await auth.requireSuperAdmin(req);
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
@@ -75,6 +69,7 @@ module.exports = (config, db) => {
 	});
 
 	api.get("/remove/:area", async(req, res) => {
+		await auth.requireSuperAdmin(req);
 		await db.area.remove(req.area);
 		res.send({});
 	});

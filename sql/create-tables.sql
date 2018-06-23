@@ -187,12 +187,12 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAdminStock` (
     `casImage` mediumblob,
     `casVerified` BIT(1) NOT NULL,
     `casStockAmount` INT(10) NOT NULL,
-    `tblAdminUser_admID` INT(10) UNSIGNED NOT NULL,
-	PRIMARY KEY (`casID`, `tblAdminUser_admID`),
-	INDEX `fk_tblConservationAdminStock_tblAdminUser1_idx` (`tblAdminUser_admID` ASC),
-	CONSTRAINT `fk_tblConservationAdminStock_tblAdminUser1`
-	FOREIGN KEY (`tblAdminUser_admID`)
-	REFERENCES `dbERPCOIN`.`tblAdminUser` (`admID`)
+    `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
+	PRIMARY KEY (`casID`, `tblConservationArea_conID`),
+	INDEX `fk_tblConservationAdminStock_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
+	CONSTRAINT `fk_tblConservationAdminStock_tblConservationArea1`
+	FOREIGN KEY (`tblConservationArea_conID`)
+	REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
 	ON DELETE NO ACTION
 	ON UPDATE NO ACTION)
 ENGINE = InnoDB

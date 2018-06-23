@@ -5,6 +5,8 @@ const objects = require("./objects.js");
 require("express-async-errors");
 
 module.exports = (config, db) => {
+	const auth = require("./auth.js")(db);
+
 	const app = express();
 	app.use(cors({origin: true, credentials: true}));
 	app.use(express.json({limit: config.maxImageSize}));
@@ -34,8 +36,12 @@ module.exports = (config, db) => {
 	}
 
 	app.use((err, req, res, next) => {
-		console.error(err);
-		res.sendStatus(500);
+		if(err instanceof auth.AuthError) {
+			res.sendStatus(401);
+		} else {
+			console.error(err);
+			res.sendStatus(500);
+		}
 	});
 	return app;
 };

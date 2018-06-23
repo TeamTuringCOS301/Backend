@@ -4,6 +4,8 @@ const isBase64 = require("is-base64");
 const objects = require("../objects.js");
 
 module.exports = (config, db) => {
+	const auth = require("../auth.js")(db);
+
 	async function validate(info) { // TODO: proper validation
 		for(let key of ["title", "description"]) {
 			if(typeof info[key] !== "string") {
@@ -25,18 +27,10 @@ module.exports = (config, db) => {
 	api.post("/add/:area", async(req, res) => {
 		req.body.time = new Date().getTime();
 		req.body.area = req.area;
-		let auth = false;
-		if("userId" in req.session) {
-			req.body.user = parseInt(req.session.userId);
-			if(await db.user.validId(req.body.user)) {
-				auth = true;
-			}
-		} else if("adminId" in req.session
-				&& await db.admin.validId(parseInt(req.session.adminId))) {
-			auth = true;
-		}
-		if(!auth) {
-			return res.sendStatus(401);
+		if(await auth.isUser(req)) {
+			req.body.user = req.userId;
+		} else {
+			await auth.requireAreaAdmin(req, req.area);
 		}
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
@@ -50,28 +44,14 @@ module.exports = (config, db) => {
 		res.send({alerts});
 	});
 
-	api.use(async(req, res, next) => {
-		if("adminId" in req.session) {
-			req.adminId = parseInt(req.session.adminId);
-			if(await db.area.validId(req.adminId)) {
-				return next();
-			}
-		}
-		res.sendStatus(401);
-	});
-
 	api.get("/list/:area/:since", async(req, res) => {
-		if(await db.admin.getArea(req.adminId) !== req.area) {
-			return res.sendStatus(401);
-		}
+		await auth.requireAreaAdmin(req, req.area);
 		const alerts = await db.alert.list(req.area, req.since);
 		res.send({alerts});
 	});
 
 	api.post("/broadcast/:alert", async(req, res) => {
-		if(await db.admin.getArea(req.adminId) !== await db.alert.getArea(req.alert)) {
-			return res.sendStatus(401);
-		}
+		await auth.requireAreaAdmin(req, await db.alert.getArea(req.alert));
 		if(typeof req.body.broadcast !== "boolean") {
 			return res.sendStatus(400);
 		}
@@ -80,9 +60,7 @@ module.exports = (config, db) => {
 	});
 
 	api.get("/remove/:alert", async(req, res) => {
-		if(await db.admin.getArea(req.adminId) !== await db.alert.getArea(req.alert)) {
-			return res.sendStatus(401);
-		}
+		await auth.requireAreaAdmin(req, await db.alert.getArea(req.alert));
 		await db.alert.remove(req.alert);
 		res.send({});
 	});

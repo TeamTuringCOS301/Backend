@@ -4,6 +4,8 @@ const generator = require("generate-password");
 const objects = require("../objects.js");
 
 module.exports = (config, db) => {
+	const auth = require("../auth.js")(db);
+
 	async function validate(info) { // TODO: proper validation
 		for(let key of ["username", "email", "name", "surname"]) {
 			if(typeof info[key] !== "string") {
@@ -32,43 +34,25 @@ module.exports = (config, db) => {
 		res.send({success});
 	});
 
-	api.use(async(req, res, next) => {
-		if("adminId" in req.session) {
-			req.adminId = parseInt(req.session.adminId);
-			if(!await db.admin.validId(req.adminId)) {
-				return res.sendStatus(401);
-			}
-		}
-		next();
-	});
-
 	api.get("/logout", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
+		await auth.requireAdmin(req);
 		req.session.adminId = undefined;
 		res.send({});
 	});
 
 	api.get("/info", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
+		await auth.requireAdmin(req);
 		res.send(await db.admin.getInfo(req.adminId));
 	});
 
 	api.post("/info", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
+		await auth.requireAdmin(req);
 		await db.admin.updateInfo(req.adminId, req.body);
 		res.send({});
 	});
 
 	api.post("/password", async(req, res) => {
-		if(typeof req.adminId !== "number") {
-			return res.sendStatus(401);
-		}
+		await auth.requireAdmin(req);
 		if(typeof req.body.old !== "string" || typeof req.body.new !== "string") {
 			return res.sendStatus(400);
 		}
@@ -82,17 +66,8 @@ module.exports = (config, db) => {
 		res.send({success});
 	});
 
-	api.use(async(req, res, next) => {
-		if("superId" in req.session) {
-			req.superId = parseInt(req.session.superId);
-			if(await db.superadmin.validId(req.superId)) {
-				return next();
-			}
-		}
-		res.sendStatus(401);
-	});
-
 	api.post("/add", async(req, res) => {
+		await auth.requireSuperAdmin(req);
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
@@ -106,11 +81,13 @@ module.exports = (config, db) => {
 	});
 
 	api.get("/remove/:admin", async(req, res) => {
+		await auth.requireSuperAdmin(req);
 		await db.admin.remove(req.admin);
 		res.send({});
 	});
 
 	api.get("/list", async(req, res) => {
+		await auth.requireSuperAdmin(req);
 		res.send({admins: await db.admin.list()});
 	});
 

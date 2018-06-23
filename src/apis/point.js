@@ -3,6 +3,8 @@ const inPolygon = require("../in-polygon.js");
 const objects = require("../objects.js");
 
 module.exports = (config, db) => {
+	const auth = require("../auth.js")(db);
+
 	async function validate(info) { // TODO: proper validation
 		for(let key of ["lat", "lng"]) {
 			if(typeof info[key] !== "number") {
@@ -27,17 +29,8 @@ module.exports = (config, db) => {
 		res.send({points, latest});
 	});
 
-	api.use(async(req, res, next) => {
-		if("userId" in req.session) {
-			req.userId = parseInt(req.session.userId);
-			if(await db.user.validId(req.userId)) {
-				return next();
-			}
-		}
-		res.sendStatus(401);
-	});
-
 	api.post("/add/:area", async(req, res) => {
+		await auth.requireUser(req);
 		req.body.time = new Date().getTime();
 		req.body.area = req.area;
 		req.body.user = req.userId;

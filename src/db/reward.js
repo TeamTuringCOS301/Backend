@@ -2,10 +2,10 @@ module.exports = (config, query) => ({
 	async add(info) {
 		await query(`
 			INSERT INTO tblConservationAdminStock (casName, casDescription, casImage,
-				casStockAmount, casRandValue, casCoinValue, casVerified, tblAdminUser_admID)
+				casStockAmount, casRandValue, casCoinValue, casVerified, tblConservationArea_conID)
 			VALUES (?, ?, ?, ?, ?, 0, 0, ?)`,
 			[info.name, info.description, Buffer.from(info.image, "base64"), info.amount,
-				info.randValue, info.admin]);
+				info.randValue, info.area]);
 	},
 
 	async remove(id) {
@@ -18,7 +18,7 @@ module.exports = (config, query) => ({
 	async list() {
 		const results = await query(`
 			SELECT casID, casName, casDescription, casImage, casStockAmount, casRandValue,
-				casCoinValue
+				casCoinValue, tblConservationArea_conID
 			FROM tblConservationAdminStock
 			WHERE casVerified = 1`);
 		const rewards = [];
@@ -30,7 +30,8 @@ module.exports = (config, query) => ({
 				image: reward.casImage.toString("base64"),
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
-				coinValue: reward.casCoinValue
+				coinValue: reward.casCoinValue,
+				area: reward.tblConservationArea_conID
 			});
 		}
 		return rewards;
@@ -38,7 +39,8 @@ module.exports = (config, query) => ({
 
 	async listNew() {
 		const results = await query(`
-			SELECT casID, casName, casDescription, casImage, casStockAmount, casRandValue
+			SELECT casID, casName, casDescription, casImage, casStockAmount, casRandValue,
+				tblConservationArea_conID
 			FROM tblConservationAdminStock
 			WHERE casVerified = 0`);
 		const rewards = [];
@@ -49,19 +51,20 @@ module.exports = (config, query) => ({
 				description: reward.casDescription,
 				image: reward.casImage.toString("base64"),
 				amount: reward.casStockAmount,
-				randValue: reward.casRandValue
+				randValue: reward.casRandValue,
+				area: reward.tblConservationArea_conID
 			});
 		}
 		return rewards;
 	},
 
-	async listOwned(admin) {
+	async listOwned(area) {
 		const results = await query(`
 			SELECT casID, casName, casDescription, casImage, casStockAmount, casRandValue,
 				casCoinValue, casVerified
 			FROM tblConservationAdminStock
-			WHERE tblAdminUser_admID = ?`,
-			[admin]);
+			WHERE tblConservationArea_conID = ?`,
+			[area]);
 		const rewards = [];
 		for(let reward of results) {
 			rewards.push({
@@ -87,13 +90,13 @@ module.exports = (config, query) => ({
 		return results.length === 1;
 	},
 
-	async getAdmin(id) {
+	async getArea(id) {
 		const results = await query(`
-			SELECT tblAdminUser_admID
+			SELECT tblConservationArea_conID
 			FROM tblConservationAdminStock
 			WHERE casID = ?`,
 			[id]);
-		return results[0].tblAdminUser_admID;
+		return results[0].tblConservationArea_conID;
 	},
 
 	async verifyCoinValue(id, coinValue) {

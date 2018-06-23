@@ -28,7 +28,7 @@ module.exports = (config, db) => {
 		});
 	}
 
-	api.param("since", async(req, res, next, since) => {
+	app.param("since", async(req, res, next, since) => {
 		req.since = parseInt(since);
 		if(isNaN(req.since)) {
 			return res.sendStatus(400);

@@ -1,6 +1,7 @@
 const express = require("express");
 const inPolygon = require("../in-polygon.js");
 const isBase64 = require("is-base64");
+const objects = require("../objects.js");
 
 module.exports = (config, db) => {
 	async function validate(info) { // TODO: proper validation
@@ -19,6 +20,7 @@ module.exports = (config, db) => {
 	}
 
 	const api = express();
+	objects.addParams(api, db);
 
 	api.post("/add/:area", async(req, res) => {
 		req.body.time = new Date().getTime();

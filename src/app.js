@@ -1,6 +1,7 @@
 const cors = require("cors");
 const express = require("express");
 const session = require("express-session");
+const objects = require("./objects.js");
 require("express-async-errors");
 
 module.exports = (config, db) => {
@@ -28,25 +29,7 @@ module.exports = (config, db) => {
 		});
 	}
 
-	app.param("since", async(req, res, next, since) => {
-		req.since = parseInt(since);
-		if(isNaN(req.since)) {
-			return res.sendStatus(400);
-		}
-		next();
-	});
-
-	const objects = ["admin", "alert", "area", "point", "reward", "superadmin", "user"];
-	for(let object of objects) {
-		app.param(object, async(req, res, next, id) => {
-			req[object] = parseInt(id);
-			if(isNaN(req[object]) || !await db[object].validId(req[object])) {
-				return res.sendStatus(400);
-			}
-			next();
-		});
-	}
-	for(let object of objects) {
+	for(let object of objects.all) {
 		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db));
 	}
 

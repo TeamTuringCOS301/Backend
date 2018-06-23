@@ -1,5 +1,6 @@
 const express = require("express");
 const isBase64 = require("is-base64");
+const objects = require("../objects.js");
 
 module.exports = (config, db) => {
 	async function validate(info) { // TODO: proper validation
@@ -17,6 +18,7 @@ module.exports = (config, db) => {
 	}
 
 	const api = express();
+	objects.addParams(api, db);
 
 	api.get("/list", async(req, res) => {
 		const rewards = await db.reward.list();

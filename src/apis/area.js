@@ -1,4 +1,5 @@
 const express = require("express");
+const objects = require("../objects.js");
 
 module.exports = (config, db) => {
 	function validateBorder(info) {
@@ -31,6 +32,7 @@ module.exports = (config, db) => {
 	}
 
 	const api = express();
+	objects.addParams(api, db);
 
 	api.get("/list", async(req, res) => {
 		const areas = await db.area.list();

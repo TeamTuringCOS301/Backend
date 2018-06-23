@@ -1,5 +1,6 @@
 const express = require("express");
 const inPolygon = require("../in-polygon.js");
+const objects = require("../objects.js");
 
 module.exports = (config, db) => {
 	async function validate(info) { // TODO: proper validation
@@ -14,6 +15,7 @@ module.exports = (config, db) => {
 	}
 
 	const api = express();
+	objects.addParams(api, db);
 
 	api.get("/list/:area/:since", async(req, res) => {
 		const points = await db.point.list(req.id, req.since);

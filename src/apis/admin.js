@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
 const generator = require("generate-password");
+const objects = require("../objects.js");
 
 module.exports = (config, db) => {
 	async function validate(info) { // TODO: proper validation
@@ -13,6 +14,7 @@ module.exports = (config, db) => {
 	}
 
 	const api = express();
+	objects.addParams(api, db);
 
 	api.post("/login", async(req, res) => {
 		if(typeof req.body.username !== "string" || typeof req.body.password !== "string") {

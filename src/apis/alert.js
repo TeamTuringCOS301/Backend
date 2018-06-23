@@ -76,7 +76,7 @@ module.exports = (config, db) => {
 			return res.sendStatus(400);
 		}
 		await db.alert.setBroadcast(req.alert, req.body.broadcast);
-		res.end();
+		res.send({});
 	});
 
 	api.get("/remove/:alert", async(req, res) => {
@@ -84,7 +84,7 @@ module.exports = (config, db) => {
 			return res.sendStatus(401);
 		}
 		await db.alert.remove(req.alert);
-		res.end();
+		res.send({});
 	});
 
 	return api;

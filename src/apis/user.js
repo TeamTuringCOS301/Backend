@@ -66,7 +66,7 @@ module.exports = (config, db) => {
 
 	api.post("/info", async(req, res) => {
 		await db.user.updateInfo(req.userId, req.body);
-		res.end();
+		res.send({});
 	});
 
 	api.post("/password", async(req, res) => {

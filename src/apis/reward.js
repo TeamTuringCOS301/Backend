@@ -51,7 +51,7 @@ module.exports = (config, db) => {
 			return res.sendStatus(400);
 		}
 		await db.reward.verifyCoinValue(req.reward, req.body.coinValue);
-		res.end();
+		res.send({});
 	});
 
 	api.use(async(req, res, next) => {
@@ -75,7 +75,7 @@ module.exports = (config, db) => {
 			return res.sendStatus(400);
 		}
 		await db.reward.add(req.body);
-		res.end();
+		res.send({});
 	});
 
 	api.get("/remove/:reward", async(req, res) => {
@@ -83,7 +83,7 @@ module.exports = (config, db) => {
 			return res.sendStatus(401);
 		}
 		await db.reward.remove(req.reward);
-		res.end();
+		res.send({});
 	});
 
 	return api;

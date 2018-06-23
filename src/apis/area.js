@@ -3,7 +3,9 @@ const objects = require("../objects.js");
 
 module.exports = (config, db) => {
 	function validateBorder(info) {
+		info.middle = undefined;
 		if(!(info.border instanceof Array)) {
+			info.border = undefined;
 			return false;
 		}
 		let lat = 0, lng = 0;

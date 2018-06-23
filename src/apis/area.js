@@ -52,7 +52,7 @@ module.exports = (config, db) => {
 		if("superId" in req.session) {
 			req.superId = parseInt(req.session.superId);
 			if(await db.superadmin.validId(req.superId)) {
-				next();
+				return next();
 			}
 		}
 		res.sendStatus(401);

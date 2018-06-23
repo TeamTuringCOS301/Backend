@@ -1,6 +1,6 @@
 const express = require("express");
 
-module.exports = (db) => {
+module.exports = (config, db) => {
 	const api = express();
 
 	api.param("id", async(req, res, next, id) => {

@@ -1,7 +1,7 @@
 const express = require("express");
 const inPolygon = require("../in-polygon.js");
 
-module.exports = (db) => {
+module.exports = (config, db) => {
 	const api = express();
 
 	api.param("area", async(req, res, next, id) => {

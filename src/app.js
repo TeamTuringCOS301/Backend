@@ -7,7 +7,7 @@ require("express-async-errors");
 module.exports = (config, db) => {
 	const app = express();
 	app.use(cors({origin: true, credentials: true}));
-	app.use(express.json());
+	app.use(express.json({limit: config.maxImageSize}));
 	app.use(session({
 		cookie: {
 			maxAge: config.sessionCookie.maxAge,

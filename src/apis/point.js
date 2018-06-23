@@ -41,7 +41,7 @@ module.exports = (config, db) => {
 		req.body.time = new Date().getTime();
 		req.body.area = req.area;
 		req.body.user = req.userId;
-		if(!await validate(info)) {
+		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
 		const numPoints = await db.point.countNearbyPoints(req.body);

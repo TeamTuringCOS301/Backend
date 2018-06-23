@@ -7,6 +7,7 @@
 		"newPointInterval": 1000,
 		"pointsPerArea": 100
 	},
+	"maxImageSize": "5mb",
 	"sessionCookie": {
 		"maxAge": 86400,
 		"secret": "correcthorsebatterystaple"

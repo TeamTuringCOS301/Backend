@@ -12,6 +12,7 @@ module.exports = (config, db, coins) => {
 	app.use(express.json({limit: config.maxImageSize}));
 	app.use(session({
 		cookie: {
+			// TODO: re-enable
 			//maxAge: config.sessionCookie.maxAge,
 			secure: true
 		},

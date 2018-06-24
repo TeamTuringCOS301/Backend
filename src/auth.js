@@ -32,7 +32,7 @@ module.exports = (db) => ({
 	},
 
 	async requireAreaAdmin(req, area) {
-		if(!await this.isAdmin(req) || db.admin.getArea(req.adminId) !== area) {
+		if(!await this.isAdmin(req) || await db.admin.getArea(req.adminId) !== area) {
 			throw new AuthError();
 		}
 	},

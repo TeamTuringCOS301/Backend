@@ -489,6 +489,13 @@ The rest of the API is only available to a registered user.
   Response fields:
 
   ```
+  alerts: array
+  latest: integer
+  ```
+
+  Fields of each element:
+
+  ```
   time: integer
   title: string
   description: string
@@ -502,6 +509,13 @@ The rest of the API is only available to the admin associated with the conservat
 * `GET /alert/list/:area/:since` - List all alerts for the given area.
 
   Response fields:
+
+  ```
+  alerts: array
+  latest: integer
+  ```
+
+  Fields of each element:
 
   ```
   id: integer

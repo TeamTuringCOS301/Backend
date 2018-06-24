@@ -41,13 +41,21 @@ module.exports = (config, db, coins) => {
 
 	api.get("/broadcasts/:area/:since", async(req, res) => {
 		const alerts = await db.alert.listBroadcasts(req.area, req.since);
-		res.send({alerts});
+		let latest = 0;
+		for(let alert of alerts) {
+			latest = Math.max(latest, alert.time);
+		}
+		res.send({alerts, latest});
 	});
 
 	api.get("/list/:area/:since", async(req, res) => {
 		await auth.requireAreaAdmin(req, req.area);
 		const alerts = await db.alert.list(req.area, req.since);
-		res.send({alerts});
+		let latest = 0;
+		for(let alert of alerts) {
+			latest = Math.max(latest, alert.time);
+		}
+		res.send({alerts, latest});
 	});
 
 	api.post("/broadcast/:alert", async(req, res) => {

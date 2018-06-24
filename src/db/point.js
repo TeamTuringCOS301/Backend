@@ -46,20 +46,10 @@ module.exports = (config, query) => ({
 		return results.length;
 	},
 
-	async limitPoints(area) {
-		const results = await query(`
-			SELECT cupID
-			FROM tblConservationAreaUserPoints
-			WHERE tblConservationArea_conID = ?`);
-		if(results.length > config.coinRewards.pointsPerArea) {
-			await query(`
-				DELETE FROM tblConservationAreaUserPoints
-				WHERE cupID IN (
-					SELECT TOP ? cupID
-					FROM tblConservationAreaUserPoints
-					WHERE tblConservationArea_conID = ?
-					ORDER BY cupDateTime)`,
-				[results.length - config.coinRewards.pointsPerArea, area]);
-		}
+	async limitPoints(minTime) {
+		await query(`
+			DELETE FROM tblConservationAreaUserPoints
+			WHERE cupDateTime < ?`,
+			[minTime]);
 	}
 });

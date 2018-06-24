@@ -10,9 +10,9 @@ module.exports = (config, query) => ({
 					info.user]);
 		} else {
 			await query(`
-				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity,
-					aleBroadcast, aleLocation, tblUser_usrID)
-				VALUES (?, ?, ?, ?, 1, ?, ?, ?)`,
+				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage,
+					aleBroadcast, aleLocation, tblConservationArea_conID, tblUser_usrID)
+				VALUES (?, ?, ?, ?, 0, 1, ?, ?, ?)`,
 				[info.time, info.title, info.description, info.severity,
 					JSON.stringify(info.location), info.area, info.user]);
 		}
@@ -45,7 +45,7 @@ module.exports = (config, query) => ({
 				location: JSON.parse(alert.aleLocation)
 			});
 		}
-		return rewards;
+		return alerts;
 	},
 
 	async listBroadcasts(area, since) {

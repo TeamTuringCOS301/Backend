@@ -10,3 +10,10 @@ https.createServer({
     key: fs.readFileSync(config.tls.key),
     passphrase: config.tls.passphrase
 }, app).listen(config.apiPort);
+
+var timer = setInterval(deletePoints,config.clearInterval);
+
+function deletePoints(){
+  const minTime= new Date().getTime()-config.pointMaxAge;
+  db.point.limitPoints(minTime);
+}

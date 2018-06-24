@@ -1,5 +1,6 @@
 {
 	"apiPort": 8080,
+	"clearInterval": 600000,
 	"coinRewards": {
 		"expScale": 0.001,
 		"maxProbability": 0.07,
@@ -15,6 +16,7 @@
 		"password": "pass",
 		"database": "dbERPCOIN"
 	},
+	"pointMaxAge": 600000,
 	"sessionCookie": {
 		"maxAge": 86400,
 		"secret": "correcthorsebatterystaple"

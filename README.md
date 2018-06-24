@@ -60,7 +60,8 @@ Note that this certificate will have to be added to the browser.
 
 The following parameters must be specified in `config.json`:
 
-* `pointsPerArea` - The maximum number of visited points stored for each conservation area.
+* `pointMaxAge` - The maximum time a point may stay on the map in milliseconds.
+* `clearInterval` - The interval used to clear point exceeding the maximum time.
 * `newPointInterval` - The minimum interval (in milliseconds) that a user must wait between submitting visited points.
 * `nearRadius` - The radius (in metres) for which points are considered near a user's location.
 * `expScale` - The number of nearby points are scaled by this factor before calculating the probability of earning a coin.

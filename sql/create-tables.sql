@@ -130,7 +130,7 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
 	`aleID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`aleHeader` VARCHAR(30) NOT NULL,
-  `aleDescription` VARCHAR(100) NOT NULL,
+  `aleDescription` VARCHAR(300) NOT NULL,
   `aleSeverity` INT(10) UNSIGNED NOT NULL,
   `aleImage` mediumblob ,
   `aleBroadcast` BIT(1) NOT NULL,

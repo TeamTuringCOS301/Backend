@@ -497,13 +497,17 @@ The rest of the API is only available to a registered user.
   Fields of each element:
 
   ```
+  id: integer
   time: integer
   title: string
   description: string
   severity: 0, 1 or 2
-  image: base64 string
+  hasImage: boolean
   location: point
   ```
+
+* `GET /alert/image/:alert` - Respond with the image submitted for this alert.
+  The response is not encoded as JSON.
 
 The rest of the API is only available to the admin associated with the conservation area.
 
@@ -524,7 +528,7 @@ The rest of the API is only available to the admin associated with the conservat
   title: string
   description: string
   severity: 0, 1 or 2
-  image: base64 string
+  hasImage: boolean
   broadcast: boolean
   location: point
   ```
@@ -555,12 +559,14 @@ The rest of the API is only available to the admin associated with the conservat
   id: integer
   name: string
   description: string
-  image: base64 string
   amount: integer
   randValue: integer
   coinValue: integer
   area: integer
   ```
+
+* `GET /reward/image/:reward` - Respond with the image submitted for this reward.
+  The response is not encoded as JSON.
 
 The rest of the API is only available to an admin.
 
@@ -578,7 +584,6 @@ The rest of the API is only available to an admin.
   id: integer
   name: string
   description: string
-  image: base64 string
   amount: integer
   randValue: integer
   coinValue: integer

@@ -1,4 +1,5 @@
 const express = require("express");
+const imageType = require("image-type");
 const isBase64 = require("is-base64");
 const objects = require("../objects.js");
 
@@ -16,7 +17,7 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		return isBase64(info.image);
+		return isBase64(info.image) && imageType(Buffer.from(info.image, "base64")) !== null;
 	}
 
 	const api = express();
@@ -31,6 +32,12 @@ module.exports = (config, db, coins) => {
 		await auth.requireSuperAdmin(req);
 		const rewards = await db.reward.listNew();
 		res.send({rewards});
+	});
+
+	api.get("/image/:reward", async(req, res) => {
+		const image = await db.reward.getImage(req.reward);
+		res.set('Content-Type', imageType(image).mime);
+		res.send(image);
 	});
 
 	api.post("/verify/:reward", async(req, res) => {

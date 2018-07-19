@@ -17,8 +17,8 @@ module.exports = (config, query) => ({
 
 	async list() {
 		const results = await query(`
-			SELECT casID, casName, casDescription, casImage, casStockAmount, casRandValue,
-				casCoinValue, tblConservationArea_conID
+			SELECT casID, casName, casDescription, casStockAmount, casRandValue, casCoinValue,
+				tblConservationArea_conID
 			FROM tblConservationAdminStock
 			WHERE casVerified = 1`);
 		const rewards = [];
@@ -27,7 +27,6 @@ module.exports = (config, query) => ({
 				id: reward.casID,
 				name: reward.casName,
 				description: reward.casDescription,
-				image: reward.casImage.toString("base64"),
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
 				coinValue: reward.casCoinValue,
@@ -39,7 +38,7 @@ module.exports = (config, query) => ({
 
 	async listNew() {
 		const results = await query(`
-			SELECT casID, casName, casDescription, casImage, casStockAmount, casRandValue,
+			SELECT casID, casName, casDescription, casStockAmount, casRandValue,
 				tblConservationArea_conID
 			FROM tblConservationAdminStock
 			WHERE casVerified = 0`);
@@ -49,7 +48,6 @@ module.exports = (config, query) => ({
 				id: reward.casID,
 				name: reward.casName,
 				description: reward.casDescription,
-				image: reward.casImage.toString("base64"),
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
 				area: reward.tblConservationArea_conID
@@ -60,8 +58,8 @@ module.exports = (config, query) => ({
 
 	async listOwned(area) {
 		const results = await query(`
-			SELECT casID, casName, casDescription, casImage, casStockAmount, casRandValue,
-				casCoinValue, casVerified
+			SELECT casID, casName, casDescription, casStockAmount, casRandValue, casCoinValue,
+				casVerified
 			FROM tblConservationAdminStock
 			WHERE tblConservationArea_conID = ?`,
 			[area]);
@@ -71,7 +69,6 @@ module.exports = (config, query) => ({
 				id: reward.casID,
 				name: reward.casName,
 				description: reward.casDescription,
-				image: reward.casImage.toString("base64"),
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
 				coinValue: reward.casCoinValue,
@@ -88,6 +85,15 @@ module.exports = (config, query) => ({
 			WHERE casID = ?`,
 			[id]);
 		return results.length === 1;
+	},
+
+	async getImage(id) {
+		const results = await query(`
+			SELECT casImage
+			FROM tblConservationAdminStock
+			WHERE casID = ?`,
+			[id]);
+		return results[0].aleImage;
 	},
 
 	async getArea(id) {

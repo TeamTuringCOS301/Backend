@@ -27,8 +27,8 @@ module.exports = (config, query) => ({
 
 	async list(area, since) {
 		const results = await query(`
-			SELECT aleID, aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage,
-				aleBroadcast, aleLocation
+			SELECT aleID, aleTimeSent, aleHeader, aleDescription, aleSeverity,
+				aleImage IS NOT NULL AS hasImage, aleBroadcast, aleLocation
 			FROM tblAlert
 			WHERE tblConservationArea_conID = ? AND aleTimeSent > ?`,
 			[area, since]);
@@ -40,7 +40,7 @@ module.exports = (config, query) => ({
 				title: alert.aleHeader,
 				description: alert.aleDescription,
 				severity: alert.aleSeverity,
-				image: alert.aleImage.toString("base64"),
+				hasImage: alert.hasImage,
 				broadcast: alert.aleBroadcast[0] === 1,
 				location: JSON.parse(alert.aleLocation)
 			});
@@ -50,18 +50,20 @@ module.exports = (config, query) => ({
 
 	async listBroadcasts(area, since) {
 		const results = await query(`
-			SELECT aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage, aleLocation
+			SELECT aleID, aleTimeSent, aleHeader, aleDescription, aleSeverity,
+				aleImage IS NOT NULL AS hasImage, aleLocation
 			FROM tblAlert
 			WHERE aleBroadcast = 1 AND tblConservationArea_conID = ? AND aleTimeSent > ?`,
 			[area, since]);
 		const alerts = [];
 		for(let alert of results) {
 			alerts.push({
+				id: alert.aleID,
 				time: alert.aleTimeSent,
 				title: alert.aleHeader,
 				description: alert.aleDescription,
 				severity: alert.aleSeverity,
-				image: alert.aleImage.toString("base64"),
+				hasImage: alert.hasImage,
 				location: JSON.parse(alert.aleLocation)
 			});
 		}
@@ -75,6 +77,15 @@ module.exports = (config, query) => ({
 			WHERE aleID = ?`,
 			[id]);
 		return results.length === 1;
+	},
+
+	async getImage(id) {
+		const results = await query(`
+			SELECT aleImage
+			FROM tblAlert
+			WHERE aleID = ?`,
+			[id]);
+		return results[0].aleImage;
 	},
 
 	async getArea(id) {

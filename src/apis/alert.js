@@ -1,4 +1,5 @@
 const express = require("express");
+const imageType = require("image-type");
 const inPolygon = require("../in-polygon.js");
 const isBase64 = require("is-base64");
 const objects = require("../objects.js");
@@ -17,7 +18,8 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image))
+		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image)
+				&& imageType(Buffer.from(info.image, "base64")) !== null)
 			&& inPolygon(info.location, await db.area.getBorder(info.area));
 	}
 
@@ -46,6 +48,12 @@ module.exports = (config, db, coins) => {
 			latest = Math.max(latest, alert.time);
 		}
 		res.send({alerts, latest});
+	});
+
+	api.get("/image/:alert", async(req, res) => {
+		const image = await db.alert.getImage(req.alert);
+		res.set('Content-Type', imageType(image).mime);
+		res.send(image);
 	});
 
 	api.get("/list/:area/:since", async(req, res) => {

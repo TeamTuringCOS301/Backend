@@ -52,6 +52,9 @@ module.exports = (config, db, coins) => {
 
 	api.get("/image/:alert", async(req, res) => {
 		const image = await db.alert.getImage(req.alert);
+		if(image === null) {
+			return res.sendStatus(404);
+		}
 		res.set('Content-Type', imageType(image).mime);
 		res.send(image);
 	});

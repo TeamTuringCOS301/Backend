@@ -21,7 +21,7 @@ INSERT INTO tblUser (
 	usrName,
 	usrSurname,
 	usrWalletAddress,
-  usrLastPointTime
+	usrLastPointTime
 ) VALUES (
 	"darius",
 	"darius@erp.coin",
@@ -29,7 +29,7 @@ INSERT INTO tblUser (
 	"Darius",
 	"Scheepers",
 	"0xf17f52151ebef6c7334fad080c5704d77216b732",
-  0
+	0
 );
 
 INSERT INTO tblUser (
@@ -39,7 +39,7 @@ INSERT INTO tblUser (
 	usrName,
 	usrSurname,
 	usrWalletAddress,
-  usrLastPointTime
+	usrLastPointTime
 ) VALUES (
 	"kyle",
 	"kyle@erp.coin",
@@ -47,7 +47,7 @@ INSERT INTO tblUser (
 	"Kyle",
 	"Pretorius",
 	"0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef",
-  0
+	0
 );
 
 INSERT INTO tblUser (
@@ -57,7 +57,7 @@ INSERT INTO tblUser (
 	usrName,
 	usrSurname,
 	usrWalletAddress,
-  usrLastPointTime
+	usrLastPointTime
 ) VALUES (
 	"richard",
 	"richard@erp.coin",
@@ -75,7 +75,7 @@ INSERT INTO tblUser (
 	usrName,
 	usrSurname,
 	usrWalletAddress,
-  usrLastPointTime
+	usrLastPointTime
 ) VALUES (
 	"sewis",
 	"sewis@erp.coin",
@@ -93,7 +93,7 @@ INSERT INTO tblUser (
 	usrName,
 	usrSurname,
 	usrWalletAddress,
-  usrLastPointTime
+	usrLastPointTime
 ) VALUES (
 	"tristan",
 	"tristan@erp.coin",
@@ -111,7 +111,7 @@ INSERT INTO tblUser (
 	usrName,
 	usrSurname,
 	usrWalletAddress,
-  usrLastPointTime
+	usrLastPointTime
 ) VALUES (
 	"ulrik",
 	"ulrik@erp.coin",

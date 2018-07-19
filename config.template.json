@@ -1,12 +1,12 @@
 {
 	"apiPort": 8080,
-	"clearInterval": 600000,
 	"coinRewards": {
+		"clearInterval": 600000,
 		"expScale": 0.001,
 		"maxProbability": 0.07,
 		"nearRadius": 1000,
 		"newPointInterval": 1000,
-		"pointsPerArea": 100
+		"pointMaxAge": 600000
 	},
 	"logRequests": false,
 	"maxImageSize": "5mb",
@@ -16,7 +16,6 @@
 		"password": "pass",
 		"database": "dbERPCOIN"
 	},
-	"pointMaxAge": 600000,
 	"sessionCookie": {
 		"maxAge": 86400,
 		"secret": "correcthorsebatterystaple"

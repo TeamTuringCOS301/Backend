@@ -12,8 +12,7 @@ module.exports = (config, db, coins) => {
 			}
 		}
 		return info.time - await db.user.getLatestTime(info.user)
-				>= config.coinRewards.newPointInterval
-			&& inPolygon(info, await db.area.getBorder(info.area));
+			>= config.coinRewards.newPointInterval;
 	}
 
 	const api = express();
@@ -36,6 +35,8 @@ module.exports = (config, db, coins) => {
 		req.body.user = req.userId;
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
+		} else if(!inPolygon(info, await db.area.getBorder(info.area))) {
+			return res.sendStatus(418);
 		}
 		const numPoints = await db.point.countNearbyPoints(req.body);
 		const prob = config.coinRewards.maxProbability

@@ -4,7 +4,8 @@ module.exports = (config, query) => ({
 			INSERT INTO tblConservationArea (conName, conCity, conProvince, conBorderNodeJSONObject,
 				conMiddlePointCoordinate)
 			VALUES (?, ?, ?, ?, ?)`,
-			[info.name, info.city, info.province, info.border, info.middle]);
+			[info.name, info.city, info.province, JSON.stringify(info.border),
+				JSON.stringify(info.middle)]);
 	},
 
 	async remove(id) {
@@ -25,7 +26,7 @@ module.exports = (config, query) => ({
 				name: area.conName,
 				city: area.conCity,
 				province: area.conProvince,
-				middle: area.conMiddlePointCoordinate
+				middle: JSON.parse(area.conMiddlePointCoordinate)
 			});
 		}
 		return areas;
@@ -65,21 +66,12 @@ module.exports = (config, query) => ({
 	},
 
 	async updateInfo(id, info) {
-		const fields = {
-			name: "conName",
-			city: "conCity",
-			province: "conProvince",
-			middle: "conMiddlePointCoordinate",
-			border: "conBorderNodeJSONObject"
-		};
-		for(let key in fields) {
-			if(typeof info[key] === "string") {
-				await query(`
-					UPDATE tblConservationArea
-					SET ${fields[key]} = ?
-					WHERE conID = ?`,
-					[info[key], id]);
-			}
-		}
+		await query(`
+			UPDATE tblConservationArea
+			SET conName = ?, conCity = ?, conProvince = ?, conMiddlePointCoordinate = ?,
+				conBorderNodeJSONObject = ?
+			WHERE conID = ?`,
+			[info.name, info.city, info.province, JSON.stringify(info.middle),
+				JSON.stringify(info.border)]);
 	}
 });

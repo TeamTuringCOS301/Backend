@@ -18,15 +18,14 @@ module.exports = (config, db, coins) => {
 			lat += point.lat;
 			lng += point.lng;
 		}
-		info.middle = JSON.stringify({
+		info.middle = {
 			lat: lat / info.border.length,
 			lng: lng / info.border.length
-		});
-		info.border = JSON.stringify(info.border);
+		};
 		return true;
 	}
 
-	async function validate(info) { // TODO: proper validation
+	async function validate(info, initial = true) { // TODO: proper validation
 		for(let key of ["name", "city", "province"]) {
 			if(typeof info[key] !== "string") {
 				return false;
@@ -40,9 +39,6 @@ module.exports = (config, db, coins) => {
 
 	api.get("/list", async(req, res) => {
 		const areas = await db.area.list();
-		for(let area of areas) {
-			area.middle = JSON.parse(area.middle);
-		}
 		res.send({areas});
 	});
 
@@ -50,9 +46,9 @@ module.exports = (config, db, coins) => {
 		res.send(await db.area.getInfo(req.area));
 	});
 
-	api.post("/info/:area", async(req, res) => {
+	api.post("/update/:area", async(req, res) => {
 		await auth.requireSuperAdmin(req);
-		if(req.body.border instanceof Array && !verifyBorder(req.body)) {
+		if(!await validate(req.body, false)) {
 			return res.sendStatus(400);
 		}
 		await db.admin.updateInfo(req.area, req.body);

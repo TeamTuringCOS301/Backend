@@ -134,9 +134,9 @@ The rest of the API requires that a user has already logged in.
   walletAddress: string
   ```
 
-* `POST /user/info` - Update the information stored for the current user.
+* `POST /user/update` - Update the information stored for the current user.
 
-  Optional request fields:
+  Required request fields:
 
   ```
   email: string
@@ -216,9 +216,9 @@ The rest of the API requires that an admin has already logged in.
   area: integer
   ```
 
-* `POST /admin/info` - Update the information stored for the current admin.
+* `POST /admin/update` - Update the information stored for the current admin.
 
-  Optional request fields:
+  Required request fields:
 
   ```
   email: string
@@ -315,9 +315,9 @@ The rest of the API requires that a super admin has already logged in.
   surname: string
   ```
 
-* `POST /superadmin/info` - Update the information stored for the current admin.
+* `POST /superadmin/update` - Update the information stored for the current admin.
 
-  Optional request fields:
+  Required request fields:
 
   ```
   email: string
@@ -412,9 +412,9 @@ The rest of the API requires that a super admin has already logged in.
 
 The rest of the API is only available to a super admin.
 
-* `POST /area/info/:area` - Update the information stored for the given area.
+* `POST /area/update/:area` - Update the information stored for the given area.
 
-  Optional request fields:
+  Required request fields:
 
   ```
   name: string
@@ -600,6 +600,23 @@ The rest of the API is only available to an admin.
   image: base64 string
   amount: integer
   randValue: integer
+  ```
+
+* `POST /reward/update/:reward` - Update the information stored for a reward.
+
+  Required request fields:
+
+  ```
+  name: string
+  description: string
+  amount: integer
+  randValue: integer
+  ```
+
+  Optional request fields:
+
+  ```
+  image: base64 string
   ```
 
 * `GET /reward/remove/:reward` - Remove the given reward.

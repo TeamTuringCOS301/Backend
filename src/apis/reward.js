@@ -6,7 +6,7 @@ const objects = require("../objects.js");
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info) { // TODO: proper validation
+	async function validate(info, initial = true) { // TODO: proper validation
 		for(let key of ["name", "description", "image"]) {
 			if(typeof info[key] !== "string") {
 				return false;
@@ -17,7 +17,8 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		return isBase64(info.image) && imageType(Buffer.from(info.image, "base64")) !== null;
+		return !initial && !info.image
+			|| isBase64(info.image) && imageType(Buffer.from(info.image, "base64")) !== null;
 	}
 
 	const api = express();
@@ -62,6 +63,15 @@ module.exports = (config, db, coins) => {
 			return res.sendStatus(400);
 		}
 		await db.reward.add(req.body);
+		res.send({});
+	});
+
+	api.post("/update/:reward", async(req, res) => {
+		await auth.requireAreaAdmin(req, await db.reward.getArea(req.reward));
+		if(!await validate(req.body, false)) {
+			res.sendStatus(400);
+		}
+		await db.reward.updateInfo(req.reward, info);
 		res.send({});
 	});
 

@@ -5,8 +5,15 @@ const objects = require("../objects.js");
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info) { // TODO: proper validation
-		for(let key of ["username", "email", "password", "name", "surname", "walletAddress"]) {
+	async function validate(info, initial = true) { // TODO: proper validation
+		if(initial) {
+			for(let key of ["username", "password"]) {
+				if(typeof info[key] !== "string") {
+					return false;
+				}
+			}
+		}
+		for(let key of ["email", "name", "surname", "walletAddress"]) {
 			if(typeof info[key] !== "string") {
 				return false;
 			}
@@ -58,8 +65,11 @@ module.exports = (config, db, coins) => {
 		res.send(await db.user.getInfo(req.userId));
 	});
 
-	api.post("/info", async(req, res) => {
+	api.post("/update", async(req, res) => {
 		await auth.requireUser(req);
+		if(!await validate(req.body, false)) {
+			return res.sendStatus(400);
+		}
 		await db.user.updateInfo(req.userId, req.body);
 		res.send({});
 	});

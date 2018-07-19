@@ -105,6 +105,22 @@ module.exports = (config, query) => ({
 		return results[0].tblConservationArea_conID;
 	},
 
+	async updateInfo(id, info) {
+		await query(`
+			UPDATE tblConservationAdminStock
+			SET casName = ?, casDescription = ?, casStockAmount = ?, casRandValue = ?,
+				casVerified = 0
+			WHERE casID = ?`,
+			[info.name, info.description, info.amount, info.randValue, id]);
+		if(info.image) {
+			await query(`
+				UPDATE tblConservationAdminStock
+				SET casImage = ?
+				WHERE casID = ?`,
+				[Buffer.from(info.image, "base64"), id]);
+		}
+	},
+
 	async verifyCoinValue(id, coinValue) {
 		await query(`
 			UPDATE tblConservationAdminStock

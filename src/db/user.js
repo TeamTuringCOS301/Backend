@@ -70,21 +70,11 @@ module.exports = (config, query) => ({
 	},
 
 	async updateInfo(id, info) {
-		const fields = {
-			email: "usrEmailAddress",
-			name: "usrName",
-			surname: "usrSurname",
-			walletAddress: "usrWalletAddress",
-		};
-		for(let key in fields) {
-			if(typeof info[key] === "string") {
-				await query(`
-					UPDATE tblUser
-					SET ${fields[key]} = ?
-					WHERE usrID = ?`,
-					[info[key], id]);
-			}
-		}
+		await query(`
+			UPDATE tblUser
+			SET usrEmailAddress = ?, usrName = ?, usrSurname = ?, usrWalletAddress = ?
+			WHERE usrID = ?`,
+			[info.email, info.name, info.surname, info.walletAddress, id]);
 	},
 
 	async getWalletAddress(id) {

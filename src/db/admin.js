@@ -88,20 +88,11 @@ module.exports = (config, query) => ({
 	},
 
 	async updateInfo(id, info) {
-		const fields = {
-			email: "admEmailAddress",
-			name: "admName",
-			surname: "admSurname",
-		};
-		for(let key in fields) {
-			if(typeof info[key] === "string") {
-				await query(`
-					UPDATE tblAdminUser
-					SET ${fields[key]} = ?
-					WHERE admID = ?`,
-					[info[key], id]);
-			}
-		}
+		await query(`
+			UPDATE tblAdminUser
+			SET admEmailAddress = ?, admName = ?, admSurname = ?
+			WHERE admID = ?`,
+			[info.email, info.name, info.surname, id]);
 	},
 
 	async getArea(id) {

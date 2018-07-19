@@ -6,8 +6,13 @@ const objects = require("../objects.js");
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info) { // TODO: proper validation
-		for(let key of ["username", "email", "name", "surname"]) {
+	async function validate(info, initial = true) { // TODO: proper validation
+		if(initial) {
+			if(typeof info.username !== "string") {
+				return false;
+			}
+		}
+		for(let key of ["email", "name", "surname"]) {
 			if(typeof info[key] !== "string") {
 				return false;
 			}
@@ -45,8 +50,11 @@ module.exports = (config, db, coins) => {
 		res.send(await db.superadmin.getInfo(req.superId));
 	});
 
-	api.post("/info", async(req, res) => {
+	api.post("/update", async(req, res) => {
 		await auth.requireSuperAdmin(req);
+		if(!await validate(req.body, false)) {
+			return res.sendStatus(400);
+		}
 		await db.superadmin.updateInfo(req.superId, req.body);
 		res.send({});
 	});

@@ -35,7 +35,7 @@ module.exports = (config, db, coins) => {
 		req.body.user = req.userId;
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
-		} else if(!inPolygon(info, await db.area.getBorder(info.area))) {
+		} else if(!inPolygon(req.body, await db.area.getBorder(req.area))) {
 			return res.sendStatus(418);
 		}
 		const numPoints = await db.point.countNearbyPoints(req.body);

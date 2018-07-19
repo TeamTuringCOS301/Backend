@@ -97,11 +97,20 @@ module.exports = (config, query) => ({
 		return results[0].tblConservationArea_conID;
 	},
 
-	async setBroadcast(id, broadcast) {
+	async updateInfo(id, info) {
 		await query(`
 			UPDATE tblAlert
-			SET aleBroadcast = ?
+			SET aleHeader = ?, aleDescription = ?, aleSeverity = ?, aleBroadcast = ?,
+				aleLocation = ?
 			WHERE aleID = ?`,
-			[broadcast, id]);
+			[info.title, info.description, info.severity, info.broadcast,
+				JSON.stringify(info.location), id]);
+		if(info.image) {
+			await query(`
+				UPDATE tblAlert
+				SET aleImage = ?
+				WHERE aleID = ?`,
+				[Buffer.from(info.image, "base64"), id]);
+		}
 	}
 });

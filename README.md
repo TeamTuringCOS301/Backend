@@ -533,12 +533,22 @@ The rest of the API is only available to the admin associated with the conservat
   location: point
   ```
 
-* `POST /alert/broadcast/:alert` - Broadcast the given alert to users in the conservation area.
+* `POST /alert/update/:alert` - Update the information stored for the given alert.
 
   Required request field:
 
   ```
+  title: string
+  description: string
+  severity: 0, 1 or 2
   broadcast: boolean
+  location: point
+  ```
+
+  Optional request fields:
+
+  ```
+  image: base64 string
   ```
 
 * `GET /alert/remove/:alert` - Remove an alert.

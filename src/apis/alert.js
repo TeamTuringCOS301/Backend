@@ -7,7 +7,7 @@ const objects = require("../objects.js");
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info) { // TODO: proper validation
+	async function validate(info, initial = true) { // TODO: proper validation
 		for(let key of ["title", "description"]) {
 			if(typeof info[key] !== "string") {
 				return false;
@@ -20,7 +20,8 @@ module.exports = (config, db, coins) => {
 		}
 		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image)
 				&& imageType(Buffer.from(info.image, "base64")) !== null)
-			&& inPolygon(info.location, await db.area.getBorder(info.area));
+			&& inPolygon(info.location, await db.area.getBorder(info.area))
+			&& (initial || typeof info.broadcast === "boolean");
 	}
 
 	const api = express();
@@ -69,12 +70,12 @@ module.exports = (config, db, coins) => {
 		res.send({alerts, latest});
 	});
 
-	api.post("/broadcast/:alert", async(req, res) => {
+	api.post("/update/:alert", async(req, res) => {
 		await auth.requireAreaAdmin(req, await db.alert.getArea(req.alert));
-		if(typeof req.body.broadcast !== "boolean") {
+		if(!await validate(req.body, false)) {
 			return res.sendStatus(400);
 		}
-		await db.alert.setBroadcast(req.alert, req.body.broadcast);
+		await db.alert.updateInfo(req.alert, req.body);
 		res.send({});
 	});
 

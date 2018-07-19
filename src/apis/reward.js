@@ -71,7 +71,7 @@ module.exports = (config, db, coins) => {
 		if(!await validate(req.body, false)) {
 			res.sendStatus(400);
 		}
-		await db.reward.updateInfo(req.reward, info);
+		await db.reward.updateInfo(req.reward, req.body);
 		res.send({});
 	});
 

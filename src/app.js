@@ -1,6 +1,7 @@
 const cors = require("cors");
 const express = require("express");
 const session = require("express-session");
+const nocache = require("nocache");
 const objects = require("./objects.js");
 require("express-async-errors");
 
@@ -10,6 +11,7 @@ module.exports = (config, db, coins) => {
 	const app = express();
 	app.use(cors({origin: true, credentials: true}));
 	app.use(express.json({limit: config.maxImageSize}));
+	app.use(nocache());
 	app.use(session({
 		cookie: {
 			// TODO: re-enable

@@ -4,6 +4,7 @@
   "description": "Source code for the application and database layers.",
   "main": "server.js",
   "scripts": {
+    "lint": "eslint src",
     "test": "mocha",
     "truffle": "cd token && truffle"
   },
@@ -32,6 +33,7 @@
     "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
+    "eslint": "^5.1.0",
     "mocha": "^5.1.0",
     "supertest": "^3.0.0",
     "truffle": "^4.1.12"

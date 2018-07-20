@@ -1,78 +1,91 @@
-const session = require("express-session");
-
-const users = [{
-	username: "root",
-	password: "$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS"
-}];
-const db = {
-	disableLogging: true,
-	sessionStore: new session.MemoryStore(),
-
-	admin: {
-		async verify(info) {
-			return typeof info.username === "string";
-		},
-
-		async add(info) {
-			return users.push(info) - 1;
-		},
-
-		async remove(id) {
-			users[id] = {};
-		},
-
-		async list() {
-			const list = [];
-			for(let user of users) {
-				if(typeof user.username === "string") {
-					list.push({username: user.username});
-				}
-			}
-			return list;
-		},
-
-		async find(username) {
-			for(let i in users) {
-				if(users[i].username === username) {
-					return i;
-				}
-			}
-			return null;
-		},
-
-		async isSuperAdmin(id) {
-			return parseInt(id) === 0;
-		},
-
-		async getPassword(id) {
-			return users[id].password;
-		},
-
-		async setPassword(id, password) {
-			users[id].password = password;
-		},
-
-		async getInfo(id) {
-			return {username: users[id].username};
-		},
-
-		async updateInfo(id, info) {
-			users[id].username = info.username;
-		}
-	}
-};
-const config = {
-	cookieSecret: "correcthorsebatterystaple"
-};
-
-const app = require("../src/app.js")(config, db);
 const assert = require("assert");
+const config = require("./mock-config.js");
+const coins = require("./mock-coins.js")();
+const db = require("./mock-db.js")();
+const app = require("../src/app.js")(config, db, coins);
 const request = require("supertest");
 
 describe("Admin API", () => {
-	const agent1 = request.agent(app);
-	const agent2 = request.agent(app);
+	const agent = request.agent(app);
+	const superagent = request.agent(app);
 	let password;
+
+	describe("POST /admin/add", () => {
+		it("fails without a login session", (done) => {
+			db.area.add({}).then(() => {
+				request(app)
+					.post("/admin/add")
+					.send({
+						username: "new",
+						email: "new@erp.coin",
+						name: "Jane",
+						surname: "Doe",
+						area: 0
+					})
+					.expect(401, done);
+			});
+		});
+
+		it("fails on missing data", (done) => {
+			superagent.post("/superadmin/login")
+				.send({username: "admin", password: "admin"})
+				.end(() => {
+					superagent.post("/admin/add")
+						.send({})
+						.expect(400, done);
+				});
+		});
+
+		it("fails with invalid area ID", (done) => {
+			superagent.post("/admin/add")
+				.send({
+					username: "new",
+					email: "new@erp.coin",
+					name: "Jane",
+					surname: "Doe",
+					area: 1
+				})
+				.expect(400, done);
+		});
+
+		it("succeeds with valid data", (done) => {
+			superagent.post("/admin/add")
+				.send({
+					username: "new",
+					email: "new@erp.coin",
+					name: "Jane",
+					surname: "Doe",
+					area: 0
+				})
+				.expect((res) => {
+					assert.equal(res.body.success, true);
+					password = res.body.password;
+				})
+				.expect(200, done);
+		});
+
+		it("returns the generated password", (done) => {
+			agent.post("/admin/login")
+				.send({username: "new", password})
+				.expect(200, {success: true}, done);
+		});
+
+		it("hashes the password", async() => {
+			assert.notEqual(await db.admin.getPassword(0), password);
+		});
+
+		it("fails with an existing username", (done) => {
+			superagent.post("/admin/add")
+				.send({
+					username: "new",
+					email: "newer@erp.coin",
+					name: "John",
+					surname: "Smith",
+					area: 0
+				})
+				.expect(200, {success: false}, done);
+		});
+	});
 
 	describe("GET /admin/login", () => {
 		it("fails on missing data", (done) => {
@@ -85,91 +98,26 @@ describe("Admin API", () => {
 		it("fails for a nonexistent admin", (done) => {
 			request(app)
 				.post("/admin/login")
-				.send({username: "x", password: "pass"})
+				.send({username: "x", password})
 				.expect(200, {success: false}, done);
 		});
 
 		it("fails with an incorrect password", (done) => {
 			request(app)
 				.post("/admin/login")
-				.send({username: "root", password: "x"})
+				.send({username: "new", password: "x"})
 				.expect(200, {success: false}, done);
 		});
 
 		it("succeeds with correct credentials", (done) => {
-			agent1.post("/admin/login")
-				.send({username: "root", password: "admin"})
-				.expect(200, {success: true, superAdmin: true}, done);
+			agent.post("/admin/login")
+				.send({username: "new", password})
+				.expect(200, {success: true}, done);
 		});
 
 		it("sets the session cookie", (done) => {
-			agent1.get("/admin/info")
+			agent.get("/admin/info")
 				.expect(200, done);
-		});
-	});
-
-	describe("GET /admin/add", () => {
-		it("fails without a login session", (done) => {
-			request(app)
-				.post("/admin/add")
-				.send({username: "admin"})
-				.expect(401, done);
-		});
-
-		it("fails on missing data", (done) => {
-			agent1.post("/admin/add")
-				.send({})
-				.expect(400, done);
-		});
-
-		it("fails with an existing username", (done) => {
-			agent1.post("/admin/add")
-				.send({username: "root"})
-				.expect(200, {success: false}, done);
-		});
-
-		it("succeeds with valid data", (done) => {
-			agent1.post("/admin/add")
-				.send({username: "admin"})
-				.expect((res) => {
-					assert.equal(res.body.success, true);
-					password = res.body.password;
-				})
-				.expect(200, done);
-		});
-
-		it("returns the generated password", (done) => {
-			agent2.post("/admin/login")
-				.send({username: "admin", password})
-				.expect(200, {success: true, superAdmin: false}, done);
-		});
-
-		it("hashes the password", () => {
-			assert.notEqual(users[1].password, password);
-		});
-
-		it("fails for a regular admin", (done) => {
-			agent2.post("/admin/add")
-				.send({username: "new"})
-				.expect(401, done);
-		});
-	});
-
-	describe("GET /admin/super", () => {
-		it("fails without a login session", (done) => {
-			request(app)
-				.get("/admin/super")
-				.expect(401, done);
-		});
-
-		it("returns true for a super admin", (done) => {
-			agent1.get("/admin/super")
-				.expect(200, {superAdmin: true}, done);
-		});
-
-		it("returns false for a regular admin", (done) => {
-			agent2.get("/admin/super")
-				.expect(200, {superAdmin: false}, done);
 		});
 	});
 
@@ -181,26 +129,52 @@ describe("Admin API", () => {
 		});
 
 		it("returns the correct information", (done) => {
-			agent2.get("/admin/info")
-				.expect(200, {username: "admin"}, done);
+			agent.get("/admin/info")
+				.expect(200, {
+					username: "new",
+					email: "new@erp.coin",
+					name: "Jane",
+					surname: "Doe",
+					area: 0
+				}, done);
 		});
 	});
 
-	describe("POST /admin/info", () => {
+	describe("POST /admin/update", () => {
 		it("fails without a login session", (done) => {
 			request(app)
-				.post("/admin/info")
-				.send({username: "new"})
+				.post("/admin/update")
+				.send({
+					email: "newer@erp.coin",
+					name: "John",
+					surname: "Smith"
+				})
 				.expect(401, done);
 		});
 
+		it("fails on missing data", (done) => {
+			agent.post("/admin/update")
+				.send({})
+				.expect(400, done);
+		});
+
 		it("updates the admin information", (done) => {
-			agent2.post("/admin/info")
-				.send({username: "new"})
+			agent.post("/admin/update")
+				.send({
+					email: "newer@erp.coin",
+					name: "John",
+					surname: "Smith"
+				})
 				.expect(200)
 				.end(() => {
-					assert.equal(users[1].username, "new");
-					done();
+					agent.get("/admin/info")
+						.expect(200, {
+							username: "new",
+							email: "newer@erp.coin",
+							name: "John",
+							surname: "Smith",
+							area: 0
+						}, done);
 				});
 		});
 	});
@@ -214,19 +188,19 @@ describe("Admin API", () => {
 		});
 
 		it("fails on missing data", (done) => {
-			agent2.post("/admin/password")
+			agent.post("/admin/password")
 				.send({})
 				.expect(400, done);
 		});
 
 		it("fails with an incorrect password", (done) => {
-			agent2.post("/admin/password")
+			agent.post("/admin/password")
 				.send({old: "x", new: "new"})
 				.expect(200, {success: false}, done);
 		});
 
 		it("succeeds with the correct password", (done) => {
-			agent2.post("/admin/password")
+			agent.post("/admin/password")
 				.send({old: password, new: "new"})
 				.expect(200, {success: true}, done);
 		});
@@ -235,7 +209,7 @@ describe("Admin API", () => {
 			request(app)
 				.post("/admin/login")
 				.send({username: "new", password: "new"})
-				.expect(200, {success: true, superAdmin: false}, done);
+				.expect(200, {success: true}, done);
 		});
 	});
 
@@ -246,65 +220,49 @@ describe("Admin API", () => {
 				.expect(401, done);
 		});
 
-		it("fails for a regular admin", (done) => {
-			agent2.get("/admin/list")
-				.expect(401, done);
-		});
-
 		it("returns a list of admins", (done) => {
-			agent1.get("/admin/list")
-				.expect(200, {admins: [{username: "root"}, {username: "new"}]}, done);
+			superagent.get("/admin/list")
+				.expect(200, {
+					admins: [
+						{
+							username: "new",
+							email: "newer@erp.coin",
+							name: "John",
+							surname: "Smith",
+							area: 0
+						}
+					]
+				}, done);
 		});
 	});
 
-	describe("POST /admin/remove", () => {
+	describe("GET /admin/remove/:admin", () => {
 		it("fails without a login session", (done) => {
 			request(app)
-				.post("/admin/remove")
-				.send({username: "new"})
+				.get("/admin/remove/0")
 				.expect(401, done);
 		});
 
-		it("fails for a regular admin", (done) => {
-			agent2.post("/admin/remove")
-				.send({username: "new"})
-				.expect(401, done);
+		it("fails for an invalid admin ID", (done) => {
+			superagent.get("/admin/remove/1")
+				.expect(404, done);
 		});
 
-		it("fails on missing data", (done) => {
-			agent1.post("/admin/remove")
-				.send({})
-				.expect(400, done);
+		it("succeeds for a valid admin ID", (done) => {
+			superagent.get("/admin/remove/0")
+				.expect(200, done);
 		});
 
-		it("fails for a nonexistent username", (done) => {
-			agent1.post("/admin/remove")
-				.send({username: "x"})
-				.expect(200, {success: false}, done);
-		});
-
-		it("fails for a super username", (done) => {
-			agent1.post("/admin/remove")
-				.send({username: "root"})
-				.expect(200, {success: false}, done);
-		});
-
-		it("succeeds for a regular username", (done) => {
-			agent1.post("/admin/remove")
-				.send({username: "new"})
-				.expect(200, {success: true}, done);
-		});
-
-		it("removes the admin from the database", () => {
-			assert.equal(users[1].username, undefined);
+		it("removes the admin from the database", async() => {
+			assert.equal(await db.admin.find("new"), null);
 		});
 	});
 
 	describe("GET /admin/logout", () => {
 		it("clears the session cookie", (done) => {
-			agent1.get("/admin/logout")
+			agent.get("/admin/logout")
 				.end(() => {
-					agent1.get("/admin/info")
+					agent.get("/admin/info")
 						.expect(401, done);
 				});
 		});

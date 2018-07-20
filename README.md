@@ -13,7 +13,7 @@ npm install
 
 A file named `config.json` must be created.
 See [`config.template.json`] for an example.
-To set up the servers referenced in this file, see the following sections.
+See the following sections for more information on what is required.
 To start the server, run:
 
 ```
@@ -27,7 +27,8 @@ npm start
 
 A running MySQL server is required.
 Use [`create-tables.sql`] to create the required tables.
-[`create-admin.sql`] is provided to create an admin user for testing, with username `admin` and password `admin`.
+[`create-users.sql`] is provided to create users for testing.
+It will create a super admin with username `admin` and password `admin`, as well as six users named `darius`, `kyle`, `richard`, `sewis`, `tristan` and `ulrik`, each with the password `password`.
 
 [`create-admin.sql`]: sql/create-admin.sql
 [`create-tables.sql`]: sql/create-tables.sql
@@ -45,13 +46,40 @@ Then type `migrate --reset` to deploy the smart contract.
 
 [Truffle]: http://truffleframework.com/
 
+### TLS Certificate
+
+A self-signed certificate, to be used for testing, can be generated with:
+
+```
+openssl req -new -x509 -out tls-cert.pem -keyout tls-key.pem -nodes -batch
+```
+
+Note that this certificate will have to be added to the browser.
+
+### Coin Reward Parameters
+
+The following parameters must be specified in `config.json`:
+
+* `pointMaxAge` - The maximum time a point may stay on the map in milliseconds.
+* `clearInterval` - The interval used to clear point exceeding the maximum time.
+* `newPointInterval` - The minimum interval (in milliseconds) that a user must wait between submitting visited points.
+* `nearRadius` - The radius (in metres) for which points are considered near a user's location.
+* `expScale` - The number of nearby points are scaled by this factor before calculating the probability of earning a coin.
+* `maxProbability` - The probability when there are no points nearby.
+
+Every time a user submits a visited point, the probability of earning a coin is calculated as `maxProbability * exp(-numPoints * expScale)`.
+
 ## APIs
 
-The following APIs are provided over HTTP.
-The content of all `POST` requests should be encoded as JSON.
-Responses will also be given as JSON, unless no response fields are listed, in which case the body will be empty.
+The following APIs are provided over HTTPS.
+The content of all `POST` requests should be encoded as JSON, and responses will also be given as JSON.
 Login sessions are managed using cookies.
 The type `point` is an object with numeric fields `lat` and `lng`.
+
+The API manages seven types of objects: users, admin users, super admin users, conservation areas, visited points, alerts and rewards.
+In the requests below, `:user`, `:admin`, `:superadmin`, `:area`, `:point`, `:alert` and `:reward` are numeric IDs referencing the respective objects.
+`:since` is a integer timestamp, and only objects newer than that time will be returned.
+To list all objects, use the timestamp 0.
 
 ### User API
 
@@ -66,7 +94,6 @@ The type `point` is an object with numeric fields `lat` and `lng`.
   password: string
   name: string
   surname: string
-  cellNumber: string
   walletAddress: string
   ```
 
@@ -104,19 +131,17 @@ The rest of the API requires that a user has already logged in.
   email: string
   name: string
   surname: string
-  cellNumber: string
   walletAddress: string
   ```
 
-* `POST /user/info` - Update the information stored for the current user.
+* `POST /user/update` - Update the information stored for the current user.
 
-  Optional request fields:
+  Required request fields:
 
   ```
   email: string
   name: string
   surname: string
-  cellNumber: string
   walletAddress: string
   ```
 
@@ -129,7 +154,36 @@ The rest of the API requires that a user has already logged in.
   new: string
   ```
 
-### Admin API
+  Response fields:
+
+  ```
+  success: boolean
+  ```
+
+* `GET /user/coins` - View the user's current balance and the total number of coins earned.
+
+  Response fields:
+
+  ```
+  balance: integer
+  totalEarned: integer
+  ```
+
+* `POST /user/remove` - Delete the current user's account.
+
+  Required request fields:
+
+  ```
+  password: string
+  ```
+
+  Response fields:
+
+  ```
+  success: boolean
+  ```
+
+### Conservation Area Admin API
 
 * `POST /admin/login` - Login as an existing admin.
 
@@ -144,20 +198,11 @@ The rest of the API requires that a user has already logged in.
 
   ```
   success: boolean
-  superAdmin: boolean
   ```
 
 The rest of the API requires that an admin has already logged in.
 
 * `GET /admin/logout` - Terminate a login session.
-
-* `GET /admin/super` - Query whether the current admin may add other admins.
-
-  Response fields:
-
-  ```
-  superAdmin: boolean
-  ```
 
 * `GET /admin/info` - Request the information stored for the current admin.
 
@@ -168,18 +213,17 @@ The rest of the API requires that an admin has already logged in.
   email: string
   name: string
   surname: string
-  cellNumber: string
+  area: integer
   ```
 
-* `POST /admin/info` - Update the information stored for the current admin.
+* `POST /admin/update` - Update the information stored for the current admin.
 
-  Optional request fields:
+  Required request fields:
 
   ```
   email: string
   name: string
   surname: string
-  cellNumber: string
   ```
 
 * `POST /admin/password` - Change password.
@@ -189,6 +233,12 @@ The rest of the API requires that an admin has already logged in.
   ```
   old: string
   new: string
+  ```
+
+  Response fields:
+
+  ```
+  success: boolean
   ```
 
 The rest of the API is only available to a super admin.
@@ -202,7 +252,7 @@ The rest of the API is only available to a super admin.
   email: string
   name: string
   surname: string
-  cellNumber: string
+  area: integer
   ```
 
   Response fields:
@@ -212,15 +262,9 @@ The rest of the API is only available to a super admin.
   password: string
   ```
 
-* `POST /admin/remove` - Remove an admin user.
+* `GET /admin/remove/:admin` - Remove an admin user.
 
-  Required request fields:
-
-  ```
-  username: string
-  ```
-
-* `GET /admin/list` - List all non-super admins.
+* `GET /admin/list` - List all conservation area admins.
 
   Response fields:
 
@@ -231,11 +275,107 @@ The rest of the API is only available to a super admin.
   Fields of each element:
 
   ```
+  id: integer
   username: string
   email: string
   name: string
   surname: string
-  cellNumber: string
+  area: integer
+  ```
+
+### Super Admin API
+
+* `POST /superadmin/login` - Login as an existing admin.
+
+  Required request fields:
+
+  ```
+  username: string
+  password: string
+  ```
+
+  Response fields:
+
+  ```
+  success: boolean
+  ```
+
+The rest of the API requires that a super admin has already logged in.
+
+* `GET /superadmin/logout` - Terminate a login session.
+
+* `GET /superadmin/info` - Request the information stored for the current admin.
+
+  Response fields:
+
+  ```
+  username: string
+  email: string
+  name: string
+  surname: string
+  ```
+
+* `POST /superadmin/update` - Update the information stored for the current admin.
+
+  Required request fields:
+
+  ```
+  email: string
+  name: string
+  surname: string
+  ```
+
+* `POST /superadmin/password` - Change password.
+
+  Required request fields:
+
+  ```
+  old: string
+  new: string
+  ```
+
+  Response fields:
+
+  ```
+  success: boolean
+  ```
+
+* `POST /superadmin/add` - Create a new admin user.
+
+  Required request fields:
+
+  ```
+  username: string
+  email: string
+  name: string
+  surname: string
+  ```
+
+  Response fields:
+
+  ```
+  success: boolean
+  password: string
+  ```
+
+* `GET /superadmin/remove/:admin` - Remove an admin user.
+
+* `GET /superadmin/list` - List all conservation area admins.
+
+  Response fields:
+
+  ```
+  admins: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  username: string
+  email: string
+  name: string
+  surname: string
   ```
 
 ### Conservation Area API
@@ -258,7 +398,7 @@ The rest of the API is only available to a super admin.
   middle: point
   ```
 
-* `GET /area/info/:id` - Request information about the area with id `:id`.
+* `GET /area/info/:area` - Request information about the given area.
 
   Response fields:
 
@@ -272,16 +412,15 @@ The rest of the API is only available to a super admin.
 
 The rest of the API is only available to a super admin.
 
-* `POST /area/info/:id` - Update the information stored for area `:id`.
+* `POST /area/update/:area` - Update the information stored for the given area.
 
-  Optional request fields:
+  Required request fields:
 
   ```
   name: string
   city: string
   province: string
   border: array of points
-  admin: string
   ```
 
 * `POST /area/add` - Add a new conservation area.
@@ -293,7 +432,231 @@ The rest of the API is only available to a super admin.
   city: string
   province: string
   border: array of points
-  admin: string
   ```
 
-* `GET /area/remove/:id` - Remove the conservation area with admin `:id`.
+* `GET /area/remove/:area` - Remove the given conservation area.
+
+### Visited Point API
+
+* `GET /point/list/:area/:since` - List recently visited points in the given conservation area.
+
+  Response fields:
+
+  ```
+  points: array of points
+  latest: integer
+  ```
+
+The rest of the API is only available to a registered user.
+
+* `POST /point/add/:area` - Report the user's current location in the given conservation area.
+  This will sometimes award the user a coin, but can only be used at limited intervals.
+
+  Required request fields:
+
+  ```
+  lat: number
+  lng: number
+  ```
+
+  Response fields:
+
+  ```
+  coin: boolean
+  ```
+
+### Alert API
+
+* `POST /alert/add/:area` - Post a new alert in the given conservation area.
+  This is only available to a user or the admin of the conservation area.
+
+  Required request fields:
+
+  ```
+  title: string
+  description: string
+  severity: 0, 1 or 2
+  location: point
+  ```
+
+  Optional request fields:
+
+  ```
+  image: base64 string
+  ```
+
+* `GET /alert/broadcasts/:area/:since` - List broadcasted alerts for the given area.
+
+  Response fields:
+
+  ```
+  alerts: array
+  latest: integer
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  time: integer
+  title: string
+  description: string
+  severity: 0, 1 or 2
+  hasImage: boolean
+  location: point
+  ```
+
+* `GET /alert/image/:alert` - Respond with the image submitted for this alert.
+  The response is not encoded as JSON.
+
+The rest of the API is only available to the admin associated with the conservation area.
+
+* `GET /alert/list/:area/:since` - List all alerts for the given area.
+
+  Response fields:
+
+  ```
+  alerts: array
+  latest: integer
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  time: integer
+  title: string
+  description: string
+  severity: 0, 1 or 2
+  hasImage: boolean
+  broadcast: boolean
+  location: point
+  ```
+
+* `POST /alert/update/:alert` - Update the information stored for the given alert.
+
+  Required request field:
+
+  ```
+  title: string
+  description: string
+  severity: 0, 1 or 2
+  broadcast: boolean
+  location: point
+  ```
+
+  Optional request fields:
+
+  ```
+  image: base64 string
+  ```
+
+* `GET /alert/remove/:alert` - Remove an alert.
+
+### Reward Store API
+
+* `GET /reward/list` - List available awards.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  amount: integer
+  randValue: integer
+  coinValue: integer
+  area: integer
+  ```
+
+* `GET /reward/image/:reward` - Respond with the image submitted for this reward.
+  The response is not encoded as JSON.
+
+The rest of the API is only available to an admin.
+
+* `GET /reward/list/own` - List rewards added by this user.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  amount: integer
+  randValue: integer
+  coinValue: integer
+  verified: boolean
+  ```
+
+* `POST /reward/add` - Suggest a new reward.
+
+  Required request fields:
+
+  ```
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  ```
+
+* `POST /reward/update/:reward` - Update the information stored for a reward.
+
+  Required request fields:
+
+  ```
+  name: string
+  description: string
+  amount: integer
+  randValue: integer
+  ```
+
+  Optional request fields:
+
+  ```
+  image: base64 string
+  ```
+
+* `GET /reward/remove/:reward` - Remove the given reward.
+
+The rest of the API is only available to a super admin.
+
+* `GET /reward/list/new` - List rewards that have not yet been verified.
+
+  Response fields:
+
+  ```
+  rewards: array
+  ```
+
+  Fields of each element:
+
+  ```
+  id: integer
+  name: string
+  description: string
+  image: base64 string
+  amount: integer
+  randValue: integer
+  area: integer
+  ```
+
+* `POST /reward/verify/:reward` - Verify a suggested reward and set its coin value.
+
+  Required request fields:
+
+  ```
+  coinValue: integer
+  ```

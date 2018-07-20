@@ -18,8 +18,9 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image)
-				&& imageType(Buffer.from(info.image, "base64")) !== null)
+		// TODO: Add working base64 validation.
+		return [0, 1, 2].includes(info.severity) && (!info.image || /*isBase64(info.image)
+				&&*/ imageType(Buffer.from(info.image, "base64")) !== null)
 			&& inPolygon(info.location, await db.area.getBorder(info.area))
 			&& (initial || typeof info.broadcast === "boolean");
 	}

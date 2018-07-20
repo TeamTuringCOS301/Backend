@@ -17,7 +17,7 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		return typeof info.area === "number" && await db.area.validId(info.area);
+		return !initial || typeof info.area === "number" && await db.area.validId(info.area);
 	}
 
 	const api = express();
@@ -53,7 +53,7 @@ module.exports = (config, db, coins) => {
 	api.post("/update", async(req, res) => {
 		await auth.requireAdmin(req);
 		if(!await validate(req.body, false)) {
-			return false;
+			return res.sendStatus(400);
 		}
 		await db.admin.updateInfo(req.adminId, req.body);
 		res.send({});

@@ -16,7 +16,7 @@ module.exports = (config, db, coins) => {
 		cookie: {
 			// TODO: re-enable
 			//maxAge: config.sessionCookie.maxAge,
-			secure: true
+			secure: db.secureCookies
 		},
 		resave: false,
 		saveUninitialized: false,

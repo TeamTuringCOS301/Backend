@@ -1,49 +1,8 @@
-const fs = require("fs");
-const session = require("express-session");
-
-const users = [];
-const db = {
-	sessionStore: new session.MemoryStore(),
-
-	user: {
-		async verify(info) {
-			return typeof info.username === "string" && typeof info.password === "string";
-		},
-
-		async add(info) {
-			return users.push(info) - 1;
-		},
-
-		async find(username) {
-			for(let i in users) {
-				if(users[i].username === username) {
-					return i;
-				}
-			}
-			return null;
-		},
-
-		async getPassword(id) {
-			return users[id].password;
-		},
-
-		async setPassword(id, password) {
-			users[id].password = password;
-		},
-
-		async getInfo(id) {
-			return {username: users[id].username};
-		},
-
-		async updateInfo(id, info) {
-			users[id].username = info.username;
-		}
-	}
-};
-const config = JSON.parse(fs.readFileSync("config.template.json"));
-
-const app = require("../src/app.js")(config, db);
 const assert = require("assert");
+const config = require("./mock-config.js");
+const coins = require("./mock-coins.js")();
+const db = require("./mock-db.js")();
+const app = require("../src/app.js")(config, db, coins);
 const request = require("supertest");
 
 describe("User API", () => {
@@ -59,16 +18,23 @@ describe("User API", () => {
 
 		it("succeeds with valid data", (done) => {
 			agent.post("/user/add")
-				.send({username: "user", password: "pass"})
+				.send({
+					username: "user",
+					email: "user@erp.coin",
+					password: "pass",
+					name: "John",
+					surname: "Smith",
+					walletAddress: "0x0"
+				})
 				.expect(200, {success: true}, done);
 		});
 
-		it("adds the user to the database", () => {
-			assert.equal(users[0].username, "user");
+		it("adds the user to the database", async() => {
+			assert.notEqual(await db.user.find("user"), null);
 		});
 
-		it("hashes the password", () => {
-			assert.notEqual(users[0].password, "pass");
+		it("hashes the password", async() => {
+			assert.notEqual(await db.user.getPassword(0), "pass");
 		});
 
 		it("sets the session cookie", (done) => {
@@ -79,7 +45,14 @@ describe("User API", () => {
 		it("fails with an existing username", (done) => {
 			request(app)
 				.post("/user/add")
-				.send({username: "user", password: "pass"})
+				.send({
+					username: "user",
+					email: "user@erp.coin",
+					password: "pass",
+					name: "John",
+					surname: "Smith",
+					walletAddress: "0x0"
+				})
 				.expect(200, {success: false}, done);
 		});
 	});
@@ -137,25 +110,53 @@ describe("User API", () => {
 
 		it("returns the correct information", (done) => {
 			agent.get("/user/info")
-				.expect(200, {username: "user"}, done);
+				.expect(200, {
+					username: "user",
+					email: "user@erp.coin",
+					name: "John",
+					surname: "Smith",
+					walletAddress: "0x0"
+				}, done);
 		});
 	});
 
-	describe("POST /user/info", () => {
+	describe("POST /user/update", () => {
 		it("fails without a login session", (done) => {
 			request(app)
-				.post("/user/info")
-				.send({username: "new"})
+				.post("/user/update")
+				.send({
+					email: "new@erp.coin",
+					name: "Jane",
+					surname: "Doe",
+					walletAddress: "0x0"
+				})
 				.expect(401, done);
 		});
 
+		it("fails on missing data", (done) => {
+			agent.post("/user/update")
+				.send({})
+				.expect(400, done);
+		});
+
 		it("updates the user information", (done) => {
-			agent.post("/user/info")
-				.send({username: "new"})
+			agent.post("/user/update")
+				.send({
+					email: "new@erp.coin",
+					name: "Jane",
+					surname: "Doe",
+					walletAddress: "0x0"
+				})
 				.expect(200)
 				.end(() => {
-					assert.equal(users[0].username, "new");
-					done();
+					agent.get("/user/info")
+						.expect(200, {
+							username: "user",
+							email: "new@erp.coin",
+							name: "Jane",
+							surname: "Doe",
+							walletAddress: "0x0"
+						}, done);
 				});
 		});
 	});
@@ -189,8 +190,53 @@ describe("User API", () => {
 		it("updates the password", (done) => {
 			request(app)
 				.post("/user/login")
-				.send({username: "new", password: "new"})
+				.send({username: "user", password: "new"})
 				.expect(200, {success: true}, done);
+		});
+	});
+
+	describe("GET /user/coins", () => {
+		it("fails without a login session", (done) => {
+			request(app)
+				.get("/user/coins")
+				.expect(401, done);
+		});
+
+		it("returns the balance", (done) => {
+			agent.get("/user/coins")
+				.expect(200, {balance: 0, totalEarned: 0}, done);
+		});
+
+		it("updates when coins are earned", (done) => {
+			coins.rewardCoin("0x0").then(() => {
+				agent.get("/user/coins")
+					.expect(200, {balance: 1, totalEarned: 1}, done);
+			});
+		});
+	});
+
+	describe("POST /user/remove", () => {
+		it("fails without a login session", (done) => {
+			request(app)
+				.post("/user/remove")
+				.send({password: "pass"})
+				.expect(401, done);
+		});
+
+		it("fails with an incorrect password", (done) => {
+			agent.post("/user/remove")
+				.send({password: "x"})
+				.expect(200, {success: false}, done);
+		});
+
+		it("succeeds with the correct password", (done) => {
+			agent.post("/user/remove")
+				.send({password: "new"})
+				.expect(200, {success: true}, done);
+		});
+
+		it("removes the user account", async() => {
+			assert.equal(await db.user.find("user"), null);
 		});
 	});
 });

@@ -17,7 +17,7 @@ function query(...args) {
 	});
 }
 
-const db = {sessionStore: new Store(config.mysql)};
+const db = {sessionStore: new Store(config.mysql), secureCookies: true};
 for(let object of objects.all) {
 	db[object] = require(`./db/${object}.js`)(config, query);
 }

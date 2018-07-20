@@ -90,7 +90,7 @@ module.exports = (config, db, coins) => {
 
 	api.get("/remove/:superadmin", async(req, res) => {
 		await auth.requireSuperAdmin(req);
-		if(req.id === req.superId) {
+		if(req.superadmin === req.superId) {
 			return res.sendStatus(400);
 		}
 		await db.superadmin.remove(req.superadmin);

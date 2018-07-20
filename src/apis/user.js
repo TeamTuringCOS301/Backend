@@ -104,7 +104,7 @@ module.exports = (config, db, coins) => {
 		}
 		let success = false;
 		let hash = await db.user.getPassword(req.userId);
-		if(await bcrypt.compare(req.body.old, hash)) {
+		if(await bcrypt.compare(req.body.password, hash)) {
 			await db.user.remove(req.userId);
 			req.session.userId = undefined;
 			success = true;

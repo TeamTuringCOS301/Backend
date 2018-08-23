@@ -94,7 +94,6 @@ To list all objects, use the timestamp 0.
   password: string
   name: string
   surname: string
-  walletAddress: string or null
   ```
 
   Response fields:

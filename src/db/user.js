@@ -2,10 +2,9 @@ module.exports = (config, query) => ({
 	async add(info) {
 		await query(`
 			INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname,
-				usrWalletAddress, usrUnclaimedBalance, usrTotalCoinsEarned, usrLastPointTime)
-			VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0)`,
-			[info.username, info.email, info.password, info.name, info.surname,
-				info.walletAddress]);
+				usrUnclaimedBalance, usrTotalCoinsEarned, usrLastPointTime)
+			VALUES (?, ?, ?, ?, ?, 0, 0, 0)`,
+			[info.username, info.email, info.password, info.name, info.surname]);
 	},
 
 	async remove(id) {

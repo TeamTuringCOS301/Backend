@@ -13,9 +13,6 @@ module.exports = (config, db, coins) => {
 					return false;
 				}
 			}
-			if(info.walletAddress !== null && !Web3.utils.isAddress(info.walletAddress)) {
-				return false;
-			}
 		}
 		for(let key of ["email", "name", "surname"]) {
 			if(typeof info[key] !== "string") {

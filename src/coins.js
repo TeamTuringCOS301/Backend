@@ -3,32 +3,26 @@ const Contract = require("truffle-contract");
 const fs = require("fs");
 const Web3 = require("web3");
 
-let ERPCoin;
-let owner;
-async function contractReady() {
-	const provider = new Web3.providers.HttpProvider(config.web3Provider);
-	if(typeof provider.sendAsync !== "function") {
-		provider.sendAsync = (...args) => provider.send(...args);
-	}
-	const contract = Contract(JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json")));
-	contract.setProvider(provider);
-	ERPCoin = await contract.deployed();
-	owner = await ERPCoin.owner();
+const provider = new Web3.providers.HttpProvider(config.web3Provider);
+if(typeof provider.sendAsync !== "function") {
+	provider.sendAsync = (...args) => provider.send(...args);
 }
+const ERPCoin = Contract(JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json")));
+ERPCoin.setProvider(provider);
 
 module.exports = {
 	async getBalance(address) {
-		await contractReady();
-		return (await ERPCoin.balanceOf(address)).toNumber();
+		const contract = await ERPCoin.deployed();
+		return (await contract.balanceOf(address)).toNumber();
 	},
 
 	async getTotalEarned(address) {
-		await contractReady();
-		return (await ERPCoin.totalEarned(address)).toNumber();
+		const contract = await ERPCoin.deployed();
+		return (await contract.totalEarned(address)).toNumber();
 	},
 
 	async rewardCoin(address) {
-		await contractReady();
-		await ERPCoin.rewardCoin(address, {from: owner});
+		const contract = await ERPCoin.deployed();
+		await contract.rewardCoin(address, {from: await contract.owner()});
 	}
 };

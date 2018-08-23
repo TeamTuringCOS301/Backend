@@ -1,6 +1,5 @@
 const express = require("express");
 const imageType = require("image-type");
-const isBase64 = require("is-base64");
 const objects = require("../objects.js");
 
 module.exports = (config, db, coins) => {
@@ -17,9 +16,7 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		// TODO: Add working base64 validation.
-		return !initial && !info.image
-			|| /*isBase64(info.image) &&*/ imageType(Buffer.from(info.image, "base64")) !== null;
+		return !initial && !info.image || imageType(Buffer.from(info.image, "base64")) !== null;
 	}
 
 	const api = express();

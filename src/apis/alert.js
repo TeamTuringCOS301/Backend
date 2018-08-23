@@ -1,7 +1,6 @@
 const express = require("express");
 const imageType = require("image-type");
 const inPolygon = require("../in-polygon.js");
-const isBase64 = require("is-base64");
 const objects = require("../objects.js");
 
 module.exports = (config, db, coins) => {
@@ -18,9 +17,8 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		// TODO: Add working base64 validation.
-		return [0, 1, 2].includes(info.severity) && (!info.image || /*isBase64(info.image)
-				&&*/ imageType(Buffer.from(info.image, "base64")) !== null)
+		return [0, 1, 2].includes(info.severity) && (!info.image
+				|| imageType(Buffer.from(info.image, "base64")) !== null)
 			&& inPolygon(info.location, await db.area.getBorder(info.area))
 			&& (initial || typeof info.broadcast === "boolean");
 	}

@@ -18,8 +18,10 @@ module.exports = (config, query) => ({
 	async list() {
 		const results = await query(`
 			SELECT casID, casName, casDescription, casStockAmount, casRandValue, casCoinValue,
-				tblConservationArea_conID
+				conID, conName
 			FROM tblConservationAdminStock
+			JOIN tblConservationArea
+			ON tblConservationArea_conID = conID
 			WHERE casVerified = 1`);
 		const rewards = [];
 		for(let reward of results) {
@@ -30,7 +32,8 @@ module.exports = (config, query) => ({
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
 				coinValue: reward.casCoinValue,
-				area: reward.tblConservationArea_conID
+				area: reward.conID,
+				areaName: reward.conName
 			});
 		}
 		return rewards;
@@ -39,8 +42,10 @@ module.exports = (config, query) => ({
 	async listNew() {
 		const results = await query(`
 			SELECT casID, casName, casDescription, casStockAmount, casRandValue,
-				tblConservationArea_conID
+				conID, conName
 			FROM tblConservationAdminStock
+			JOIN tblConservationArea
+			ON tblConservationArea_conID = conID
 			WHERE casVerified = 0`);
 		const rewards = [];
 		for(let reward of results) {
@@ -50,7 +55,8 @@ module.exports = (config, query) => ({
 				description: reward.casDescription,
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
-				area: reward.tblConservationArea_conID
+				area: reward.conID,
+				areaName: reward.conName
 			});
 		}
 		return rewards;

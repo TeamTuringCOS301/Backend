@@ -1,5 +1,5 @@
 INSERT INTO tbladminuser (admUsername, admEmailAddress, admPassword, admName, admSurname, admSuperAdmin)
-VALUES ("t", "gmail@test1.com", "1", "t", "e", 0);
+VALUES ("conadmin", "gmail@test1.com", ""$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS", "t", "e", 0);
 
 INSERT INTO tblconservationadminstock (casName, casRandValue, casCoinValue, casDescription, casImage, casVerified, casStockAmount)
 VALUE ("fun", 10, 10, "This is nice.", "/9j/4AAQSkZJRgABAQAAAQABAAD//gAsT3B0aW1pemVkIGJ5IEpQRUdtaW5pIDMuMTIuMC40IDB4

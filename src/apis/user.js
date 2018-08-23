@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
 const objects = require("../objects.js");
+const Web3 = require("web3");
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
@@ -12,8 +13,11 @@ module.exports = (config, db, coins) => {
 					return false;
 				}
 			}
+			if(info.walletAddress !== null && !Web3.utils.isAddress(info.walletAddress)) {
+				return false;
+			}
 		}
-		for(let key of ["email", "name", "surname", "walletAddress"]) {
+		for(let key of ["email", "name", "surname"]) {
 			if(typeof info[key] !== "string") {
 				return false;
 			}
@@ -62,7 +66,11 @@ module.exports = (config, db, coins) => {
 
 	api.get("/info", async(req, res) => {
 		await auth.requireUser(req);
-		res.send(await db.user.getInfo(req.userId));
+		const info = db.user.getInfo(req.userId);
+		if(typeof info.walletAddress === "string") {
+			info.coinBalance = await coins.getBalance(info.walletAddress);
+		}
+		res.send(info);
 	});
 
 	api.post("/update", async(req, res) => {
@@ -71,6 +79,20 @@ module.exports = (config, db, coins) => {
 			return res.sendStatus(400);
 		}
 		await db.user.updateInfo(req.userId, req.body);
+		res.send({});
+	});
+
+	api.post("/address", async(req, res) => {
+		await auth.requireUser(req);
+		if(req.body.walletAddress === null) {
+			await db.user.clearWalletAddress(req.userId);
+		} else if(Web3.utils.isAddress(req.body.walletAddress)) {
+			await coins.rewardCoins(req.body.walletAddress,
+				await db.user.getUnclaimedBalance(req.userId));
+			await db.user.setWalletAddress(req.userId, req.body.walletAddress);
+		} else {
+			return res.sendStatus(400);
+		}
 		res.send({});
 	});
 
@@ -87,14 +109,6 @@ module.exports = (config, db, coins) => {
 			success = true;
 		}
 		res.send({success});
-	});
-
-	api.get("/coins", async(req, res) => {
-		await auth.requireUser(req);
-		const address = await db.user.getWalletAddress(req.userId);
-		const balance = await coins.getBalance(address);
-		const totalEarned = await coins.getTotalEarned(address);
-		res.send({balance, totalEarned});
 	});
 
 	api.post("/remove", async(req, res) => {

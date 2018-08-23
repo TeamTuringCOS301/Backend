@@ -117,7 +117,9 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblUser` (
   `usrPassword` VARCHAR(60) NOT NULL,
   `usrName` VARCHAR(40) NOT NULL,
   `usrSurname` VARCHAR(40) NOT NULL,
-  `usrWalletAddress` varchar(50) NOT NULL,
+  `usrWalletAddress` varchar(50) NULL,
+  `usrUnclaimedBalance` UNSIGNED NOT NULL,
+  `usrTotalCoinsEarned` UNSIGNED NOT NULL,
   `usrLastPointTime` BIGINT NOT NULL,
   PRIMARY KEY (`usrID`))
 ENGINE = InnoDB

@@ -16,13 +16,8 @@ module.exports = {
 		return (await contract.balanceOf(address)).toNumber();
 	},
 
-	async getTotalEarned(address) {
+	async rewardCoins(address, coins) {
 		const contract = await ERPCoin.deployed();
-		return (await contract.totalEarned(address)).toNumber();
-	},
-
-	async rewardCoin(address) {
-		const contract = await ERPCoin.deployed();
-		await contract.rewardCoin(address, {from: await contract.owner()});
+		await contract.rewardCoins(address, coins, {from: await contract.owner()});
 	}
 };

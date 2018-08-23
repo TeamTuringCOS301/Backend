@@ -43,7 +43,7 @@ module.exports = (config, db, coins) => {
 			* Math.exp(-numPoints * config.coinRewards.expScale);
 		let coin = false;
 		if(Math.random() < prob){
-			await coins.rewardCoin(await db.user.getWalletAddress(req.userId));
+			await coins.rewardCoins(await db.user.getWalletAddress(req.userId), 1);
 			coin = true;
 		}
 		await db.point.add(req.body);

@@ -80,7 +80,7 @@ module.exports = (config, query) => ({
 			SELECT admUsername, admEmailAddress, admName, admSurname, conID, conName
 			FROM tblAdminUser
 			JOIN tblConservationArea
-			ON tblConservationArea_conID=conID
+			ON tblConservationArea_conID = conID
 			WHERE admID = ?`,
 			[id]);
 		return {
@@ -88,8 +88,8 @@ module.exports = (config, query) => ({
 			email: results[0].admEmailAddress,
 			name: results[0].admName,
 			surname: results[0].admSurname,
-			area: results[0].tblConservationArea_conID,
-			areaName:results[0].conName
+			area: results[0].conID,
+			areaName: results[0].conName
 		};
 	},
 

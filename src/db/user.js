@@ -114,6 +114,14 @@ module.exports = (config, query) => ({
 		return results[0].usrUnclaimedBalance;
 	},
 
+	async rewardCoin(id) {
+		await query(`
+			UPDATE tblUser
+			SET usrUnclaimedBalance = usrUnclaimedBalance + 1
+			WHERE usrID = ?`,
+			[id]);
+	},
+
 	async getLatestTime(id) {
 		const results = await query(`
 			SELECT usrLastPointTime

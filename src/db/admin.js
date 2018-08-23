@@ -17,8 +17,10 @@ module.exports = (config, query) => ({
 	async list() {
 		const results = await query(`
 			SELECT admID, admUsername, admEmailAddress, admName, admSurname,
-				tblConservationArea_conID
-			FROM tblAdminUser`);
+				conID, conName
+			FROM tblAdminUser
+			JOIN tblConservationArea
+			ON tblConservationArea_conID = conID`);
 		const admins = [];
 		for(let admin of results) {
 			admins.push({
@@ -27,7 +29,8 @@ module.exports = (config, query) => ({
 				email: admin.admEmailAddress,
 				name: admin.admName,
 				surname: admin.admSurname,
-				area: admin.tblConservationArea_conID
+				area: admin.conID,
+				areaName: admin.conName
 			});
 		}
 		return admins;
@@ -74,8 +77,10 @@ module.exports = (config, query) => ({
 
 	async getInfo(id) {
 		const results = await query(`
-			SELECT admUsername, admEmailAddress, admName, admSurname, tblConservationArea_conID
+			SELECT admUsername, admEmailAddress, admName, admSurname, conID, conName
 			FROM tblAdminUser
+			JOIN tblConservationArea
+			ON tblConservationArea_conID=conID
 			WHERE admID = ?`,
 			[id]);
 		return {
@@ -83,7 +88,8 @@ module.exports = (config, query) => ({
 			email: results[0].admEmailAddress,
 			name: results[0].admName,
 			surname: results[0].admSurname,
-			area: results[0].tblConservationArea_conID
+			area: results[0].tblConservationArea_conID,
+			areaName:results[0].conName
 		};
 	},
 

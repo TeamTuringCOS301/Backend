@@ -214,6 +214,7 @@ The rest of the API requires that an admin has already logged in.
   name: string
   surname: string
   area: integer
+  areaName: string
   ```
 
 * `POST /admin/update` - Update the information stored for the current admin.
@@ -253,6 +254,7 @@ The rest of the API is only available to a super admin.
   name: string
   surname: string
   area: integer
+  areaName: string
   ```
 
   Response fields:
@@ -573,6 +575,7 @@ The rest of the API is only available to the admin associated with the conservat
   randValue: integer
   coinValue: integer
   area: integer
+  areaName: string
   ```
 
 * `GET /reward/image/:reward` - Respond with the image submitted for this reward.
@@ -651,6 +654,7 @@ The rest of the API is only available to a super admin.
   amount: integer
   randValue: integer
   area: integer
+  areaName: string
   ```
 
 * `POST /reward/verify/:reward` - Verify a suggested reward and set its coin value.

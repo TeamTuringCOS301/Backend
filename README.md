@@ -94,7 +94,7 @@ To list all objects, use the timestamp 0.
   password: string
   name: string
   surname: string
-  walletAddress: string
+  walletAddress: string or null
   ```
 
   Response fields:
@@ -132,6 +132,8 @@ The rest of the API requires that a user has already logged in.
   name: string
   surname: string
   walletAddress: string
+  coinBalance: integer
+  coinsEarned: integer
   ```
 
 * `POST /user/update` - Update the information stored for the current user.
@@ -142,7 +144,14 @@ The rest of the API requires that a user has already logged in.
   email: string
   name: string
   surname: string
-  walletAddress: string
+  ```
+
+* `POST /user/address` - Update the user's Ethereum wallet address.
+
+  Required request fields:
+
+  ```
+  walletAddress: string or null
   ```
 
 * `POST /user/password` - Change password.
@@ -158,15 +167,6 @@ The rest of the API requires that a user has already logged in.
 
   ```
   success: boolean
-  ```
-
-* `GET /user/coins` - View the user's current balance and the total number of coins earned.
-
-  Response fields:
-
-  ```
-  balance: integer
-  totalEarned: integer
   ```
 
 * `POST /user/remove` - Delete the current user's account.

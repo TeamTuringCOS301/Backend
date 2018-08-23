@@ -1,8 +1,10 @@
-INSERT INTO tbladminuser (admUsername, admEmailAddress, admPassword, admName, admSurname, admSuperAdmin)
-VALUES ("conadmin", "gmail@test1.com", ""$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS", "t", "e", 0);
+use dbERPCOIN;
 
-INSERT INTO tblconservationadminstock (casName, casRandValue, casCoinValue, casDescription, casImage, casVerified, casStockAmount)
-VALUE ("fun", 10, 10, "This is nice.", "/9j/4AAQSkZJRgABAQAAAQABAAD//gAsT3B0aW1pemVkIGJ5IEpQRUdtaW5pIDMuMTIuMC40IDB4
+INSERT INTO tblAdminUser (admUsername, admEmailAddress, admPassword, admName, admSurname, tblConservationArea_conID)
+VALUES ("admin", "gmail@test1.com", "$2b$10$Je4jhW7cPYREOxsIqmzKXu/ug3eJNOeVv/sOS1AjJ0ljeb99EelNS", "John", "Cena", 1);
+
+INSERT INTO tblConservationAdminStock (casName, casRandValue, casCoinValue, casDescription, casImage, casVerified, casStockAmount,tblConservationArea_conID)
+VALUE ("Default", 10, 10, "This is the default reward.", "/9j/4AAQSkZJRgABAQAAAQABAAD//gAsT3B0aW1pemVkIGJ5IEpQRUdtaW5pIDMuMTIuMC40IDB4
 NzRmZTU5NTUA/9sAQwAGAwQEBAQEBAQFBgUEBQYQBgUFBwgUBw8GEBcMDhkNFBYWGx4mIBoaJB0X
 FxIsISQnKCorKg4gLjIvKTImKisX/9sAQwEGBwcICAkQCgoQKRYTFycpKCkoKSkpKSkpKSkpKSkp
 KSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkp/8IAEQgB8AK8AwERAAIRAQMRAf/EABsA
@@ -520,4 +522,8 @@ AqwEMrDKWhSTaBlgxwwvV9z4q/gjLeC8Sz9/nHCYFHXUGmsyTSgkrohuETkUjgqiKQQ8i6pKw2y7
 lDUMhjzlJDAWcF4ln7/WhRCIbAosfapU6i3iUNierh39GfwglsP9gYnyhJlnBeJZ/wCAFViW77IS
 NszAuzGPgmjWw/A+4AiIhy2O2Dv+pjYOa/4dkP4MB0DNydo7iNdT56Q5phJIULgvFr/wDwoW1MpF
 IoXK0oEVsRoKsIo/4JgbEpQiGlqNqk0+pdmUKUFwXi1/4BocO+wtin2Ogo9ScvzM4GF+IJkLw5lU
-JFFLXvRA+FB6CQbz1uY/GYRVEM4qmOyPQFVwmBnzTcakgtnD7NSFzQm8i4Lxa/8AAPV6jOMTgkQu7V1EZrdfb63P0RGBFoyHZHNiZSJ3iWCao6QOlKjoLcPWLrBIFXdBGEDjolWHVcAimEinGqd73IVvAvHDIZDIIZBDIIIZDIZDIIZDIZDIZDIIIIZDIZDIIIIZDIIZDIZDIZBDIZDIZBDIZBDIZDIZDIZDIZBBDIIIIIKkS6jLcQhs8sNmkxijDtdHYvpMvS4c+w0XA5XZZLuD2rlFEY4BaS6jDXEGDD3JNo0EcEEMgXjklkslklSpLJfGpL418dfBPGSfpz454zwny9P/ABc//iZ//9k=", 1, 3)
+JFFLXvRA+FB6CQbz1uY/GYRVEM4qmOyPQFVwmBnzTcakgtnD7NSFzQm8i4Lxa/8AAPV6jOMTgkQu
+7V1EZrdfb63P0RGBFoyHZHNiZSJ3iWCao6QOlKjoLcPWLrBIFXdBGEDjolWHVcAimEinGqd73IVv
+AvHDIZDIIZBDIIIZDIZDIIZDIZDIZDIIIIZDIZDIIIIZDIIZDIZDIZBDIZDIZBDIZBDIZDIZDIZD
+IZBBDIIIIIKkS6jLcQhs8sNmkxijDtdHYvpMvS4c+w0XA5XZZLuD2rlFEY4BaS6jDXEGDD3JNo0E
+cEEMgXjklkslklSpLJfGpL418dfBPGSfpz454zwny9P/ABc//iZ//9k=", 1, 3,1);

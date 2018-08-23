@@ -1,2 +1,2 @@
-INSERT INTO tblconservationarea (conName, conBorderNodeJSONObject, conMiddlePointCoordinate, conCity, conProvince)
-Values ("dummyNoBorderNodes", "a", "a", "Pretoria", "Gauteng")
+INSERT INTO tblConservationArea (conName, conBorderNodeJSONObject, conMiddlePointCoordinate, conCity, conProvince)
+Values ("Hatfield", '[{"lat":-25.74429213823945,"lng":28.21804261998477},{"lat":-25.74406020422003,"lng":28.268081911366608},{"lat":-25.76099019765034,"lng":28.262588747304108},{"lat":-25.762768093446926,"lng":28.253662355702545},{"lat":-25.77297115440246,"lng":28.248426683705475},{"lat":-25.768951871456512,"lng":28.223192461293365},{"lat":-25.75503791796737,"lng":28.219759233754303}]','{"lat":-25.758438796769013,"lng":28.241964859015884}', "Pretoria", "Gauteng");

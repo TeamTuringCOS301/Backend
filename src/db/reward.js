@@ -15,12 +15,12 @@ module.exports = (config, query) => ({
 			[id]);
 	},
 
-	async list() {//TODO: Change casVerified back to 1
+	async list() {
 		const results = await query(`
 			SELECT casID, casName, casDescription, casStockAmount, casRandValue, casCoinValue,
 				tblConservationArea_conID
 			FROM tblConservationAdminStock
-			WHERE casVerified = 0`);
+			WHERE casVerified = 1`);
 		const rewards = [];
 		for(let reward of results) {
 			rewards.push({

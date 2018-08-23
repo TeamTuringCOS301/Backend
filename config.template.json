@@ -9,7 +9,7 @@
 		"pointMaxAge": 600000
 	},
 	"logRequests": false,
-	"maxImageSize": "5mb",
+	"maxImageSize": "10mb",
 	"mysql": {
 		"host": "localhost",
 		"user": "user",

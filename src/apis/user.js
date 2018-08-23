@@ -66,7 +66,7 @@ module.exports = (config, db, coins) => {
 
 	api.get("/info", async(req, res) => {
 		await auth.requireUser(req);
-		const info = db.user.getInfo(req.userId);
+		const info = await db.user.getInfo(req.userId);
 		if(typeof info.walletAddress === "string") {
 			info.coinBalance = await coins.getBalance(info.walletAddress);
 		}

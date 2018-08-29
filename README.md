@@ -260,7 +260,6 @@ The rest of the API is only available to a super admin.
 
   ```
   success: boolean
-  password: string
   ```
 
 * `GET /admin/remove/:admin` - Remove an admin user.

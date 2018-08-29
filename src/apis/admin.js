@@ -1,10 +1,25 @@
 const bcrypt = require("bcrypt");
+const email = require("../email.js");
 const express = require("express");
 const generator = require("generate-password");
 const objects = require("../objects.js");
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
+
+	function createMailOptions(adress,area,password,name) {
+		var body=`Hi ${name},\n\n`;
+		body +=`You have been added as a conservation area admin for ${area}.\n\n`;
+		body += `Your password for the admin portal is : ${password}, please change`;
+		body += `the password as soon as possible.\n\n`;
+		body += `Kind regards, \nERP-Coin team`;
+		return mailOptions = {
+		  from: `erp.erpcoin@gmail.com`,
+		  to: adress,
+		  subject: `ERP-Coin Conservation Area Admin`,
+		  text: body
+		};
+	}
 
 	async function validate(info, initial = true) { // TODO: proper validation
 		if(initial) {
@@ -83,7 +98,10 @@ module.exports = (config, db, coins) => {
 			const password = generator.generate();
 			req.body.password = await bcrypt.hash(password, 10);
 			await db.admin.add(req.body);
-			return res.send({success: true, password});
+			areaInfo = await db.area.getInfo(req.body.area);
+			const mailOptions=createMailOptions(req.body.email, areaInfo.name, password,req.body.name);
+			email.sendMail(mailOptions);
+			return res.send({success: true});
 		}
 		res.send({success: false});
 	});

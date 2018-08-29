@@ -1,18 +1,18 @@
 module.exports = (config, query) => ({
 	async add(info) {
-		if(info.image) {//TODO: Change default for broadcast to 0
+		if(info.image) {
 			await query(`
 				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage,
 					aleBroadcast, aleLocation, tblConservationArea_conID, tblUser_usrID)
-				VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+				VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)`,
 				[info.time, info.title, info.description, info.severity,
 					Buffer.from(info.image, "base64"), JSON.stringify(info.location), info.area,
 					info.user]);
 		} else {
 			await query(`
-				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity, aleImage,
+				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity,
 					aleBroadcast, aleLocation, tblConservationArea_conID, tblUser_usrID)
-				VALUES (?, ?, ?, ?, 0, 1, ?, ?, ?)`,
+				VALUES (?, ?, ?, ?, 0, ?, ?, ?)`,
 				[info.time, info.title, info.description, info.severity,
 					JSON.stringify(info.location), info.area, info.user]);
 		}

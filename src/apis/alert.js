@@ -71,6 +71,7 @@ module.exports = (config, db, coins) => {
 
 	api.post("/update/:alert", async(req, res) => {
 		await auth.requireAreaAdmin(req, await db.alert.getArea(req.alert));
+		req.body.area = await db.alert.getArea(req.alert);
 		if(!await validate(req.body, false)) {
 			return res.sendStatus(400);
 		}

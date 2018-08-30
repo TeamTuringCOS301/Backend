@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
   `aleTimeSent`  BIGINT NOT NULL,
   `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
   `tblUser_usrID` INT(10) UNSIGNED,
-  PRIMARY KEY (`aleID`, `tblUser_usrID`),
+  PRIMARY KEY (`aleID`),
   INDEX `fk_tblAlert_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
   CONSTRAINT `fk_tblAlert_tblConservationArea1`
     FOREIGN KEY (`tblConservationArea_conID`)

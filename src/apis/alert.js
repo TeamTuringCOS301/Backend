@@ -30,7 +30,10 @@ module.exports = (config, db, coins) => {
 		req.body.area = req.area;
 		if(await auth.isUser(req)) {
 			req.body.user = req.userId;
+			req.body.broadcast = false;
 		} else {
+			req.body.user = null;
+			req.body.broadcast = true;
 			await auth.requireAreaAdmin(req, req.area);
 		}
 		if(!await validate(req.body)) {

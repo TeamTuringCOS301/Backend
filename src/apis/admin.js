@@ -3,15 +3,18 @@ const email = require("../email.js");
 const express = require("express");
 const generator = require("generate-password");
 const objects = require("../objects.js");
+const validator = require("../validate.js")
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	function createMailOptions(adress,area,password,name) {
+	function createMailOptions(adress,area,password,username,name) {
 		var body=`Hi ${name},\n\n`;
 		body +=`You have been added as a conservation area admin for ${area}.\n\n`;
-		body += `Your password for the admin portal is : ${password}, please change`;
-		body += `the password as soon as possible.\n\n`;
+		body += `Your details for the admin portal are :\n`;
+		body += `Username: ${username}\n`;
+		body += `Password: ${password}\n`;
+		body += `Please change your password as soon as possible.\n\n`;
 		body += `Kind regards, \nERP-Coin team`;
 		return mailOptions = {
 		  from: `erp.erpcoin@gmail.com`,
@@ -21,16 +24,14 @@ module.exports = (config, db, coins) => {
 		};
 	}
 
-	async function validate(info, initial = true) { // TODO: proper validation
+	async function validate(info, initial = true) {
 		if(initial) {
-			if(typeof info.username !== "string") {
+			if(!validator.validateUsername(info.username)) {
 				return false;
 			}
 		}
-		for(let key of ["email", "name", "surname"]) {
-			if(typeof info[key] !== "string") {
-				return false;
-			}
+		if(!validator.validateEmail(info.email) || !validator.validateName(info.name) || !validator.validateName(info.surname)){
+			return false;
 		}
 		return !initial || typeof info.area === "number" && await db.area.validId(info.area);
 	}
@@ -99,7 +100,7 @@ module.exports = (config, db, coins) => {
 			req.body.password = await bcrypt.hash(password, 10);
 			await db.admin.add(req.body);
 			areaInfo = await db.area.getInfo(req.body.area);
-			const mailOptions=createMailOptions(req.body.email, areaInfo.name, password,req.body.name);
+			const mailOptions=createMailOptions(req.body.email, areaInfo.name, password, req.body.username, req.body.name);
 			email.sendMail(mailOptions);
 			return res.send({success: true});
 		}

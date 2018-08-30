@@ -2,22 +2,19 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const objects = require("../objects.js");
 const Web3 = require("web3");
+const validator = require("../validate.js");
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
+	async function validate(info, initial = true) {
 		if(initial) {
-			for(let key of ["username", "password"]) {
-				if(typeof info[key] !== "string") {
-					return false;
-				}
-			}
-		}
-		for(let key of ["email", "name", "surname"]) {
-			if(typeof info[key] !== "string") {
+			if(!validator.validateUsername(info.username) || !validator.validatePassword(info.password)){
 				return false;
 			}
+		}
+		if(!validator.validateEmail(info.email) || !validator.validateName(info.name) || !validator.validateName(info.surname)){
+			return false;
 		}
 		return true;
 	}

@@ -1,5 +1,6 @@
 const express = require("express");
 const objects = require("../objects.js");
+const validator = require("../validate.js")
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
@@ -12,7 +13,7 @@ module.exports = (config, db, coins) => {
 		}
 		let lat = 0, lng = 0;
 		for(let point of info.border) {
-			if(typeof point.lat !== "number" || typeof point.lng !== "number") {
+			if(!validator.validatePoint(point)) {
 				return false;
 			}
 			lat += point.lat;
@@ -25,9 +26,9 @@ module.exports = (config, db, coins) => {
 		return true;
 	}
 
-	async function validate(info, initial = true) { // TODO: proper validation
+	async function validate(info, initial = true) {
 		for(let key of ["name", "city", "province"]) {
-			if(typeof info[key] !== "string") {
+			if(!validator.validateText(info[key])) {
 				return false;
 			}
 		}

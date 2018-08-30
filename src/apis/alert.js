@@ -2,20 +2,19 @@ const express = require("express");
 const imageType = require("image-type");
 const inPolygon = require("../in-polygon.js");
 const objects = require("../objects.js");
+const validator = require("../validate.js");
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
+	async function validate(info, initial = true) {
 		for(let key of ["title", "description"]) {
-			if(typeof info[key] !== "string") {
+			if(!validator.validateText(info[key])) {
 				return false;
 			}
 		}
-		for(let key of ["lat", "lng"]) {
-			if(!("location" in info) || typeof info.location[key] !== "number") {
-				return false;
-			}
+		if(!("location" in info) || !validator.validatePoint(info.location)){
+			return false;
 		}
 		return [0, 1, 2].includes(info.severity) && (!info.image
 				|| imageType(Buffer.from(info.image, "base64")) !== null)

@@ -1,13 +1,14 @@
 const express = require("express");
 const imageType = require("image-type");
 const objects = require("../objects.js");
+const validator = require("../validate.js");
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
+	async function validate(info, initial = true) {
 		for(let key of ["name", "description", "image"]) {
-			if(typeof info[key] !== "string") {
+			if(!validator.validateText(info[key])) {
 				return false;
 			}
 		}
@@ -15,6 +16,9 @@ module.exports = (config, db, coins) => {
 			if(typeof info[key] !== "number") {
 				return false;
 			}
+		}
+		if(info.randValue < 1 || info.amount < -1){
+			return false;
 		}
 		return !initial && !info.image || imageType(Buffer.from(info.image, "base64")) !== null;
 	}

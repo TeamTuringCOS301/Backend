@@ -7,7 +7,7 @@ module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {
-		for(let key of ["name", "description", "image"]) {
+		for(let key of ["name", "description"]) {
 			if(!validator.validateText(info[key])) {
 				return false;
 			}
@@ -71,7 +71,7 @@ module.exports = (config, db, coins) => {
 	api.post("/update/:reward", async(req, res) => {
 		await auth.requireAreaAdmin(req, await db.reward.getArea(req.reward));
 		if(!await validate(req.body, false)) {
-			res.sendStatus(400);
+			return res.sendStatus(400);
 		}
 		await db.reward.updateInfo(req.reward, req.body);
 		res.send({});

@@ -17,10 +17,10 @@ module.exports = (config, db, coins) => {
 		body += `Please change your password as soon as possible.\n\n`;
 		body += `Kind regards, \nERP-Coin team`;
 		return mailOptions = {
-		  from: `erp.erpcoin@gmail.com`,
-		  to: adress,
-		  subject: `ERP-Coin Conservation Area Admin`,
-		  text: body
+			from: `erp.erpcoin@gmail.com`,
+			to: adress,
+			subject: `ERP-Coin Conservation Area Admin`,
+			text: body
 		};
 	}
 

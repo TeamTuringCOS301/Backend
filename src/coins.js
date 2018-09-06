@@ -7,10 +7,13 @@ const provider = new Web3.providers.HttpProvider(config.web3Provider);
 if(typeof provider.sendAsync !== "function") {
 	provider.sendAsync = (...args) => provider.send(...args);
 }
-const ERPCoin = Contract(JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json")));
+const contractJson = JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json"));
+const ERPCoin = Contract(contractJson);
 ERPCoin.setProvider(provider);
 
 module.exports = {
+	contractJson,
+
 	async getBalance(address) {
 		const contract = await ERPCoin.deployed();
 		return (await contract.balanceOf(address)).toNumber();

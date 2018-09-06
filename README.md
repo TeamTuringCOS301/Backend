@@ -662,3 +662,7 @@ The rest of the API is only available to a super admin.
   ```
   coinValue: integer
   ```
+
+### Smart Contract API
+
+* `GET /contract` - Return a JSON object describing the `ERPCoin` contract, for use with `truffle-contract`.

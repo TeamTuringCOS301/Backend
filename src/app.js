@@ -42,6 +42,10 @@ module.exports = (config, db, coins) => {
 		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins));
 	}
 
+	app.get("/contract", (req, res) => {
+		res.send(coins.contractJson);
+	});
+
 	app.use((err, req, res, next) => {
 		if(err instanceof auth.AuthError) {
 			res.sendStatus(401);

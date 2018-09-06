@@ -22,7 +22,7 @@ module.exports = (config, db, coins) => {
 	const api = express();
 	objects.addParams(api, db);
 
-	api.post("/add", async(req, res) => {2
+	api.post("/add", async(req, res) => {
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}

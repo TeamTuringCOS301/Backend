@@ -665,4 +665,11 @@ The rest of the API is only available to a super admin.
 
 ### Smart Contract API
 
-* `GET /contract` - Return a JSON object describing the `ERPCoin` contract, for use with `truffle-contract`.
+* `GET /contract` - Get information about the `ERPCoin` smart contract.
+
+  Response fields:
+
+  ```
+  abi: array
+  address: string
+  ```

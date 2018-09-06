@@ -42,8 +42,8 @@ module.exports = (config, db, coins) => {
 		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins));
 	}
 
-	app.get("/contract", (req, res) => {
-		res.send(coins.contractJson);
+	app.get("/contract", async(req, res) => {
+		res.send(await coins.getContractJson());
 	});
 
 	app.use((err, req, res, next) => {

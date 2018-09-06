@@ -9,8 +9,7 @@ const provider = new Web3.providers.HttpProvider(config.web3Provider);
 if(typeof provider.sendAsync !== "function") {
 	provider.sendAsync = (...args) => provider.send(...args);
 }
-const contractJson = JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json"));
-const ERPCoin = Contract(contractJson);
+const ERPCoin = Contract(JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json")));
 ERPCoin.setProvider(provider);
 
 async function sendMail(user, subject, message) {
@@ -69,7 +68,10 @@ ERPCoin.deployed().then((contract) => {
 });
 
 module.exports = {
-	contractJson,
+	async getContractJson() {
+		const contract = await ERPCoin.deployed();
+		return {abi: contract.abi, address: contract.address};
+	},
 
 	async getBalance(address) {
 		const contract = await ERPCoin.deployed();

@@ -17,7 +17,8 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		if(info.randValue < 1 || info.amount < -1){
+		if(info.randValue <= 0 || info.amount <= 0 && info.amount !== -1
+				|| !Number.isInteger(info.amount)) {
 			return false;
 		}
 		return !initial && !info.image || imageType(Buffer.from(info.image, "base64")) !== null;
@@ -45,7 +46,8 @@ module.exports = (config, db, coins) => {
 
 	api.post("/verify/:reward", async(req, res) => {
 		await auth.requireSuperAdmin(req);
-		if(typeof req.body.coinValue !== "number" || req.body.coinValue <= 0) {
+		if(typeof req.body.coinValue !== "number" || req.body.coinValue <= 0
+				|| !Number.isInteger(req.body.coinValue)) {
 			return res.sendStatus(400);
 		}
 		await db.reward.verifyCoinValue(req.reward, req.body.coinValue);

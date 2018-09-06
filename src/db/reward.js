@@ -111,6 +111,26 @@ module.exports = (config, query) => ({
 		return results[0].tblConservationArea_conID;
 	},
 
+	async getInfo(id) {
+		const results = await query(`
+			SELECT casName, casDescription, casStockAmount, casRandValue, casCoinValue, casVerified,
+				conID, conName
+			FROM tblConservationAdminStock
+			JOIN tblConservationArea
+			ON tblConservationArea_conID = conID
+			WHERE casID = ?`);
+		return {
+			name: results[0].casName,
+			description: results[0].casDescription,
+			amount: results[0].casStockAmount,
+			randValue: results[0].casRandValue,
+			coinValue: results[0].casCoinValue,
+			verified: results[0].casVerified[0] === 1,
+			area: results[0].conID,
+			areaName: results[0].conName
+		};
+	},
+
 	async updateInfo(id, info) {
 		await query(`
 			UPDATE tblConservationAdminStock
@@ -125,6 +145,14 @@ module.exports = (config, query) => ({
 				WHERE casID = ?`,
 				[Buffer.from(info.image, "base64"), id]);
 		}
+	},
+
+	async setAmount(id, amount) {
+		await query(`
+			UPDATE tblConservationAdminStock
+			SET casAmount = ?
+			WHERE casID = ?`,
+			[amount, id]);
 	},
 
 	async verifyCoinValue(id, coinValue) {

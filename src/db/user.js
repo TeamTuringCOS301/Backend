@@ -36,6 +36,19 @@ module.exports = (config, query) => ({
 		}
 	},
 
+	async findByAddress(address) {
+		const results = await query(`
+			SELECT usrID
+			FROM tblUser
+			WHERE usrWalletAddress = ?`,
+			[address]);
+		if(results.length) {
+			return results[0].usrID;
+		} else {
+			return null;
+		}
+	},
+
 	async getPassword(id) {
 		const results = await query(`
 			SELECT usrPassword

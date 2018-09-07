@@ -118,7 +118,8 @@ module.exports = (config, query) => ({
 			FROM tblConservationAdminStock
 			JOIN tblConservationArea
 			ON tblConservationArea_conID = conID
-			WHERE casID = ?`);
+			WHERE casID = ?`,
+			[id]);
 		return {
 			name: results[0].casName,
 			description: results[0].casDescription,

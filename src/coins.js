@@ -57,7 +57,7 @@ ERPCoin.deployed().then((contract) => {
 		} else if(reward.amount !== -1) {
 			await db.reward.setAmount(rewardId, reward.amount - 1);
 		}
-		await sendRewardEmail(user, "ERP-Coin Reward Purchased",
+		await sendRewardMail(user, "ERP-Coin Reward Purchased",
 			"You have successfully purchased the following reward.\n\n"
 				+ `Reward: ${reward.name}\n`
 				+ `${reward.description}\n\n`

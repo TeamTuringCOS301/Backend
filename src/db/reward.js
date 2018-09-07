@@ -150,7 +150,7 @@ module.exports = (config, query) => ({
 	async setAmount(id, amount) {
 		await query(`
 			UPDATE tblConservationAdminStock
-			SET casAmount = ?
+			SET casStockAmount = ?
 			WHERE casID = ?`,
 			[amount, id]);
 	},

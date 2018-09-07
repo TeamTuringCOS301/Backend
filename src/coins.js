@@ -40,14 +40,14 @@ ERPCoin.deployed().then((contract) => {
 		const rewardId = purchase.args.reward.toNumber();
 		if(!await db.reward.validId(rewardId)) {
 			await refund();
-			return await sendRewardMail(user, "ERP-Coin Reward Not Available",
+			return await sendMail(user, "ERP-Coin Reward Not Available",
 				"The reward you attempted to buy is not currently available.\n\n"
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}
 		const reward = await db.reward.getInfo(rewardId);
 		if(purchase.args.value.toNumber() !== reward.coinValue || !reward.verified) {
 			await refund();
-			return await sendRewardMail(user, "ERP-Coin Reward Not Available",
+			return await sendMail(user, "ERP-Coin Reward Not Available",
 				"The reward you attempted to buy is not currently available.\n\n"
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}
@@ -57,7 +57,7 @@ ERPCoin.deployed().then((contract) => {
 		} else if(reward.amount !== -1) {
 			await db.reward.setAmount(rewardId, reward.amount - 1);
 		}
-		await sendRewardMail(user, "ERP-Coin Reward Purchased",
+		await sendMail(user, "ERP-Coin Reward Purchased",
 			"You have successfully purchased the following reward.\n\n"
 				+ `Reward: ${reward.name}\n`
 				+ `${reward.description}\n\n`

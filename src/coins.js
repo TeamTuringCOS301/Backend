@@ -45,7 +45,7 @@ ERPCoin.deployed().then((contract) => {
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}
 		const reward = await db.reward.getInfo(rewardId);
-		if(purchase.value.toNumber() !== reward.coinValue || !reward.verified) {
+		if(purchase.args.value.toNumber() !== reward.coinValue || !reward.verified) {
 			await refund();
 			return await sendRewardMail(user, "ERP-Coin Reward Not Available",
 				"The reward you attempted to buy is not currently available.\n\n"

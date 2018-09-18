@@ -126,6 +126,14 @@ module.exports = (config, query) => ({
 		return results[0].usrUnclaimedBalance;
 	},
 
+	async setUnclaimedBalance(id, balance) {
+		await query(`
+			UPDATE tblUser
+			SET usrUnclaimedBalance = ?
+			WHERE usrID = ?`,
+			[balance, id]);
+	},
+
 	async rewardCoin(id) {
 		await query(`
 			UPDATE tblUser

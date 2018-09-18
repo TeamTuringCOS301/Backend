@@ -1,28 +1,12 @@
 const bcrypt = require("bcrypt");
-const email = require("../email.js");
 const express = require("express");
 const generator = require("generate-password");
 const objects = require("../objects.js");
+const sendMail = require("../email.js");
 const validator = require("../validate.js")
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
-
-	function createMailOptions(adress,area,password,username,name) {
-		var body=`Hi ${name},\n\n`;
-		body +=`You have been added as a conservation area admin for ${area}.\n\n`;
-		body += `Your details for the admin portal are :\n`;
-		body += `Username: ${username}\n`;
-		body += `Password: ${password}\n`;
-		body += `Please change your password as soon as possible.\n\n`;
-		body += `Kind regards, \nERP-Coin team`;
-		return mailOptions = {
-			from: `erp.erpcoin@gmail.com`,
-			to: adress,
-			subject: `ERP-Coin Conservation Area Admin`,
-			text: body
-		};
-	}
 
 	async function validate(info, initial = true) {
 		if(initial) {
@@ -100,8 +84,12 @@ module.exports = (config, db, coins) => {
 			req.body.password = await bcrypt.hash(password, 10);
 			await db.admin.add(req.body);
 			areaInfo = await db.area.getInfo(req.body.area);
-			const mailOptions=createMailOptions(req.body.email, areaInfo.name, password, req.body.username, req.body.name);
-			email.sendMail(mailOptions);
+			await sendMail(req.body, "ERP-Coin Conservation Area Admin",
+				`You have been added as a conservation area admin for ${areaInfo.name}.\n\n`
+					+ "Your details for the admin portal are:\n"
+					+ `Username: ${req.body.username}\n`
+					+ `Password: ${password}\n`
+					+ "Please change your password as soon as possible.");
 			return res.send({success: true});
 		}
 		res.send({success: false});

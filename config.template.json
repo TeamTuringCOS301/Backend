@@ -8,6 +8,16 @@
 		"newPointInterval": 1000,
 		"pointMaxAge": 600000
 	},
+	"email": {
+		"from": "ERP-Coin <erp.erpcoin@gmail.com>",
+		"transport": {
+			"service": "gmail",
+			"auth": {
+				"user": "erp.erpcoin@gmail.com",
+				"pass": "correcthorse"
+			}
+		}
+	},
 	"logRequests": false,
 	"maxImageSize": "10mb",
 	"mysql": {

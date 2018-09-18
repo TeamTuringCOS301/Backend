@@ -56,6 +56,12 @@ openssl req -new -x509 -out tls-cert.pem -keyout tls-key.pem -nodes -batch
 
 Note that this certificate will have to be added to the browser.
 
+### Email Configuration
+
+The `email` key in `config.json` must contain the desired "From" field, and options to create a [`nodemailer`] transport.
+
+[`nodemailer`]: https://nodemailer.com/
+
 ### Coin Reward Parameters
 
 The following parameters must be specified in `config.json`:
@@ -578,6 +584,11 @@ The rest of the API is only available to the admin associated with the conservat
 
 * `GET /reward/image/:reward` - Respond with the image submitted for this reward.
   The response is not encoded as JSON.
+
+The following request is only available to a registered user.
+
+* `GET /reward/buy/:reward` - Buy a reward.
+  If the user's coins have already been exported to an Ethereum wallet, use the contract function instead.
 
 The rest of the API is only available to an admin.
 

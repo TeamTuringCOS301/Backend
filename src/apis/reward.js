@@ -1,6 +1,7 @@
 const express = require("express");
 const imageType = require("image-type");
 const objects = require("../objects.js");
+const sendMail = require("../email.js");
 const validator = require("../validate.js");
 
 module.exports = (config, db, coins) => {
@@ -82,6 +83,19 @@ module.exports = (config, db, coins) => {
 	api.get("/remove/:reward", async(req, res) => {
 		await auth.requireAreaAdmin(req, await db.reward.getArea(req.reward));
 		await db.reward.remove(req.reward);
+		res.send({});
+	});
+
+	api.get("/buy/:reward", async(req, res) => {
+		await auth.requireUser(req);
+		const user = await db.user.getInfo(req.userId);
+		const reward = await db.reward.getInfo(req.reward);
+		if(user.coinBalance < reward.coinValue || !reward.verified) {
+			return res.sendStatus(400);
+		}
+		await db.user.setUnclaimedBalance(req.userId, user.coinBalance - reward.coinValue);
+		reward.id = req.reward;
+		await coins.rewardPurchaseDone(user, reward);
 		res.send({});
 	});
 

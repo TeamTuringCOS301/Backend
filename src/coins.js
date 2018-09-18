@@ -1,8 +1,8 @@
 const config = require("./config.js");
 const Contract = require("truffle-contract");
 const db = require("./database.js");
-const email = require("./email.js");
 const fs = require("fs");
+const sendMail = require("./email.js");
 const Web3 = require("web3");
 
 const provider = new Web3.providers.HttpProvider(config.web3Provider);
@@ -12,13 +12,19 @@ if(typeof provider.sendAsync !== "function") {
 const ERPCoin = Contract(JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json")));
 ERPCoin.setProvider(provider);
 
-async function sendMail(user, subject, message) {
-	await email.sendMail({
-		from: "erp.erpcoin@gmail.com",
-		to: user.email,
-		subject,
-		text: `Hi ${user.name},\n\n${message}\n\nKind regards,\nERP-Coin team`
-	});
+async function rewardPurchaseDone(user, reward) {
+	if(reward.amount === 1) {
+		await db.reward.remove(reward.id);
+	} else if(reward.amount !== -1) {
+		await db.reward.setAmount(reward.id, reward.amount - 1);
+	}
+	await sendMail(user, "ERP-Coin Reward Purchased",
+		"You have successfully purchased the following reward.\n\n"
+			+ `Reward: ${reward.name}\n`
+			+ `${reward.description}\n\n`
+			+ `Value: R ${reward.randValue.toFixed(2)}\n`
+			+ `Price: ${reward.coinValue} coins\n`
+			+ `Offered by: ${reward.areaName}`);
 }
 
 ERPCoin.deployed().then((contract) => {
@@ -52,18 +58,8 @@ ERPCoin.deployed().then((contract) => {
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}
 
-		if(reward.amount === 1) {
-			await db.reward.remove(rewardId);
-		} else if(reward.amount !== -1) {
-			await db.reward.setAmount(rewardId, reward.amount - 1);
-		}
-		await sendMail(user, "ERP-Coin Reward Purchased",
-			"You have successfully purchased the following reward.\n\n"
-				+ `Reward: ${reward.name}\n`
-				+ `${reward.description}\n\n`
-				+ `Value: R ${reward.randValue.toFixed(2)}\n`
-				+ `Price: ${reward.coinValue} coins\n`
-				+ `Offered by: ${reward.areaName}`);
+		reward.id = rewardId;
+		await rewardPurchaseDone(user, reward);
 	});
 });
 
@@ -81,5 +77,7 @@ module.exports = {
 	async rewardCoins(address, coins) {
 		const contract = await ERPCoin.deployed();
 		await contract.rewardCoins(address, coins, {from: await contract.owner()});
-	}
+	},
+
+	rewardPurchaseDone
 };

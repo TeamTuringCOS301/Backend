@@ -1,23 +1,21 @@
+const config = require("./config.js");
 const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-		user: "erp.erpcoin@gmail.com",
-		pass: "correcthorse"
-	}
-});
+const transporter = nodemailer.createTransport(config.email.transport);
 
-module.exports = {
-	sendMail(mailOptions) {
-		return new Promise((resolve, reject) => {
-			transporter.sendMail(mailOptions, (err, info) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve();
-				}
-			});
+module.exports = (user, subject, message) => {
+	return new Promise((resolve, reject) => {
+		transporter.sendMail({
+			from: config.email.from,
+			to: user.email,
+			subject,
+			text: `Hi ${user.name},\n\n${message}\n\nKind regards,\nERP-Coin team`
+		}, (err) => {
+			if(err) {
+				reject(err);
+			} else {
+				resolve();
+			}
 		});
-	}
-};
+	});
+}

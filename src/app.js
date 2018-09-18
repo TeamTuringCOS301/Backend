@@ -14,11 +14,11 @@ module.exports = (config, db, coins) => {
 	app.use(nocache());
 	app.use(session({
 		cookie: {
-			// TODO: re-enable
-			//maxAge: config.sessionCookie.maxAge,
+			maxAge: config.sessionCookie.maxAge,
 			secure: db.secureCookies
 		},
 		resave: false,
+		rolling: true,
 		saveUninitialized: false,
 		secret: config.sessionCookie.secret,
 		store: db.sessionStore

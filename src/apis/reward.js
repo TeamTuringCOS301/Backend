@@ -22,7 +22,8 @@ module.exports = (config, db, coins) => {
 				|| !Number.isInteger(info.amount)) {
 			return false;
 		}
-		return !initial && !info.image || imageType(Buffer.from(info.image, "base64")) !== null;
+		return !initial && !info.image || typeof info.image === "string"
+			&& imageType(Buffer.from(info.image, "base64")) !== null;
 	}
 
 	const api = express();

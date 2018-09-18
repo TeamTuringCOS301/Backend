@@ -78,7 +78,7 @@ module.exports = (config, db, coins) => {
 
 	api.post("/address", async(req, res) => {
 		await auth.requireUser(req);
-		if(req.body.walletAddress === null) {
+		if(!req.body.walletAddress) {
 			await db.user.clearWalletAddress(req.userId);
 		} else if(Web3.utils.isAddress(req.body.walletAddress)) {
 			await coins.rewardCoins(req.body.walletAddress,

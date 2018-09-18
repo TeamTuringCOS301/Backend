@@ -16,8 +16,8 @@ module.exports = (config, db, coins) => {
 		if(!("location" in info) || !validator.validatePoint(info.location)){
 			return false;
 		}
-		return [0, 1, 2].includes(info.severity) && (!info.image
-				|| imageType(Buffer.from(info.image, "base64")) !== null)
+		return [0, 1, 2].includes(info.severity) && (!info.image || typeof info.image === "string"
+				&& imageType(Buffer.from(info.image, "base64")) !== null)
 			&& inPolygon(info.location, await db.area.getBorder(info.area))
 			&& (initial || typeof info.broadcast === "boolean");
 	}

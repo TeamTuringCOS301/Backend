@@ -26,6 +26,7 @@ module.exports = (config, db, coins) => {
 
 	if(config.logRequests) {
 		app.use((req, res, next) => {
+			const path = req.path;
 			const body = Object.assign({}, req.body);
 			for(let key of ["password", "old", "new", "image"]) {
 				if(typeof body[key] === "string") {
@@ -46,7 +47,7 @@ module.exports = (config, db, coins) => {
 					}
 				}
 				console.log();
-				console.log(req.method, req.path, body);
+				console.log(req.method, path, body);
 				console.log(this.statusCode, output);
 				this.send = oldSend;
 				this.send(arg);

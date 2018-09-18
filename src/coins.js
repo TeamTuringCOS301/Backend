@@ -2,6 +2,7 @@ const config = require("./config.js");
 const Contract = require("truffle-contract");
 const db = require("./database.js");
 const fs = require("fs");
+const generator = require("generate-password");
 const sendMail = require("./email.js");
 const Web3 = require("web3");
 
@@ -18,13 +19,29 @@ async function rewardPurchaseDone(user, reward) {
 	} else if(reward.amount !== -1) {
 		await db.reward.setAmount(reward.id, reward.amount - 1);
 	}
+	const admin = await db.admin.getInfo(await db.area.getPrimaryAdmin(reward.area));
+	const purchaseId = generator.generate();
 	await sendMail(user, "ERP-Coin Reward Purchased",
-		"You have successfully purchased the following reward.\n\n"
+		"Thank you for buying the following reward.\n\n"
 			+ `Reward: ${reward.name}\n`
 			+ `${reward.description}\n\n`
 			+ `Value: R ${reward.randValue.toFixed(2)}\n`
 			+ `Price: ${reward.coinValue} coins\n`
-			+ `Offered by: ${reward.areaName}`);
+			+ `Offered by: ${reward.areaName}\n\n`
+			+ `Please contact the following representative, quoting the purchase ID.\n`
+			+ `Name: ${admin.name} ${admin.surname}\n`
+			+ `Email: ${admin.email}\n`
+			+ `Purchase ID: ${purchaseId}`);
+	await sendMail(admin, "ERP-Coin Reward Purchased",
+		"A user has bought the following reward.\n\n"
+			+ `Reward: ${reward.name}\n`
+			+ `${reward.description}\n\n`
+			+ `Value: R ${reward.randValue.toFixed(2)}\n`
+			+ `Price: ${reward.coinValue} coins\n\n`
+			+ `Please expect a message from the user, with the following purchase ID.\n`
+			+ `Name: ${user.name} ${user.surname}\n`
+			+ `Email: ${user.email}\n`
+			+ `Purchase ID: ${purchaseId}`);
 }
 
 ERPCoin.deployed().then((contract) => {
@@ -51,7 +68,8 @@ ERPCoin.deployed().then((contract) => {
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}
 		const reward = await db.reward.getInfo(rewardId);
-		if(purchase.args.value.toNumber() !== reward.coinValue || !reward.verified) {
+		if(purchase.args.value.toNumber() !== reward.coinValue || !reward.verified
+				|| await db.area.getPrimaryAdmin(reward.area) === null) {
 			await refund();
 			return await sendMail(user, "ERP-Coin Reward Not Available",
 				"The reward you attempted to buy is not currently available.\n\n"

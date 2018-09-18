@@ -91,7 +91,8 @@ module.exports = (config, db, coins) => {
 		await auth.requireUser(req);
 		const user = await db.user.getInfo(req.userId);
 		const reward = await db.reward.getInfo(req.reward);
-		if(user.coinBalance < reward.coinValue || !reward.verified) {
+		if(user.coinBalance < reward.coinValue || !reward.verified
+				|| await db.area.getPrimaryAdmin(reward.area) === null) {
 			return res.sendStatus(400);
 		}
 		await db.user.setUnclaimedBalance(req.userId, user.coinBalance - reward.coinValue);

@@ -67,7 +67,8 @@ module.exports = (config, query) => ({
 			SELECT casID, casName, casDescription, casStockAmount, casRandValue, casCoinValue,
 				casVerified
 			FROM tblConservationAdminStock
-			WHERE tblConservationArea_conID = ?`,
+			WHERE tblConservationArea_conID = ?
+			ORDER BY casVerified DESC`,
 			[area]);
 		const rewards = [];
 		for(let reward of results) {

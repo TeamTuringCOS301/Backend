@@ -1,10 +1,9 @@
 const express = require("express");
 const imageType = require("image-type");
 const objects = require("../objects.js");
-const sendMail = require("../email.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {

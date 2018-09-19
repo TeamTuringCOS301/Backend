@@ -4,7 +4,7 @@ const generator = require("generate-password");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {

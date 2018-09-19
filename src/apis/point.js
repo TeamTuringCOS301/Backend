@@ -3,7 +3,7 @@ const inPolygon = require("../in-polygon.js");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info) {

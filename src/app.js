@@ -1,5 +1,6 @@
 const cors = require("cors");
 const express = require("express");
+const sendMail = require("./email.js");
 const session = require("express-session");
 const nocache = require("nocache");
 const objects = require("./objects.js");
@@ -57,7 +58,7 @@ module.exports = (config, db, coins) => {
 	}
 
 	for(let object of objects.all) {
-		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins));
+		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins, sendMail));
 	}
 
 	app.get("/contract", async(req, res) => {

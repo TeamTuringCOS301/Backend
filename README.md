@@ -671,6 +671,7 @@ The rest of the API is only available to a super admin.
   Required request fields:
 
   ```
+  verify: boolean
   coinValue: integer
   ```
 

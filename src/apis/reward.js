@@ -47,11 +47,11 @@ module.exports = (config, db, coins, sendMail) => {
 
 	api.post("/verify/:reward", async(req, res) => {
 		await auth.requireSuperAdmin(req);
-		if(typeof req.body.coinValue !== "number" || req.body.coinValue <= 0
-				|| !Number.isInteger(req.body.coinValue)) {
+		if(typeof req.body.verify !== "boolean" || typeof req.body.coinValue !== "number"
+				|| req.body.coinValue <= 0 || !Number.isInteger(req.body.coinValue)) {
 			return res.sendStatus(400);
 		}
-		await db.reward.verifyCoinValue(req.reward, req.body.coinValue);
+		await db.reward.verifyCoinValue(req.reward, req.body.verify, req.body.coinValue);
 		res.send({});
 	});
 

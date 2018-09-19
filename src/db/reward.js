@@ -157,11 +157,11 @@ module.exports = (config, query) => ({
 			[amount, id]);
 	},
 
-	async verifyCoinValue(id, coinValue) {
+	async verifyCoinValue(id, verify, coinValue) {
 		await query(`
 			UPDATE tblConservationAdminStock
-			SET casCoinValue = ?, casVerified = 1
+			SET casCoinValue = ?, casVerified = ?
 			WHERE casID = ?`,
-			[coinValue, id]);
+			[coinValue, verify ? 1 : 0, id]);
 	}
 });

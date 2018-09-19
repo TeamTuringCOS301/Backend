@@ -83,7 +83,7 @@ module.exports = (config, db, coins) => {
 			const password = generator.generate();
 			req.body.password = await bcrypt.hash(password, 10);
 			await db.admin.add(req.body);
-			areaInfo = await db.area.getInfo(req.body.area);
+			const areaInfo = await db.area.getInfo(req.body.area);
 			await sendMail(req.body, "ERP-Coin Conservation Area Admin",
 				`You have been added as a conservation area admin for ${areaInfo.name}.\n\n`
 					+ "Your details for the admin portal are:\n"

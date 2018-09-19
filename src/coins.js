@@ -3,6 +3,7 @@ const Contract = require("truffle-contract");
 const db = require("./database.js");
 const fs = require("fs");
 const generator = require("generate-password");
+const imageType = require("image-type");
 const sendMail = require("./email.js");
 const Web3 = require("web3");
 
@@ -21,6 +22,8 @@ async function rewardPurchaseDone(user, reward) {
 	}
 	const admin = await db.admin.getInfo(await db.area.getPrimaryAdmin(reward.area));
 	const purchaseId = generator.generate();
+	const image = await db.reward.getImage(reward.id);
+	const attachments = [{filename: `reward.${imageType(image).ext}`, content: image}];
 	await sendMail(user, "ERP-Coin Reward Purchased",
 		"Thank you for buying the following reward.\n\n"
 			+ `Reward: ${reward.name}\n`
@@ -31,7 +34,8 @@ async function rewardPurchaseDone(user, reward) {
 			+ `Please contact the following representative, quoting the purchase ID.\n`
 			+ `Name: ${admin.name} ${admin.surname}\n`
 			+ `Email: ${admin.email}\n`
-			+ `Purchase ID: ${purchaseId}`);
+			+ `Purchase ID: ${purchaseId}`,
+		attachments);
 	await sendMail(admin, "ERP-Coin Reward Purchased",
 		"A user has bought the following reward.\n\n"
 			+ `Reward: ${reward.name}\n`
@@ -41,7 +45,8 @@ async function rewardPurchaseDone(user, reward) {
 			+ `Please expect a message from the user, with the following purchase ID.\n`
 			+ `Name: ${user.name} ${user.surname}\n`
 			+ `Email: ${user.email}\n`
-			+ `Purchase ID: ${purchaseId}`);
+			+ `Purchase ID: ${purchaseId}`,
+		attachments);
 }
 
 async function handlePurchases() {

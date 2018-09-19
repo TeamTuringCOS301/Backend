@@ -200,6 +200,18 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAdminStock` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+-- -----------------------------------------------------
+-- Table `dbERPCOIN`.`tblLastRewardPurchase`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblLastRewardPurchase` (
+	`lrpBlockNumber` INT(10) UNSIGNED NOT NULL,
+	`lrpLogIndex` INT(10) UNSIGNED NOT NULL)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+INSERT INTO `dbERPCOIN`.`tblLastRewardPurchase`
+SELECT 0, 0
+WHERE NOT EXISTS (SELECT * FROM `dbERPCOIN`.`tblLastRewardPurchase`);
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

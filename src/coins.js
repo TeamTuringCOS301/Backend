@@ -44,11 +44,18 @@ async function rewardPurchaseDone(user, reward) {
 			+ `Purchase ID: ${purchaseId}`);
 }
 
-ERPCoin.deployed().then((contract) => {
-	contract.Purchase().watch(async(err, purchase) => {
+async function handlePurchases() {
+	const lastPurchase = await db.getLastPurchase();
+
+	const contract = await ERPCoin.deployed();
+	contract.Purchase({}, {fromBlock: lastPurchase.blockNumber}).watch(async(err, purchase) => {
 		if(err) {
 			return console.error(err);
+		} else if(purchase.blockNumber == lastPurchase.blockNumber
+				&& purchase.logIndex <= lastPurchase.logIndex) {
+			return;
 		}
+		await db.setLastPurchase(purchase);
 
 		const owner = await contract.owner();
 		const refund = () =>
@@ -79,7 +86,8 @@ ERPCoin.deployed().then((contract) => {
 		reward.id = rewardId;
 		await rewardPurchaseDone(user, reward);
 	});
-});
+}
+handlePurchases();
 
 module.exports = {
 	async getContractJson() {

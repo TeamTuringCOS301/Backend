@@ -72,7 +72,7 @@ module.exports = (config, query) => ({
 				conBorderNodeJSONObject = ?
 			WHERE conID = ?`,
 			[info.name, info.city, info.province, JSON.stringify(info.middle),
-				JSON.stringify(info.border)]);
+				JSON.stringify(info.border), id]);
 	},
 
 	async getPrimaryAdmin(id) {

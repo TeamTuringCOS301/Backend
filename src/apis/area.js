@@ -52,7 +52,7 @@ module.exports = (config, db, coins) => {
 		if(!await validate(req.body, false)) {
 			return res.sendStatus(400);
 		}
-		await db.admin.updateInfo(req.area, req.body);
+		await db.area.updateInfo(req.area, req.body);
 		res.send({});
 	});
 

@@ -40,7 +40,7 @@ module.exports = (config, db, coins, sendMail) => {
 
 	api.get("/logout", async(req, res) => {
 		await auth.requireSuperAdmin(req);
-		req.session.superId = undefined;
+		delete req.session.superId;
 		res.send({});
 	});
 

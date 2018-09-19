@@ -19,7 +19,7 @@ module.exports = (config, db, coins, sendMail) => {
 		let latest = 0;
 		for(let point of points) {
 			latest = Math.max(latest, point.time);
-			point.time = undefined;
+			delete point.time;
 		}
 		res.send({points, latest});
 	});

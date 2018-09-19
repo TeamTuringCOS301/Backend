@@ -54,7 +54,7 @@ module.exports = (config, db, coins, sendMail) => {
 
 	api.get("/logout", async(req, res) => {
 		await auth.requireUser(req);
-		req.session.userId = undefined;
+		delete req.session.userId;
 		res.send({});
 	});
 
@@ -114,7 +114,7 @@ module.exports = (config, db, coins, sendMail) => {
 		let hash = await db.user.getPassword(req.userId);
 		if(await bcrypt.compare(req.body.password, hash)) {
 			await db.user.remove(req.userId);
-			req.session.userId = undefined;
+			delete req.session.userId;
 			success = true;
 		}
 		res.send({success});

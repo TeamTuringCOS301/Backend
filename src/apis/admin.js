@@ -40,7 +40,7 @@ module.exports = (config, db, coins, sendMail) => {
 
 	api.get("/logout", async(req, res) => {
 		await auth.requireAdmin(req);
-		req.session.adminId = undefined;
+		delete req.session.adminId;
 		res.send({});
 	});
 

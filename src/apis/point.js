@@ -1,17 +1,13 @@
 const express = require("express");
 const inPolygon = require("../in-polygon.js");
 const objects = require("../objects.js");
+const validator = require("../validate.js");
 
 module.exports = (config, db, coins) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info) { // TODO: proper validation
-		for(let key of ["lat", "lng"]) {
-			if(typeof info[key] !== "number") {
-				return false;
-			}
-		}
-		return info.time - await db.user.getLatestTime(info.user)
+	async function validate(info) {
+		return validator.validatePoint(info) && info.time - await db.user.getLatestTime(info.user)
 			>= config.coinRewards.newPointInterval;
 	}
 

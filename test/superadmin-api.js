@@ -80,22 +80,23 @@ describe("Super Admin API", () => {
 				.expect(400, done);
 		});
 
-		it("updates the admin information", (done) => {
+		it("succeeds with valid data", (done) => {
 			agent.post("/superadmin/update")
 				.send({
 					email: "new@erp.coin",
 					name: "Jane",
 					surname: "Doe"
 				})
-				.expect(200, () => {
-					agent.get("/superadmin/info")
-						.expect(200, {
-							username: "admin",
-							email: "new@erp.coin",
-							name: "Jane",
-							surname: "Doe"
-						}, done);
-				});
+				.expect(200, done);
+		});
+
+		it("updates the admin information", async() => {
+			assert.deepEqual(await db.superadmin.getInfo(await db.superadmin.find("admin")), {
+				username: "admin",
+				email: "new@erp.coin",
+				name: "Jane",
+				surname: "Doe"
+			});
 		});
 	});
 
@@ -134,12 +135,14 @@ describe("Super Admin API", () => {
 	});
 
 	describe("GET /superadmin/logout", () => {
-		it("clears the session cookie", (done) => {
+		it("returns successfully", (done) => {
 			agent.get("/superadmin/logout")
-				.end(() => {
-					agent.get("/superadmin/info")
-						.expect(401, done);
-				});
+				.expect(200, done);
+		});
+
+		it("clears the session cookie", (done) => {
+			agent.get("/superadmin/info")
+				.expect(401, done);
 		});
 	});
 });

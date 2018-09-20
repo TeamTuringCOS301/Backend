@@ -174,24 +174,25 @@ describe("Admin API", () => {
 				.expect(400, done);
 		});
 
-		it("updates the admin information", (done) => {
+		it("succeeds with valid data", (done) => {
 			agent.post("/admin/update")
 				.send({
 					email: "newer@erp.coin",
 					name: "John",
 					surname: "Smith"
 				})
-				.expect(200, () => {
-					agent.get("/admin/info")
-						.expect(200, {
-							username: "new",
-							email: "newer@erp.coin",
-							name: "John",
-							surname: "Smith",
-							area: 0,
-							areaName: "Area"
-						}, done);
-				});
+				.expect(200, done);
+		});
+
+		it("updates the admin information", async() => {
+			assert.deepEqual(await db.admin.getInfo(await db.admin.find("new")), {
+				username: "new",
+				email: "newer@erp.coin",
+				name: "John",
+				surname: "Smith",
+				area: 0,
+				areaName: "Area"
+			});
 		});
 	});
 
@@ -226,6 +227,18 @@ describe("Admin API", () => {
 				.post("/admin/login")
 				.send({username: "new", password: "new"})
 				.expect(200, {success: true}, done);
+		});
+	});
+
+	describe("GET /admin/logout", () => {
+		it("returns successfully", (done) => {
+			agent.get("/admin/logout")
+				.expect(200, done);
+		});
+
+		it("clears the session cookie", (done) => {
+			agent.get("/admin/info")
+				.expect(401, done);
 		});
 	});
 
@@ -273,16 +286,6 @@ describe("Admin API", () => {
 
 		it("removes the admin from the database", async() => {
 			assert.equal(await db.admin.find("new"), null);
-		});
-	});
-
-	describe("GET /admin/logout", () => {
-		it("clears the session cookie", (done) => {
-			agent.get("/admin/logout")
-				.expect(200, () => {
-					agent.get("/admin/info")
-						.expect(401, done);
-				});
 		});
 	});
 });

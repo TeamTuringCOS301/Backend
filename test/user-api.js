@@ -57,12 +57,14 @@ describe("User API", () => {
 	});
 
 	describe("GET /user/logout", () => {
-		it("clears the session cookie", (done) => {
+		it("returns successfully", (done) => {
 			agent.get("/user/logout")
-				.expect(200, () => {
-					agent.get("/user/info")
-						.expect(401, done);
-				});
+				.expect(200, done);
+		});
+
+		it("clears the session cookie", (done) => {
+			agent.get("/user/info")
+				.expect(401, done);
 		});
 	});
 
@@ -138,24 +140,25 @@ describe("User API", () => {
 				.expect(400, done);
 		});
 
-		it("updates the user information", (done) => {
+		it("succeeds with valid data", (done) => {
 			agent.post("/user/update")
 				.send({
 					email: "new@erp.coin",
 					name: "Jane",
 					surname: "Doe"
 				})
-				.expect(200, () => {
-					agent.get("/user/info")
-						.expect(200, {
-							username: "user",
-							email: "new@erp.coin",
-							name: "Jane",
-							surname: "Doe",
-							walletAddress: null,
-							coinBalance: 0
-						}, done);
-				});
+				.expect(200, done);
+		});
+
+		it("updates the user information", async() => {
+			assert.deepEqual(await db.user.getInfo(await db.user.find("user")), {
+				username: "user",
+				email: "new@erp.coin",
+				name: "Jane",
+				surname: "Doe",
+				walletAddress: null,
+				coinBalance: 0
+			});
 		});
 	});
 

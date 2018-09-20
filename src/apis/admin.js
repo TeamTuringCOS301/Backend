@@ -8,12 +8,11 @@ module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {
-		if(initial) {
-			if(!validator.validateUsername(info.username)) {
-				return false;
-			}
+		if(initial && !validator.validateUsername(info.username)) {
+			return false;
 		}
-		if(!validator.validateEmail(info.email) || !validator.validateName(info.name) || !validator.validateName(info.surname)){
+		if(!validator.validateEmail(info.email) || !validator.validateName(info.name)
+				|| !validator.validateName(info.surname)) {
 			return false;
 		}
 		return !initial || typeof info.area === "number" && await db.area.validId(info.area);

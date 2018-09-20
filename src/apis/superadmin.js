@@ -8,15 +8,11 @@ module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {
-		if(initial) {
-			if(!validator.validateUsername(info.username)) {
-				return false;
-			}
-		}
-		if(!validator.validateEmail(info.email) || !validator.validateName(info.name) || !validator.validateName(info.surname)){
+		if(initial && !validator.validateUsername(info.username)) {
 			return false;
 		}
-		return true;
+		return validator.validateEmail(info.email) && validator.validateName(info.name)
+			&& validator.validateName(info.surname);
 	}
 
 	const api = express();

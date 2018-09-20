@@ -138,7 +138,6 @@ The rest of the API requires that a user has already logged in.
   surname: string
   walletAddress: string
   coinBalance: integer
-  coinsEarned: integer
   ```
 
 * `POST /user/update` - Update the information stored for the current user.

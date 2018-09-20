@@ -3,7 +3,7 @@ module.exports = (config, query) => ({
 		await query(`
 			INSERT INTO tblSuperAdminUser (sadUsername, sadEmailAddress, sadPassword, sadName,
 				sadSurname)
-			VALUES (?, ?, ?, ?, ?, 0)`,
+			VALUES (?, ?, ?, ?, ?)`,
 			[info.username, info.email, info.password, info.name, info.surname]);
 	},
 

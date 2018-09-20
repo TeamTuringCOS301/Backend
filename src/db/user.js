@@ -2,8 +2,8 @@ module.exports = (config, query) => ({
 	async add(info) {
 		await query(`
 			INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname,
-				usrUnclaimedBalance, usrTotalCoinsEarned, usrLastPointTime)
-			VALUES (?, ?, ?, ?, ?, 0, 0, 0)`,
+				usrUnclaimedBalance, usrLastPointTime)
+			VALUES (?, ?, ?, ?, ?, 0, 0)`,
 			[info.username, info.email, info.password, info.name, info.surname]);
 	},
 
@@ -69,7 +69,7 @@ module.exports = (config, query) => ({
 	async getInfo(id) {
 		const results = await query(`
 			SELECT usrUsername, usrEmailAddress, usrName, usrSurname, usrWalletAddress,
-				usrUnclaimedBalance, usrTotalCoinsEarned
+				usrUnclaimedBalance
 			FROM tblUser
 			WHERE usrID = ?`,
 			[id]);
@@ -79,8 +79,7 @@ module.exports = (config, query) => ({
 			name: results[0].usrName,
 			surname: results[0].usrSurname,
 			walletAddress: results[0].usrWalletAddress,
-			coinBalance: results[0].usrUnclaimedBalance,
-			coinsEarned: results[0].usrTotalCoinsEarned
+			coinBalance: results[0].usrUnclaimedBalance
 		};
 	},
 

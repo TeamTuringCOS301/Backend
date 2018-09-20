@@ -6,9 +6,7 @@ module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	function validateBorder(info) {
-		delete info.middle;
-		if(!(info.border instanceof Array)) {
-			delete info.border;
+		if(!(info.border instanceof Array) || info.border.length < 3) {
 			return false;
 		}
 		let lat = 0, lng = 0;

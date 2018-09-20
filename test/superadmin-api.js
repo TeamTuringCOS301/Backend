@@ -2,8 +2,9 @@ const assert = require("assert");
 const config = require("./mock-config.js");
 const coins = require("./mock-coins.js")();
 const db = require("./mock-db.js")();
-const app = require("../src/app.js")(config, db, coins);
 const request = require("supertest");
+const sendMail = require("./mock-email.js")();
+const app = require("../src/app.js")(config, db, coins, sendMail);
 
 describe("Super Admin API", () => {
 	const agent = request.agent(app);
@@ -20,7 +21,7 @@ describe("Super Admin API", () => {
 		it("fails for a nonexistent admin", (done) => {
 			request(app)
 				.post("/superadmin/login")
-				.send({username: "x", password: "pass"})
+				.send({username: "x", password: "admin"})
 				.expect(200, {success: false}, done);
 		});
 
@@ -86,8 +87,7 @@ describe("Super Admin API", () => {
 					name: "Jane",
 					surname: "Doe"
 				})
-				.expect(200)
-				.end(() => {
+				.expect(200, () => {
 					agent.get("/superadmin/info")
 						.expect(200, {
 							username: "admin",
@@ -130,118 +130,6 @@ describe("Super Admin API", () => {
 				.post("/superadmin/login")
 				.send({username: "admin", password: "new"})
 				.expect(200, {success: true}, done);
-		});
-	});
-
-	describe("POST /superadmin/add", () => {
-		it("fails without a login session", (done) => {
-			request(app)
-				.post("/superadmin/add")
-				.send({
-					username: "new",
-					email: "newer@erp.coin",
-					name: "John",
-					surname: "Doe"
-				})
-				.expect(401, done);
-		});
-
-		it("fails on missing data", (done) => {
-			agent.post("/superadmin/add")
-				.send({})
-				.expect(400, done);
-		});
-
-		it("fails with an existing username", (done) => {
-			agent.post("/superadmin/add")
-				.send({
-					username: "admin",
-					email: "newer@erp.coin",
-					name: "John",
-					surname: "Doe"
-				})
-				.expect(200, {success: false}, done);
-		});
-
-		it("succeeds with valid data", (done) => {
-			agent.post("/superadmin/add")
-				.send({
-					username: "new",
-					email: "newer@erp.coin",
-					name: "John",
-					surname: "Doe"
-				})
-				.expect((res) => {
-					assert.equal(res.body.success, true);
-					password = res.body.password;
-				})
-				.expect(200, done);
-		});
-
-		it("returns the generated password", (done) => {
-			request(app)
-				.post("/superadmin/login")
-				.send({username: "new", password})
-				.expect(200, {success: true}, done);
-		});
-
-		it("hashes the password", async() => {
-			assert.notEqual(await db.superadmin.getPassword(1), password);
-		});
-	});
-
-	describe("GET /superadmin/list", () => {
-		it("fails without a login session", (done) => {
-			request(app)
-				.get("/superadmin/list")
-				.expect(401, done);
-		});
-
-		it("returns a list of admins", (done) => {
-			agent.get("/superadmin/list")
-				.expect(200, {
-					admins: [
-						{
-							username: "admin",
-							email: "new@erp.coin",
-							name: "Jane",
-							surname: "Doe"
-						},
-						{
-							username: "new",
-							email: "newer@erp.coin",
-							name: "John",
-							surname: "Doe"
-						}
-					]
-				}, done);
-		});
-	});
-
-	describe("GET /superadmin/remove/:superadmin", () => {
-		it("fails without a login session", (done) => {
-			request(app)
-				.get("/superadmin/remove/1")
-				.expect(401, done);
-		});
-
-		it("fails for an invalid admin ID", (done) => {
-			agent.get("/superadmin/remove/2")
-				.expect(404, done);
-		});
-
-		it("fails for the current admin", (done) => {
-			agent.get("/superadmin/remove/0")
-				.expect(400, done);
-		});
-
-		it("succeeds for another admin", (done) => {
-			agent.get("/superadmin/remove/1")
-				.expect(200, done);
-		});
-
-		it("removes the admin from the database", async() => {
-			assert.equal(await db.superadmin.find("new"), null);
 		});
 	});
 

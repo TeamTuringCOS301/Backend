@@ -62,6 +62,12 @@ async function handlePurchases() {
 		}
 		await db.setLastPurchase(purchase);
 
+		if(config.logRequests) {
+			console.log();
+			console.log(`Purchase(${purchase.args.buyer}, ${purchase.args.reward.toNumber()}, `
+				+ `${purchase.args.value.toNumber()})`);
+		}
+
 		const owner = await contract.owner();
 		const refund = () =>
 			contract.rewardCoins(purchase.args.buyer, purchase.args.value, {from: owner});

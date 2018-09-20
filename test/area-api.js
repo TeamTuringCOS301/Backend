@@ -10,8 +10,8 @@ describe("Area API", () => {
 	const agent = request.agent(app);
 
 	describe("POST /area/add", () => {
-		it("fails without a login session", (done) => {
-			request(app)
+		it("fails without a login session", async() => {
+			await request(app)
 				.post("/area/add")
 				.send({
 					name: "Area",
@@ -19,39 +19,37 @@ describe("Area API", () => {
 					province: "Province",
 					border: [{lat: 0, lng: 0}, {lat: 0, lng: 1}, {lat: 1, lng: 1}, {lat: 1, lng: 0}]
 				})
-				.expect(401, done);
+				.expect(401);
 		});
 
-		it("fails on missing data", (done) => {
-			agent.post("/superadmin/login")
-				.send({username: "admin", password: "admin"})
-				.end(() => {
-					agent.post("/area/add")
-						.send({})
-						.expect(400, done);
-				});
+		it("fails on missing data", async() => {
+			await agent.post("/superadmin/login")
+				.send({username: "admin", password: "admin"});
+			await agent.post("/area/add")
+				.send({})
+				.expect(400);
 		});
 
-		it("fails if border is too short", (done) => {
-			agent.post("/area/add")
+		it("fails if border is too short", async() => {
+			await agent.post("/area/add")
 				.send({
 					name: "Area",
 					city: "City",
 					province: "Province",
 					border: [{lat: 0, lng: 0}, {lat: 1, lng: 1}]
 				})
-				.expect(400, done);
+				.expect(400);
 		});
 
-		it("succeeds with valid data", (done) => {
-			agent.post("/area/add")
+		it("succeeds with valid data", async() => {
+			await agent.post("/area/add")
 				.send({
 					name: "Area",
 					city: "City",
 					province: "Province",
 					border: [{lat: 0, lng: 0}, {lat: 0, lng: 1}, {lat: 1, lng: 1}, {lat: 1, lng: 0}]
 				})
-				.expect(200, done);
+				.expect(200);
 		});
 
 		it("calculates the correct middle point", async() => {
@@ -60,8 +58,8 @@ describe("Area API", () => {
 	});
 
 	describe("GET /area/list", () => {
-		it("returns a list of areas", (done) => {
-			request(app)
+		it("returns a list of areas", async() => {
+			await request(app)
 				.get("/area/list")
 				.expect(200, {
 					areas: [{
@@ -71,19 +69,19 @@ describe("Area API", () => {
 						province: "Province",
 						middle: {lat: 0.5, lng: 0.5}
 					}]
-				}, done);
+				});
 		});
 	});
 
 	describe("GET /area/info/:area", () => {
-		it("fails with invalid area ID", (done) => {
-			request(app)
+		it("fails with invalid area ID", async() => {
+			await request(app)
 				.get("/area/info/1")
-				.expect(404, done);
+				.expect(404);
 		});
 
-		it("returns the correct information", (done) => {
-			request(app)
+		it("returns the correct information", async() => {
+			await request(app)
 				.get("/area/info/0")
 				.expect(200, {
 					name: "Area",
@@ -91,13 +89,13 @@ describe("Area API", () => {
 					province: "Province",
 					middle: {lat: 0.5, lng: 0.5},
 					border: [{lat: 0, lng: 0}, {lat: 0, lng: 1}, {lat: 1, lng: 1}, {lat: 1, lng: 0}]
-				}, done);
+				});
 		});
 	});
 
 	describe("POST /area/update/:area", () => {
-		it("fails without a login session", (done) => {
-			request(app)
+		it("fails without a login session", async() => {
+			await request(app)
 				.post("/area/update/0")
 				.send({
 					name: "New Area",
@@ -105,46 +103,46 @@ describe("Area API", () => {
 					province: "New Province",
 					border: [{lat: 1, lng: 1}, {lat: 1, lng: 2}, {lat: 2, lng: 2}, {lat: 2, lng: 1}]
 				})
-				.expect(401, done);
+				.expect(401);
 		});
 
-		it("fails with invalid area ID", (done) => {
-			agent.post("/area/update/1")
+		it("fails with invalid area ID", async() => {
+			await agent.post("/area/update/1")
 				.send({
 					name: "New Area",
 					city: "New City",
 					province: "New Province",
 					border: [{lat: 1, lng: 1}, {lat: 1, lng: 2}, {lat: 2, lng: 2}, {lat: 2, lng: 1}]
 				})
-				.expect(404, done);
+				.expect(404);
 		});
 
-		it("fails on missing data", (done) => {
-			agent.post("/area/update/0")
+		it("fails on missing data", async() => {
+			await agent.post("/area/update/0")
 				.send({})
-				.expect(400, done);
+				.expect(400);
 		});
 
-		it("fails if border is too short", (done) => {
-			agent.post("/area/update/0")
+		it("fails if border is too short", async() => {
+			await agent.post("/area/update/0")
 				.send({
 					name: "New Area",
 					city: "New City",
 					province: "New Province",
 					border: [{lat: 0, lng: 0}, {lat: 1, lng: 1}]
 				})
-				.expect(400, done);
+				.expect(400);
 		});
 
-		it("succeeds with valid data", (done) => {
-			agent.post("/area/update/0")
+		it("succeeds with valid data", async() => {
+			await agent.post("/area/update/0")
 				.send({
 					name: "New Area",
 					city: "New City",
 					province: "New Province",
 					border: [{lat: 1, lng: 1}, {lat: 1, lng: 2}, {lat: 2, lng: 2}, {lat: 2, lng: 1}]
 				})
-				.expect(200, done);
+				.expect(200);
 		});
 
 		it("calculates the correct middle point", async() => {
@@ -153,20 +151,20 @@ describe("Area API", () => {
 	});
 
 	describe("GET /area/remove/:area", () => {
-		it("fails without a login session", (done) => {
-			request(app)
+		it("fails without a login session", async() => {
+			await request(app)
 				.get("/area/remove/0")
-				.expect(401, done);
+				.expect(401);
 		});
 
-		it("fails with invalid area ID", (done) => {
-			agent.get("/area/remove/1")
-				.expect(404, done);
+		it("fails with invalid area ID", async() => {
+			await agent.get("/area/remove/1")
+				.expect(404);
 		});
 
-		it("succeeds with valid area ID", (done) => {
-			agent.get("/area/remove/0")
-				.expect(200, done);
+		it("succeeds with valid area ID", async() => {
+			await agent.get("/area/remove/0")
+				.expect(200);
 		});
 
 		it("removes the area", async() => {

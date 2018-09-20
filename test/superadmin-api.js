@@ -10,83 +10,83 @@ describe("Super Admin API", () => {
 	const agent = request.agent(app);
 
 	describe("GET /superadmin/login", () => {
-		it("fails on missing data", (done) => {
-			request(app)
+		it("fails on missing data", async() => {
+			await request(app)
 				.post("/superadmin/login")
 				.send({})
-				.expect(400, done);
+				.expect(400);
 		});
 
-		it("fails for a nonexistent admin", (done) => {
-			request(app)
+		it("fails for a nonexistent admin", async() => {
+			await request(app)
 				.post("/superadmin/login")
 				.send({username: "x", password: "admin"})
-				.expect(200, {success: false}, done);
+				.expect(200, {success: false});
 		});
 
-		it("fails with an incorrect password", (done) => {
-			request(app)
+		it("fails with an incorrect password", async() => {
+			await request(app)
 				.post("/superadmin/login")
 				.send({username: "admin", password: "x"})
-				.expect(200, {success: false}, done);
+				.expect(200, {success: false});
 		});
 
-		it("succeeds with correct credentials", (done) => {
-			agent.post("/superadmin/login")
+		it("succeeds with correct credentials", async() => {
+			await agent.post("/superadmin/login")
 				.send({username: "admin", password: "admin"})
-				.expect(200, {success: true}, done);
+				.expect(200, {success: true});
 		});
 
-		it("sets the session cookie", (done) => {
-			agent.get("/superadmin/info")
-				.expect(200, done);
+		it("sets the session cookie", async() => {
+			await agent.get("/superadmin/info")
+				.expect(200);
 		});
 	});
 
 	describe("GET /superadmin/info", () => {
-		it("fails without a login session", (done) => {
-			request(app)
+		it("fails without a login session", async() => {
+			await request(app)
 				.get("/superadmin/info")
-				.expect(401, done);
+				.expect(401);
 		});
 
-		it("returns the correct information", (done) => {
-			agent.get("/superadmin/info")
+		it("returns the correct information", async() => {
+			await agent.get("/superadmin/info")
 				.expect(200, {
 					username: "admin",
 					email: "admin@erp.coin",
 					name: "John",
 					surname: "Smith"
-				}, done);
+				});
 		});
 	});
 
 	describe("POST /superadmin/update", () => {
-		it("fails without a login session", (done) => {
-			request(app)
+		it("fails without a login session", async() => {
+			await request(app)
 				.post("/superadmin/update")
 				.send({
 					email: "new@erp.coin",
 					name: "Jane",
 					surname: "Doe"
 				})
-				.expect(401, done);
+				.expect(401);
 		});
 
-		it("fails on missing data", (done) => {
-			agent.post("/superadmin/update")
+		it("fails on missing data", async() => {
+			await agent.post("/superadmin/update")
 				.send({})
-				.expect(400, done);
+				.expect(400);
 		});
 
-		it("succeeds with valid data", (done) => {
-			agent.post("/superadmin/update")
+		it("succeeds with valid data", async() => {
+			await agent.post("/superadmin/update")
 				.send({
 					email: "new@erp.coin",
 					name: "Jane",
 					surname: "Doe"
 				})
-				.expect(200, done);
+				.expect(200);
 		});
 
 		it("updates the admin information", async() => {
@@ -100,48 +100,48 @@ describe("Super Admin API", () => {
 	});
 
 	describe("POST /superadmin/password", () => {
-		it("fails without a login session", (done) => {
-			request(app)
+		it("fails without a login session", async() => {
+			await request(app)
 				.post("/superadmin/password")
 				.send({old: "admin", new: "new"})
-				.expect(401, done);
+				.expect(401);
 		});
 
-		it("fails on missing data", (done) => {
-			agent.post("/superadmin/password")
+		it("fails on missing data", async() => {
+			await agent.post("/superadmin/password")
 				.send({})
-				.expect(400, done);
+				.expect(400);
 		});
 
-		it("fails with an incorrect password", (done) => {
-			agent.post("/superadmin/password")
+		it("fails with an incorrect password", async() => {
+			await agent.post("/superadmin/password")
 				.send({old: "x", new: "new"})
-				.expect(200, {success: false}, done);
+				.expect(200, {success: false});
 		});
 
-		it("succeeds with the correct password", (done) => {
-			agent.post("/superadmin/password")
+		it("succeeds with the correct password", async() => {
+			await agent.post("/superadmin/password")
 				.send({old: "admin", new: "new"})
-				.expect(200, {success: true}, done);
+				.expect(200, {success: true});
 		});
 
-		it("updates the password", (done) => {
-			request(app)
+		it("updates the password", async() => {
+			await request(app)
 				.post("/superadmin/login")
 				.send({username: "admin", password: "new"})
-				.expect(200, {success: true}, done);
+				.expect(200, {success: true});
 		});
 	});
 
 	describe("GET /superadmin/logout", () => {
-		it("returns successfully", (done) => {
-			agent.get("/superadmin/logout")
-				.expect(200, done);
+		it("returns successfully", async() => {
+			await agent.get("/superadmin/logout")
+				.expect(200);
 		});
 
-		it("clears the session cookie", (done) => {
-			agent.get("/superadmin/info")
-				.expect(401, done);
+		it("clears the session cookie", async() => {
+			await agent.get("/superadmin/info")
+				.expect(401);
 		});
 	});
 });

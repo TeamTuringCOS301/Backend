@@ -257,7 +257,6 @@ The rest of the API is only available to a super admin.
   name: string
   surname: string
   area: integer
-  areaName: string
   ```
 
   Response fields:
@@ -285,6 +284,7 @@ The rest of the API is only available to a super admin.
   name: string
   surname: string
   area: integer
+  areaName: string
   ```
 
 ### Super Admin API

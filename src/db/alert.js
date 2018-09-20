@@ -6,8 +6,8 @@ module.exports = (config, query) => ({
 					aleBroadcast, aleLocation, tblConservationArea_conID, tblUser_usrID)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[info.time, info.title, info.description, info.severity,
-					Buffer.from(info.image, "base64"), info.broadcast, JSON.stringify(info.location), info.area,
-					info.user]);
+					Buffer.from(info.image, "base64"), info.broadcast,
+					JSON.stringify(info.location), info.area, info.user]);
 		} else {
 			await query(`
 				INSERT INTO tblAlert (aleTimeSent, aleHeader, aleDescription, aleSeverity,

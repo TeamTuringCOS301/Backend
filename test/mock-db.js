@@ -21,7 +21,14 @@ module.exports = () => {
 
 		admin: {
 			async add(info) {
-				admins.push(Object.assign({}, info));
+				admins.push({
+					username: info.username,
+					email: info.email,
+					password: info.password,
+					name: info.name,
+					surname: info.surname,
+					area: info.area
+				});
 			},
 
 			async remove(id) {
@@ -29,7 +36,15 @@ module.exports = () => {
 			},
 
 			async list() {
-				return admins.map((info) => Object.assign({}, info));
+				return admins.map((info, id) => ({
+					id,
+					username: info.username,
+					email: info.email,
+					name: info.name,
+					surname: info.surname,
+					area: info.area,
+					areaName: areas[info.area].name
+				})).filter(() => true);
 			},
 
 			async validId(id) {
@@ -51,11 +66,20 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				return Object.assign({}, admins[id]);
+				return {
+					username: admins[id].username,
+					email: admins[id].email,
+					name: admins[id].name,
+					surname: admins[id].surname,
+					area: admins[id].area,
+					areaName: areas[admins[id].area].name
+				};
 			},
 
 			async updateInfo(id, info) {
-				Object.assign(admins[id], info);
+				admins[id].email = info.email;
+				admins[id].name = info.name;
+				admins[id].surname = info.surname;
 			},
 
 			async getArea(id) {
@@ -65,7 +89,17 @@ module.exports = () => {
 
 		alert: {
 			async add(info) {
-				alerts.push(Object.assign({broadcast: false}, info));
+				alerts.push({
+					time: info.time,
+					title: info.title,
+					description: info.description,
+					severity: info.severity,
+					image: info.image ? Buffer.from(info.image, "base64") : null,
+					broadcast: info.broadcast,
+					location: info.location,
+					area: info.area,
+					user: info.user
+				});
 			},
 
 			async remove(id) {
@@ -73,13 +107,38 @@ module.exports = () => {
 			},
 
 			async list(area, since) {
-				return alerts.filter((info) => info.area === area && info.time > since)
-					.map((info) => Object.assign({}, info));
+				return alerts.map((info, id) => ({
+					id,
+					time: info.time,
+					title: info.title,
+					description: info.description,
+					severity: info.severity,
+					hasImage: info.image !== null,
+					broadcast: info.broadcast,
+					location: info.location,
+					area: info.area
+				})).filter((info) => info.area === area && info.time > since).map((info) => {
+					delete info.area;
+					return info;
+				});
 			},
 
 			async listBroadcasts(area, since) {
-				return alerts.filter((info) => info.area === area && info.time > since
-					&& alert.broadcast).map((info) => Object.assign({}, info));
+				return alerts.map((info, id) => ({
+					id,
+					time: info.time,
+					title: info.title,
+					description: info.description,
+					severity: info.severity,
+					hasImage: info.image !== null,
+					broadcast: info.broadcast,
+					location: info.location,
+					area: info.area
+				})).filter((info) => info.area === area && info.time > since).map((info) => {
+					delete info.broadcast;
+					delete info.area;
+					return info;
+				});
 			},
 
 			async validId(id) {
@@ -95,13 +154,26 @@ module.exports = () => {
 			},
 
 			async updateInfo(id, info) {
-				Object.assign(alerts[id], info);
+				alerts[id].title = info.title;
+				alerts[id].description = info.description;
+				alerts[id].severity = info.severity;
+				alerts[id].broadcast = info.broadcast;
+				alerts[id].location = info.location;
+				if(info.image) {
+					alerts[id].image = Buffer.from(info.image, "base64");
+				}
 			}
 		},
 
 		area: {
 			async add(info) {
-				areas.push(Object.assign({}, info));
+				areas.push({
+					name: info.name,
+					city: info.city,
+					province: info.province,
+					middle: info.middle,
+					border: info.border
+				});
 			},
 
 			async remove(id) {
@@ -109,7 +181,13 @@ module.exports = () => {
 			},
 
 			async list() {
-				return areas.map((info) => Object.assign({}, info));
+				return areas.map((info, id) => ({
+					id,
+					name: info.name,
+					city: info.city,
+					province: info.province,
+					middle: info.middle
+				})).filter(() => true);
 			},
 
 			async validId(id) {
@@ -121,11 +199,21 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				return Object.assign({}, areas[id]);
+				return {
+					name: info.name,
+					city: info.city,
+					province: info.province,
+					middle: info.middle,
+					border: info.border
+				};
 			},
 
 			async updateInfo(id, info) {
-				Object.assign(areas[id], info);
+				areas[id].name = info.name;
+				areas[id].city = info.city;
+				areas[id].province = info.province;
+				areas[id].middle = info.middle;
+				areas[id].border = info.border;
 			},
 
 			async getPrimaryAdmin(id, info) {
@@ -137,13 +225,22 @@ module.exports = () => {
 
 		point: {
 			async add(info) {
-				points.push(Object.assign({}, info));
+				points.push({
+					time: info.time,
+					lat: info.lat,
+					lng: info.lng,
+					area: info.area
+				});
 				users[info.user].latestTime = info.time;
 			},
 
 			async list(area, since) {
 				return points.filter((info) => info.area == area && info.time > since)
-					.map((info) => Object.assign({}, info));
+					.map((info) => ({
+						time: info.time,
+						lat: info.lat,
+						lng: info.lng
+					}));
 			},
 
 			async countNearbyPoints(info) {
@@ -154,7 +251,16 @@ module.exports = () => {
 
 		reward: {
 			async add(info) {
-				rewards.push(Object.assign({coinValue: 0, verified: false}, info));
+				rewards.push({
+					name: info.name,
+					description: info.description,
+					image: Buffer.from(info.image, "base64"),
+					amount: info.amount,
+					randValue: info.randValue,
+					coinValue: 0,
+					verified: false,
+					area: info.area
+				});
 			},
 
 			async remove(id) {
@@ -162,18 +268,52 @@ module.exports = () => {
 			},
 
 			async list() {
-				return rewards.filter((info) => info.verified)
-					.map((info) => Object.assign({}, info));
+				return rewards.map((info, id) => ({
+					id,
+					name: info.name,
+					description: info.description,
+					amount: info.amount,
+					randValue: info.randValue,
+					coinValue: info.coinValue,
+					verified: info.verified,
+					area: info.area,
+					areaName: areas[info.area].name
+				})).filter((info) => info.verified).map((info) => {
+					delete info.verified;
+					return info;
+				});
 			},
 
 			async listNew() {
-				return rewards.filter((info) => !info.verified)
-					.map((info) => Object.assign({}, info));
+				return rewards.map((info, id) => ({
+					id,
+					name: info.name,
+					description: info.description,
+					amount: info.amount,
+					randValue: info.randValue,
+					verified: info.verified,
+					area: info.area,
+					areaName: areas[info.area].name
+				})).filter((info) => !info.verified).map((info) => {
+					delete info.verified;
+					return info;
+				});
 			},
 
 			async listOwned(area) {
-				return rewards.filter((info) => info.area === area)
-					.map((info) => Object.assign({}, info));
+				return rewards.map((info, id) => ({
+					id,
+					name: info.name,
+					description: info.description,
+					amount: info.amount,
+					randValue: info.randValue,
+					coinValue: info.coinValue,
+					verified: info.verified,
+					area: info.area
+				})).filter((info) => info.area === area).map((info) => {
+					delete info.area;
+					return info;
+				});
 			},
 
 			async validId(id) {
@@ -189,11 +329,26 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				return Object.assign({}, rewards[id]);
+				return {
+					name: rewards[id].name,
+					description: rewards[id].description,
+					amount: rewards[id].amount,
+					randValue: rewards[id].randValue,
+					coinValue: rewards[id].coinValue,
+					verified: rewards[id].verified,
+					area: rewards[id].area,
+					areaName: areas[rewards[id].area].name
+				};
 			},
 
 			async updateInfo(id, info) {
-				Object.assign(rewards[id], info);
+				rewards[id].name = info.name;
+				rewards[id].description = info.description;
+				rewards[id].amount = info.amount;
+				rewards[id].randValue = info.randValue;
+				if(info.image) {
+					rewards[id].image = Buffer.from(info.image, "base64");
+				}
 			},
 
 			async setAmount(id, amount) {
@@ -208,7 +363,13 @@ module.exports = () => {
 
 		superadmin: {
 			async add(info) {
-				superadmins.push(Object.assign({}, info));
+				superadmins.push({
+					username: info.username,
+					email: info.email,
+					password: info.password,
+					name: info.name,
+					surname: info.surname
+				});
 			},
 
 			async remove(id) {
@@ -216,7 +377,13 @@ module.exports = () => {
 			},
 
 			async list() {
-				return superadmins.map((info) => Object.assign({}, info));
+				return superadmins.map((info, id) => ({
+					id,
+					username: info.username,
+					email: info.email,
+					name: info.name,
+					surname: info.surname
+				})).filter(() => true);
 			},
 
 			async validId(id) {
@@ -238,20 +405,33 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				return Object.assign({}, superadmins[id]);
+				return {
+					username: superadmins[id].username,
+					email: superadmins[id].email,
+					name: superadmins[id].name,
+					surname: superadmins[id].surname
+				};
 			},
 
 			async updateInfo(id, info) {
-				Object.assign(superadmins[id], info);
+				superadmins[id].email = info.email;
+				superadmins[id].name = info.name;
+				superadmins[id].surname = info.surname;
 			}
 		},
 
 		user: {
 			async add(info) {
-				users.push(Object.assign(
-					{walletAddress: null, coinBalance: 0, latestTime: 0},
-					info
-				));
+				users.push({
+					username: info.username,
+					email: info.email,
+					password: info.password,
+					name: info.name,
+					surname: info.surname,
+					walletAddress: null,
+					coinBalance: 0,
+					latestTime: 0
+				});
 			},
 
 			async remove(id) {
@@ -283,11 +463,20 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				return Object.assign({}, users[id]);
+				return {
+					username: users[id].username,
+					email: users[id].email,
+					name: users[id].name,
+					surname: users[id].surname,
+					walletAddress: users[id].walletAddress,
+					coinBalance: users[id].coinBalance
+				};
 			},
 
 			async updateInfo(id, info) {
-				Object.assign(users[id], info);
+				users[id].email = info.email;
+				users[id].name = info.name;
+				users[id].surname = info.surname;
 			},
 
 			async clearWalletAddress(id) {

@@ -8,7 +8,6 @@ const app = require("../src/app.js")(config, db, coins, sendMail);
 
 describe("Super Admin API", () => {
 	const agent = request.agent(app);
-	let password;
 
 	describe("GET /superadmin/login", () => {
 		it("fails on missing data", (done) => {

@@ -135,7 +135,7 @@ The rest of the API requires that a user has already logged in.
   email: string
   name: string
   surname: string
-  walletAddress: string
+  walletAddress: string or null
   coinBalance: integer
   ```
 
@@ -151,10 +151,10 @@ The rest of the API requires that a user has already logged in.
 
 * `POST /user/address` - Update the user's Ethereum wallet address.
 
-  Required request fields:
+  Optional request fields:
 
   ```
-  walletAddress: string or null
+  walletAddress: string
   ```
 
 * `POST /user/password` - Change password.

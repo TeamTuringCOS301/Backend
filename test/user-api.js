@@ -2,8 +2,9 @@ const assert = require("assert");
 const config = require("./mock-config.js");
 const coins = require("./mock-coins.js")();
 const db = require("./mock-db.js")();
-const app = require("../src/app.js")(config, db, coins);
 const request = require("supertest");
+const sendMail = require("./mock-email.js")();
+const app = require("../src/app.js")(config, db, coins, sendMail);
 
 describe("User API", () => {
 	const agent = request.agent(app);
@@ -23,8 +24,7 @@ describe("User API", () => {
 					email: "user@erp.coin",
 					password: "pass",
 					name: "John",
-					surname: "Smith",
-					walletAddress: "0x0"
+					surname: "Smith"
 				})
 				.expect(200, {success: true}, done);
 		});
@@ -50,8 +50,7 @@ describe("User API", () => {
 					email: "user@erp.coin",
 					password: "pass",
 					name: "John",
-					surname: "Smith",
-					walletAddress: "0x0"
+					surname: "Smith"
 				})
 				.expect(200, {success: false}, done);
 		});
@@ -60,7 +59,7 @@ describe("User API", () => {
 	describe("GET /user/logout", () => {
 		it("clears the session cookie", (done) => {
 			agent.get("/user/logout")
-				.end(() => {
+				.expect(200, () => {
 					agent.get("/user/info")
 						.expect(401, done);
 				});
@@ -115,7 +114,8 @@ describe("User API", () => {
 					email: "user@erp.coin",
 					name: "John",
 					surname: "Smith",
-					walletAddress: "0x0"
+					walletAddress: null,
+					coinBalance: 0
 				}, done);
 		});
 	});
@@ -127,8 +127,7 @@ describe("User API", () => {
 				.send({
 					email: "new@erp.coin",
 					name: "Jane",
-					surname: "Doe",
-					walletAddress: "0x0"
+					surname: "Doe"
 				})
 				.expect(401, done);
 		});
@@ -144,20 +143,63 @@ describe("User API", () => {
 				.send({
 					email: "new@erp.coin",
 					name: "Jane",
-					surname: "Doe",
-					walletAddress: "0x0"
+					surname: "Doe"
 				})
-				.expect(200)
-				.end(() => {
+				.expect(200, () => {
 					agent.get("/user/info")
 						.expect(200, {
 							username: "user",
 							email: "new@erp.coin",
 							name: "Jane",
 							surname: "Doe",
-							walletAddress: "0x0"
+							walletAddress: null,
+							coinBalance: 0
 						}, done);
 				});
+		});
+	});
+
+	describe("POST /user/address", () => {
+		it("fails without a login session", (done) => {
+			request(app)
+				.post("/user/address")
+				.send({walletAddress: null})
+				.expect(401, done);
+		});
+
+		it("fails with in invalid address", (done) => {
+			agent.post("/user/address")
+				.send({walletAddress: "0x1"})
+				.expect(400, done);
+		});
+
+		it("succeeds with a valid address", (done) => {
+			db.user.find("user").then((id) => {
+				db.user.rewardCoin(id).then(() => {
+					agent.post("/user/address")
+						.send({walletAddress: "0x627306090abab3a6e1400e9345bc60c78a8bef57"})
+						.expect(200, done);
+				});
+			});
+		});
+
+		it("changes the stored address", async() => {
+			assert.equal(await db.user.getWalletAddress(await db.user.find("user")),
+				"0x627306090abab3a6e1400e9345bc60c78a8bef57");
+		});
+
+		it("transfers coins to the wallet", async() => {
+			assert.equal(await coins.getBalance("0x627306090abab3a6e1400e9345bc60c78a8bef57"), 1);
+		});
+
+		it("accepts an empty address", (done) => {
+			agent.post("/user/address")
+				.send({walletAddress: null})
+				.expect(200, done);
+		});
+
+		it("clears the stored address", async() => {
+			assert.equal(await db.user.getWalletAddress(await db.user.find("user")), null);
 		});
 	});
 
@@ -192,26 +234,6 @@ describe("User API", () => {
 				.post("/user/login")
 				.send({username: "user", password: "new"})
 				.expect(200, {success: true}, done);
-		});
-	});
-
-	describe("GET /user/coins", () => {
-		it("fails without a login session", (done) => {
-			request(app)
-				.get("/user/coins")
-				.expect(401, done);
-		});
-
-		it("returns the balance", (done) => {
-			agent.get("/user/coins")
-				.expect(200, {balance: 0, totalEarned: 0}, done);
-		});
-
-		it("updates when coins are earned", (done) => {
-			coins.rewardCoin("0x0").then(() => {
-				agent.get("/user/coins")
-					.expect(200, {balance: 1, totalEarned: 1}, done);
-			});
 		});
 	});
 

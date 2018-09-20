@@ -73,6 +73,9 @@ module.exports = (config, db, coins, sendMail) => {
 		res.send({success});
 	});
 
+	/* These routes are not currently used by the front-end.
+	 * Since these are privileged actions, rather disable them for now.
+
 	api.post("/add", async(req, res) => {
 		await auth.requireSuperAdmin(req);
 		if(!await validate(req.body)) {
@@ -100,6 +103,8 @@ module.exports = (config, db, coins, sendMail) => {
 		await auth.requireSuperAdmin(req);
 		res.send({admins: await db.superadmin.list()});
 	});
+
+	*/
 
 	return api;
 };

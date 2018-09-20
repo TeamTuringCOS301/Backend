@@ -344,44 +344,6 @@ The rest of the API requires that a super admin has already logged in.
   success: boolean
   ```
 
-* `POST /superadmin/add` - Create a new admin user.
-
-  Required request fields:
-
-  ```
-  username: string
-  email: string
-  name: string
-  surname: string
-  ```
-
-  Response fields:
-
-  ```
-  success: boolean
-  password: string
-  ```
-
-* `GET /superadmin/remove/:admin` - Remove an admin user.
-
-* `GET /superadmin/list` - List all conservation area admins.
-
-  Response fields:
-
-  ```
-  admins: array
-  ```
-
-  Fields of each element:
-
-  ```
-  id: integer
-  username: string
-  email: string
-  name: string
-  surname: string
-  ```
-
 ### Conservation Area API
 
 * `GET /area/list` - List all conservation areas.

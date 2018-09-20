@@ -21,32 +21,24 @@ module.exports = () => {
 
 		admin: {
 			async add(info) {
-				admins.push(info);
+				admins.push(Object.assign({}, info));
 			},
 
 			async remove(id) {
-				admins[id] = undefined;
+				delete admins[id];
 			},
 
 			async list() {
-				return admins.filter((admin) => admin !== undefined).map((admin) => {
-					const result = {};
-					for(let key in admin) {
-						if(key !== "password") {
-							result[key] = admin[key];
-						}
-					}
-					return result;
-				});
+				return admins.map((info) => Object.assign({}, info));
 			},
 
 			async validId(id) {
-				return admins[id] !== undefined;
+				return id in admins;
 			},
 
 			async find(username) {
-				const index = admins.findIndex((admin) => admin !== undefined
-					&& admin.username === username);
+				const index = admins.findIndex((info) => info !== undefined
+					&& info.username === username);
 				return index >= 0 ? index : null;
 			},
 
@@ -59,20 +51,11 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				const admin = {};
-				for(let key in admins[id]) {
-					if(key !== "password") {
-						admin[key] = admins[id][key];
-					}
-				}
-				return admin;
+				return Object.assign({}, admins[id]);
 			},
 
 			async updateInfo(id, info) {
-				info.username = admins[id].username;
-				info.password = admins[id].password;
-				info.area = admins[id].area;
-				admins[id] = info;
+				Object.assign(admins[id], info);
 			},
 
 			async getArea(id) {
@@ -82,26 +65,25 @@ module.exports = () => {
 
 		alert: {
 			async add(info) {
-				info.broadcast = false;
-				alerts.push(info);
+				alerts.push(Object.assign({broadcast: false}, info));
 			},
 
 			async remove(id) {
-				alerts[id] = undefined;
+				delete alerts[id];
 			},
 
 			async list(area, since) {
-				return alerts.filter((alert) => alert !== undefined && alert.area === area
-					&& alert.time > since);
+				return alerts.filter((info) => info.area === area && info.time > since)
+					.map((info) => Object.assign({}, info));
 			},
 
 			async listBroadcasts(area, since) {
-				return alerts.filter((alert) => alert !== undefined && alert.area === area
-					&& alert.time > since && alert.broadcast);
+				return alerts.filter((info) => info.area === area && info.time > since
+					&& alert.broadcast).map((info) => Object.assign({}, info));
 			},
 
 			async validId(id) {
-				return alerts[id] !== undefined;
+				return id in alerts;
 			},
 
 			async getImage(id) {
@@ -113,25 +95,25 @@ module.exports = () => {
 			},
 
 			async updateInfo(id, info) {
-				alerts[id] = info;
+				Object.assign(alerts[id], info);
 			}
 		},
 
 		area: {
 			async add(info) {
-				areas.push(info);
+				areas.push(Object.assign({}, info));
 			},
 
 			async remove(id) {
-				areas[id] = undefined;
+				delete areas[id];
 			},
 
 			async list() {
-				return areas.filter((area) => area !== undefined);
+				return areas.map((info) => Object.assign({}, info));
 			},
 
 			async validId(id) {
-				return areas[id] !== undefined;
+				return id in areas;
 			},
 
 			async getBorder(id) {
@@ -139,57 +121,63 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				return areas[id];
+				return Object.assign({}, areas[id]);
 			},
 
 			async updateInfo(id, info) {
-				areas[id] = info;
+				Object.assign(areas[id], info);
+			},
+
+			async getPrimaryAdmin(id, info) {
+				const index = admins.findIndex((info) => info !== undefined
+					&& info.area === id);
+				return index >= 0 ? index : null;
 			}
 		},
 
-		points: {
+		point: {
 			async add(info) {
-				points.push(info);
+				points.push(Object.assign({}, info));
+				users[info.user].latestTime = info.time;
 			},
 
 			async list(area, since) {
-				return points.filter((point) => point.area == area && point.time > since);
+				return points.filter((info) => info.area == area && info.time > since)
+					.map((info) => Object.assign({}, info));
 			},
 
 			async countNearbyPoints(info) {
-				return points.filter((point) => {
-					const dLat = point.lat - points[id].lat;
-					const dLng = point.lng - points[id].lng;
-					return dLat * dLat + dLng * dLng <= 1;
-				}).length;
+				return points.filter((point) => Math.pow(point.lat - info.lat, 2)
+					+ Math.pow(point.lng - info.lng, 2) <= 1).length;
 			}
 		},
 
 		reward: {
 			async add(info) {
-				info.coinValue = 0;
-				info.verified = false;
-				rewards.push(info);
+				rewards.push(Object.assign({coinValue: 0, verified: false}, info));
 			},
 
 			async remove(id) {
-				rewards[id] = undefined;
+				delete rewards[id];
 			},
 
 			async list() {
-				return rewards.filter((reward) => reward !== undefined && reward.verified);
+				return rewards.filter((info) => info.verified)
+					.map((info) => Object.assign({}, info));
 			},
 
 			async listNew() {
-				return rewards.filter((reward) => reward !== undefined && !reward.verified);
+				return rewards.filter((info) => !info.verified)
+					.map((info) => Object.assign({}, info));
 			},
 
 			async listOwned(area) {
-				return rewards.filter((reward) => reward !== undefined && reward.area === area);
+				return rewards.filter((info) => info.area === area)
+					.map((info) => Object.assign({}, info));
 			},
 
 			async validId(id) {
-				return rewards[id] !== undefined;
+				return id in rewards;
 			},
 
 			async getImage(id) {
@@ -200,46 +188,44 @@ module.exports = () => {
 				return rewards[id].area;
 			},
 
-			async updateInfo(id, info) {
-				info.coinValue = rewards[id].coinValue;
-				info.verified = false;
-				rewards[id] = info;
+			async getInfo(id) {
+				return Object.assign({}, rewards[id]);
 			},
 
-			async verifyCoinValue(id, coinValue) {
+			async updateInfo(id, info) {
+				Object.assign(rewards[id], info);
+			},
+
+			async setAmount(id, amount) {
+				rewards[id].amount = amount;
+			},
+
+			async verifyCoinValue(id, verify, coinValue) {
 				rewards[id].coinValue = coinValue;
-				rewards[id].verified = true;
+				rewards[id].verified = verify;
 			}
 		},
 
 		superadmin: {
 			async add(info) {
-				superadmins.push(info);
+				superadmins.push(Object.assign({}, info));
 			},
 
 			async remove(id) {
-				superadmins[id] = undefined;
+				delete superadmins[id];
 			},
 
 			async list() {
-				return superadmins.filter((admin) => admin !== undefined).map((admin) => {
-					const result = {};
-					for(let key in admin) {
-						if(key !== "password") {
-							result[key] = admin[key];
-						}
-					}
-					return result;
-				});
+				return superadmins.map((info) => Object.assign({}, info));
 			},
 
 			async validId(id) {
-				return superadmins[id] !== undefined;
+				return id in superadmins;
 			},
 
 			async find(username) {
-				const index = superadmins.findIndex((admin) => admin !== undefined
-					&& admin.username === username);
+				const index = superadmins.findIndex((info) => info !== undefined
+					&& info.username === username);
 				return index >= 0 ? index : null;
 			},
 
@@ -252,39 +238,39 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				const admin = {};
-				for(let key in superadmins[id]) {
-					if(key !== "password") {
-						admin[key] = superadmins[id][key];
-					}
-				}
-				return admin;
+				return Object.assign({}, superadmins[id]);
 			},
 
 			async updateInfo(id, info) {
-				info.username = superadmins[id].username;
-				info.password = superadmins[id].password;
-				superadmins[id] = info;
+				Object.assign(superadmins[id], info);
 			}
 		},
 
 		user: {
 			async add(info) {
-				info.latestTime = 0;
-				users.push(info);
+				users.push(Object.assign(
+					{walletAddress: null, coinBalance: 0, latestTime: 0},
+					info
+				));
 			},
 
 			async remove(id) {
-				users[id] = undefined;
+				delete users[id];
 			},
 
 			async validId(id) {
-				return users[id] !== undefined;
+				return id in users;
 			},
 
 			async find(username) {
-				const index = users.findIndex((user) => user !== undefined
-					&& user.username === username);
+				const index = users.findIndex((info) => info !== undefined
+					&& info.username === username);
+				return index >= 0 ? index : null;
+			},
+
+			async findByAddress(address) {
+				const index = users.findIndex((info) => info !== undefined
+					&& info.walletAddress === address);
 				return index >= 0 ? index : null;
 			},
 
@@ -297,24 +283,36 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				const user = {};
-				for(let key in users[id]) {
-					if(key !== "password" && key !== "latestTime") {
-						user[key] = users[id][key];
-					}
-				}
-				return user;
+				return Object.assign({}, users[id]);
 			},
 
 			async updateInfo(id, info) {
-				info.username = users[id].username;
-				info.password = users[id].password;
-				info.latestTime = users[id].latestTime;
-				users[id] = info;
+				Object.assign(users[id], info);
+			},
+
+			async clearWalletAddress(id) {
+				users[id].walletAddress = null;
+			},
+
+			async setWalletAddress(id, address) {
+				users[id].walletAddress = address;
+				users[id].coinBalance = 0;
 			},
 
 			async getWalletAddress(id) {
 				return users[id].walletAddress;
+			},
+
+			async getUnclaimedBalance(id) {
+				return users[id].coinBalance;
+			},
+
+			async setUnclaimedBalance(id, balance) {
+				users[id].coinBalance = balance;
+			},
+
+			async rewardCoin(id) {
+				++users[id].coinBalance;
 			},
 
 			async getLatestTime(id) {

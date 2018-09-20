@@ -19,10 +19,10 @@ module.exports = () => {
 		},
 
 		async rewardPurchaseDone(user, reward) {
-			purchase = {user: user.id, reward: reward.id};
+			purchase = {user, reward};
 		},
 
-		testLatestReward() {
+		testLastPurchase() {
 			return purchase;
 		}
 	};

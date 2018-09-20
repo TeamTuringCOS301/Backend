@@ -1,12 +1,11 @@
 const cors = require("cors");
 const express = require("express");
-const sendMail = require("./email.js");
 const session = require("express-session");
 const nocache = require("nocache");
 const objects = require("./objects.js");
 require("express-async-errors");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("./auth.js")(db);
 
 	const app = express();

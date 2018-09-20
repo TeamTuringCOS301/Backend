@@ -2,8 +2,9 @@ const assert = require("assert");
 const config = require("./mock-config.js");
 const coins = require("./mock-coins.js")();
 const db = require("./mock-db.js")();
-const app = require("../src/app.js")(config, db, coins);
 const request = require("supertest");
+const sendMail = require("./mock-email.js")();
+const app = require("../src/app.js")(config, db, coins, sendMail);
 
 describe("Admin API", () => {
 	const agent = request.agent(app);
@@ -12,7 +13,13 @@ describe("Admin API", () => {
 
 	describe("POST /admin/add", () => {
 		it("fails without a login session", (done) => {
-			db.area.add({}).then(() => {
+			db.area.add({
+				name: "Area",
+				city: "City",
+				province: "Province",
+				middle: {lat: 0, lng: 0},
+				border: [{lat: 1, lng: 0}, {lat: 0, lng: 1}, {lat: 0, lng: -1}]
+			}).then(() => {
 				request(app)
 					.post("/admin/add")
 					.send({
@@ -57,14 +64,22 @@ describe("Admin API", () => {
 					surname: "Doe",
 					area: 0
 				})
-				.expect((res) => {
-					assert.equal(res.body.success, true);
-					password = res.body.password;
-				})
-				.expect(200, done);
+				.expect(200, {success: true}, done);
 		});
 
-		it("returns the generated password", (done) => {
+		it("sends an email", (done) => {
+			assert.equal(sendMail.testLastEmail().user.email, "new@erp.coin");
+			done();
+		});
+
+		it("sends the password via email", (done) => {
+			const match = /Password: (\w+)/.exec(sendMail.testLastEmail().message);
+			assert.notEqual(match, null);
+			password = match[1];
+			done();
+		});
+
+		it("sets the correct password", (done) => {
 			agent.post("/admin/login")
 				.send({username: "new", password})
 				.expect(200, {success: true}, done);
@@ -135,7 +150,8 @@ describe("Admin API", () => {
 					email: "new@erp.coin",
 					name: "Jane",
 					surname: "Doe",
-					area: 0
+					area: 0,
+					areaName: "Area"
 				}, done);
 		});
 	});
@@ -165,15 +181,15 @@ describe("Admin API", () => {
 					name: "John",
 					surname: "Smith"
 				})
-				.expect(200)
-				.end(() => {
+				.expect(200, () => {
 					agent.get("/admin/info")
 						.expect(200, {
 							username: "new",
 							email: "newer@erp.coin",
 							name: "John",
 							surname: "Smith",
-							area: 0
+							area: 0,
+							areaName: "Area"
 						}, done);
 				});
 		});
@@ -225,11 +241,13 @@ describe("Admin API", () => {
 				.expect(200, {
 					admins: [
 						{
+							id: 0,
 							username: "new",
 							email: "newer@erp.coin",
 							name: "John",
 							surname: "Smith",
-							area: 0
+							area: 0,
+							areaName: "Area"
 						}
 					]
 				}, done);
@@ -261,7 +279,7 @@ describe("Admin API", () => {
 	describe("GET /admin/logout", () => {
 		it("clears the session cookie", (done) => {
 			agent.get("/admin/logout")
-				.end(() => {
+				.expect(200, () => {
 					agent.get("/admin/info")
 						.expect(401, done);
 				});

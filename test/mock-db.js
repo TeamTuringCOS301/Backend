@@ -200,11 +200,11 @@ module.exports = () => {
 
 			async getInfo(id) {
 				return {
-					name: info.name,
-					city: info.city,
-					province: info.province,
-					middle: info.middle,
-					border: info.border
+					name: areas[id].name,
+					city: areas[id].city,
+					province: areas[id].province,
+					middle: areas[id].middle,
+					border: areas[id].border
 				};
 			},
 

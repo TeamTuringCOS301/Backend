@@ -18,7 +18,7 @@ describe("Admin API", () => {
 				city: "City",
 				province: "Province",
 				middle: {lat: 0, lng: 0},
-				border: [{lat: 1, lng: 0}, {lat: 0, lng: 1}, {lat: 0, lng: -1}]
+				border: [{lat: 0, lng: 1}, {lat: 1, lng: 0}, {lat: 0, lng: -1}, {lat: -1, lng: 0}]
 			}).then(() => {
 				request(app)
 					.post("/admin/add")

@@ -16,7 +16,7 @@ module.exports = (config, db, coins, sendMail) => {
 
 	api.get("/list/:area/:since", async(req, res) => {
 		const points = await db.point.list(req.area, req.since);
-		let latest = 0;
+		let latest = req.since;
 		for(let point of points) {
 			latest = Math.max(latest, point.time);
 			delete point.time;

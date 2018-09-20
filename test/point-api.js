@@ -9,7 +9,7 @@ const app = require("../src/app.js")(config, db, coins, sendMail);
 describe("Point API", () => {
 	const agent = request.agent(app);
 
-	describe("GET /point/add/:area", () => {
+	describe("POST /point/add/:area", () => {
 		it("fails without a login session", async() => {
 			await db.area.add({
 				name: "Area",

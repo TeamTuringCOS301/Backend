@@ -2,22 +2,17 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const generator = require("generate-password");
 const objects = require("../objects.js");
+const validator = require("../validate.js");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
-		if(initial) {
-			if(typeof info.username !== "string") {
-				return false;
-			}
+	async function validate(info, initial = true) {
+		if(initial && !validator.validateUsername(info.username)) {
+			return false;
 		}
-		for(let key of ["email", "name", "surname"]) {
-			if(typeof info[key] !== "string") {
-				return false;
-			}
-		}
-		return true;
+		return validator.validateEmail(info.email) && validator.validateName(info.name)
+			&& validator.validateName(info.surname);
 	}
 
 	const api = express();
@@ -41,7 +36,7 @@ module.exports = (config, db, coins) => {
 
 	api.get("/logout", async(req, res) => {
 		await auth.requireSuperAdmin(req);
-		req.session.superId = undefined;
+		delete req.session.superId;
 		res.send({});
 	});
 
@@ -74,6 +69,9 @@ module.exports = (config, db, coins) => {
 		res.send({success});
 	});
 
+	/* These routes are not currently used by the front-end.
+	 * Since these are privileged actions, rather disable them for now.
+
 	api.post("/add", async(req, res) => {
 		await auth.requireSuperAdmin(req);
 		if(!await validate(req.body)) {
@@ -101,6 +99,8 @@ module.exports = (config, db, coins) => {
 		await auth.requireSuperAdmin(req);
 		res.send({admins: await db.superadmin.list()});
 	});
+
+	*/
 
 	return api;
 };

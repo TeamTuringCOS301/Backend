@@ -117,7 +117,8 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblUser` (
   `usrPassword` VARCHAR(60) NOT NULL,
   `usrName` VARCHAR(40) NOT NULL,
   `usrSurname` VARCHAR(40) NOT NULL,
-  `usrWalletAddress` varchar(50) NOT NULL,
+  `usrWalletAddress` varchar(50) NULL,
+  `usrUnclaimedBalance` INT UNSIGNED NOT NULL,
   `usrLastPointTime` BIGINT NOT NULL,
   PRIMARY KEY (`usrID`))
 ENGINE = InnoDB
@@ -138,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
   `aleTimeSent`  BIGINT NOT NULL,
   `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
   `tblUser_usrID` INT(10) UNSIGNED,
-  PRIMARY KEY (`aleID`, `tblUser_usrID`),
+  PRIMARY KEY (`aleID`),
   INDEX `fk_tblAlert_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
   CONSTRAINT `fk_tblAlert_tblConservationArea1`
     FOREIGN KEY (`tblConservationArea_conID`)
@@ -198,6 +199,18 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAdminStock` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+-- -----------------------------------------------------
+-- Table `dbERPCOIN`.`tblLastRewardPurchase`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblLastRewardPurchase` (
+	`lrpBlockNumber` INT(10) UNSIGNED NOT NULL,
+	`lrpLogIndex` INT(10) UNSIGNED NOT NULL)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+INSERT INTO `dbERPCOIN`.`tblLastRewardPurchase`
+SELECT 0, 0
+WHERE NOT EXISTS (SELECT * FROM `dbERPCOIN`.`tblLastRewardPurchase`);
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

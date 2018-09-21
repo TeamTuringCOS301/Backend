@@ -27,8 +27,7 @@ npm start
 
 A running MySQL server is required.
 Use [`create-tables.sql`] to create the required tables.
-[`create-users.sql`] is provided to create users for testing.
-It will create a super admin with username `admin` and password `admin`, as well as six users named `darius`, `kyle`, `richard`, `sewis`, `tristan` and `ulrik`, each with the password `password`.
+[`create-admin.sql`] is provided to create a super admin with username `admin` and password `admin`, for testing.
 
 [`create-admin.sql`]: sql/create-admin.sql
 [`create-tables.sql`]: sql/create-tables.sql
@@ -55,6 +54,12 @@ openssl req -new -x509 -out tls-cert.pem -keyout tls-key.pem -nodes -batch
 ```
 
 Note that this certificate will have to be added to the browser.
+
+### Email Configuration
+
+The `email` key in `config.json` must contain the desired "From" field, and options to create a [`nodemailer`] transport.
+
+[`nodemailer`]: https://nodemailer.com/
 
 ### Coin Reward Parameters
 
@@ -94,7 +99,6 @@ To list all objects, use the timestamp 0.
   password: string
   name: string
   surname: string
-  walletAddress: string
   ```
 
   Response fields:
@@ -131,7 +135,8 @@ The rest of the API requires that a user has already logged in.
   email: string
   name: string
   surname: string
-  walletAddress: string
+  walletAddress: string or null
+  coinBalance: integer
   ```
 
 * `POST /user/update` - Update the information stored for the current user.
@@ -142,6 +147,13 @@ The rest of the API requires that a user has already logged in.
   email: string
   name: string
   surname: string
+  ```
+
+* `POST /user/address` - Update the user's Ethereum wallet address.
+
+  Optional request fields:
+
+  ```
   walletAddress: string
   ```
 
@@ -158,15 +170,6 @@ The rest of the API requires that a user has already logged in.
 
   ```
   success: boolean
-  ```
-
-* `GET /user/coins` - View the user's current balance and the total number of coins earned.
-
-  Response fields:
-
-  ```
-  balance: integer
-  totalEarned: integer
   ```
 
 * `POST /user/remove` - Delete the current user's account.
@@ -214,6 +217,7 @@ The rest of the API requires that an admin has already logged in.
   name: string
   surname: string
   area: integer
+  areaName: string
   ```
 
 * `POST /admin/update` - Update the information stored for the current admin.
@@ -259,7 +263,6 @@ The rest of the API is only available to a super admin.
 
   ```
   success: boolean
-  password: string
   ```
 
 * `GET /admin/remove/:admin` - Remove an admin user.
@@ -281,6 +284,7 @@ The rest of the API is only available to a super admin.
   name: string
   surname: string
   area: integer
+  areaName: string
   ```
 
 ### Super Admin API
@@ -338,44 +342,6 @@ The rest of the API requires that a super admin has already logged in.
 
   ```
   success: boolean
-  ```
-
-* `POST /superadmin/add` - Create a new admin user.
-
-  Required request fields:
-
-  ```
-  username: string
-  email: string
-  name: string
-  surname: string
-  ```
-
-  Response fields:
-
-  ```
-  success: boolean
-  password: string
-  ```
-
-* `GET /superadmin/remove/:admin` - Remove an admin user.
-
-* `GET /superadmin/list` - List all conservation area admins.
-
-  Response fields:
-
-  ```
-  admins: array
-  ```
-
-  Fields of each element:
-
-  ```
-  id: integer
-  username: string
-  email: string
-  name: string
-  surname: string
   ```
 
 ### Conservation Area API
@@ -573,10 +539,16 @@ The rest of the API is only available to the admin associated with the conservat
   randValue: integer
   coinValue: integer
   area: integer
+  areaName: string
   ```
 
 * `GET /reward/image/:reward` - Respond with the image submitted for this reward.
   The response is not encoded as JSON.
+
+The following request is only available to a registered user.
+
+* `GET /reward/buy/:reward` - Buy a reward.
+  If the user's coins have already been exported to an Ethereum wallet, use the contract function instead.
 
 The rest of the API is only available to an admin.
 
@@ -651,6 +623,7 @@ The rest of the API is only available to a super admin.
   amount: integer
   randValue: integer
   area: integer
+  areaName: string
   ```
 
 * `POST /reward/verify/:reward` - Verify a suggested reward and set its coin value.
@@ -658,5 +631,17 @@ The rest of the API is only available to a super admin.
   Required request fields:
 
   ```
+  verify: boolean
   coinValue: integer
+  ```
+
+### Smart Contract API
+
+* `GET /contract` - Get information about the `ERPCoin` smart contract.
+
+  Response fields:
+
+  ```
+  abi: array
+  address: string
   ```

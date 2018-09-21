@@ -5,7 +5,7 @@ const nocache = require("nocache");
 const objects = require("./objects.js");
 require("express-async-errors");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("./auth.js")(db);
 
 	const app = express();
@@ -14,11 +14,11 @@ module.exports = (config, db, coins) => {
 	app.use(nocache());
 	app.use(session({
 		cookie: {
-			// TODO: re-enable
-			//maxAge: config.sessionCookie.maxAge,
+			maxAge: config.sessionCookie.maxAge,
 			secure: db.secureCookies
 		},
 		resave: false,
+		rolling: true,
 		saveUninitialized: false,
 		secret: config.sessionCookie.secret,
 		store: db.sessionStore
@@ -26,22 +26,47 @@ module.exports = (config, db, coins) => {
 
 	if(config.logRequests) {
 		app.use((req, res, next) => {
-			console.log(`${req.method} ${req.path}`);
-			console.log(req.headers);
+			const path = req.path;
 			const body = Object.assign({}, req.body);
 			for(let key of ["password", "old", "new", "image"]) {
 				if(typeof body[key] === "string") {
 					body[key] = "...";
 				}
 			}
-			console.log(body);
+			const oldSend = res.send;
+			res.send = function(arg) {
+				let output = arg;
+				if(typeof arg !== "string" && !(arg instanceof Buffer)) {
+					output = {};
+					for(let key in arg) {
+						if(arg[key] instanceof Array && arg[key].length > 1) {
+							output[key] = [arg[key][0], "..."];
+						} else {
+							output[key] = arg[key];
+						}
+					}
+				}
+				console.log();
+				console.log(req.method, path, body);
+				console.log(this.statusCode, output);
+				this.send = oldSend;
+				this.send(arg);
+			};
 			next();
 		});
 	}
 
 	for(let object of objects.all) {
-		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins));
+		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins, sendMail));
 	}
+
+	app.get("/contract", async(req, res) => {
+		res.send(await coins.getContractJson());
+	});
+
+	app.use((req, res) => {
+		res.sendStatus(404);
+	});
 
 	app.use((err, req, res, next) => {
 		if(err instanceof auth.AuthError) {

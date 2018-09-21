@@ -12,12 +12,12 @@ module.exports = (config, query) => ({
 			[info.time, info.user]);
 	},
 
-	async list(id, since) {
+	async list(area, since) {
 		const results = await query(`
 			SELECT cupDateTime, cupLocationLatitude, cupLocationLongitude
 			FROM tblConservationAreaUserPoints
 			WHERE tblConservationArea_conID = ? AND cupDateTime > ?`,
-			[id, since]);
+			[area, since]);
 		const points = [];
 		for(let point of results){
 			points.push({
@@ -40,7 +40,7 @@ module.exports = (config, query) => ({
 						* SIN(RADIANS(cupLocationLongitude - ?) / 2) AS a
 				FROM tblConservationAreaUserPoints
 				WHERE tblConservationArea_conID = ?) AS alias
-			WHERE 6371000 * ATAN2(SQRT(alias.a), SQRT(1 - alias.a)) < ?`,
+			WHERE 6371000 * 2 * ATAN2(SQRT(alias.a), SQRT(1 - alias.a)) < ?`,
 			[info.lat, info.lat, info.lat, info.lng, info.lng, info.area,
 				config.coinRewards.nearRadius]);
 		return results.length;

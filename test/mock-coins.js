@@ -1,7 +1,12 @@
 module.exports = () => {
 	const balances = {};
+	let purchase = {user: -1, reward: -1};
 
 	return {
+		async getContractJson() {
+			return {abi: [], address: "0x0"};
+		},
+
 		async getBalance(address) {
 			if(address in balances) {
 				return balances[address];
@@ -9,12 +14,16 @@ module.exports = () => {
 			return 0;
 		},
 
-		async getTotalEarned(address) {
-			return await this.getBalance(address);
+		async rewardCoins(address, coins) {
+			balances[address] = await this.getBalance(address) + coins;
 		},
 
-		async rewardCoin(address) {
-			balances[address] = await this.getBalance(address) + 1;
+		async rewardPurchaseDone(user, reward) {
+			purchase = {user, reward};
+		},
+
+		testLastPurchase() {
+			return purchase;
 		}
 	};
 };

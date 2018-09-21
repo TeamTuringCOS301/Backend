@@ -1,18 +1,17 @@
 const express = require("express");
 const objects = require("../objects.js");
+const validator = require("../validate.js")
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	function validateBorder(info) {
-		info.middle = undefined;
-		if(!(info.border instanceof Array)) {
-			info.border = undefined;
+		if(!(info.border instanceof Array) || info.border.length < 3) {
 			return false;
 		}
 		let lat = 0, lng = 0;
 		for(let point of info.border) {
-			if(typeof point.lat !== "number" || typeof point.lng !== "number") {
+			if(!validator.validatePoint(point)) {
 				return false;
 			}
 			lat += point.lat;
@@ -25,9 +24,9 @@ module.exports = (config, db, coins) => {
 		return true;
 	}
 
-	async function validate(info, initial = true) { // TODO: proper validation
+	async function validate(info, initial = true) {
 		for(let key of ["name", "city", "province"]) {
-			if(typeof info[key] !== "string") {
+			if(!validator.validateText(info[key])) {
 				return false;
 			}
 		}
@@ -51,7 +50,7 @@ module.exports = (config, db, coins) => {
 		if(!await validate(req.body, false)) {
 			return res.sendStatus(400);
 		}
-		await db.admin.updateInfo(req.area, req.body);
+		await db.area.updateInfo(req.area, req.body);
 		res.send({});
 	});
 

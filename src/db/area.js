@@ -72,6 +72,19 @@ module.exports = (config, query) => ({
 				conBorderNodeJSONObject = ?
 			WHERE conID = ?`,
 			[info.name, info.city, info.province, JSON.stringify(info.middle),
-				JSON.stringify(info.border)]);
+				JSON.stringify(info.border), id]);
+	},
+
+	async getPrimaryAdmin(id) {
+		const results = await query(`
+			SELECT admID
+			FROM tblAdminUser
+			WHERE tblConservationArea_conID = ?`,
+			[id]);
+		if(results.length === 0) {
+			return null;
+		}
+		// TODO: Add ability to set an admin other than the first as the primary admin.
+		return results[0].admID;
 	}
 });

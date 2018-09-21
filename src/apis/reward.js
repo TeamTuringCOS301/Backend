@@ -1,14 +1,14 @@
 const express = require("express");
 const imageType = require("image-type");
-const isBase64 = require("is-base64");
 const objects = require("../objects.js");
+const validator = require("../validate.js");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
-		for(let key of ["name", "description", "image"]) {
-			if(typeof info[key] !== "string") {
+	async function validate(info, initial = true) {
+		for(let key of ["name", "description"]) {
+			if(!validator.validateText(info[key])) {
 				return false;
 			}
 		}
@@ -17,8 +17,12 @@ module.exports = (config, db, coins) => {
 				return false;
 			}
 		}
-		return !initial && !info.image
-			|| isBase64(info.image) && imageType(Buffer.from(info.image, "base64")) !== null;
+		if(info.randValue <= 0 || info.amount <= 0 && info.amount !== -1
+				|| !Number.isInteger(info.amount)) {
+			return false;
+		}
+		return !initial && !info.image || typeof info.image === "string"
+			&& imageType(Buffer.from(info.image, "base64")) !== null;
 	}
 
 	const api = express();
@@ -43,10 +47,11 @@ module.exports = (config, db, coins) => {
 
 	api.post("/verify/:reward", async(req, res) => {
 		await auth.requireSuperAdmin(req);
-		if(typeof req.body.coinValue !== "number" || req.body.coinValue <= 0) {
+		if(typeof req.body.verify !== "boolean" || typeof req.body.coinValue !== "number"
+				|| req.body.coinValue <= 0 || !Number.isInteger(req.body.coinValue)) {
 			return res.sendStatus(400);
 		}
-		await db.reward.verifyCoinValue(req.reward, req.body.coinValue);
+		await db.reward.verifyCoinValue(req.reward, req.body.verify, req.body.coinValue);
 		res.send({});
 	});
 
@@ -69,7 +74,7 @@ module.exports = (config, db, coins) => {
 	api.post("/update/:reward", async(req, res) => {
 		await auth.requireAreaAdmin(req, await db.reward.getArea(req.reward));
 		if(!await validate(req.body, false)) {
-			res.sendStatus(400);
+			return res.sendStatus(400);
 		}
 		await db.reward.updateInfo(req.reward, req.body);
 		res.send({});
@@ -78,6 +83,20 @@ module.exports = (config, db, coins) => {
 	api.get("/remove/:reward", async(req, res) => {
 		await auth.requireAreaAdmin(req, await db.reward.getArea(req.reward));
 		await db.reward.remove(req.reward);
+		res.send({});
+	});
+
+	api.get("/buy/:reward", async(req, res) => {
+		await auth.requireUser(req);
+		const user = await db.user.getInfo(req.userId);
+		const reward = await db.reward.getInfo(req.reward);
+		if(user.coinBalance < reward.coinValue || !reward.verified
+				|| await db.area.getPrimaryAdmin(reward.area) === null) {
+			return res.sendStatus(400);
+		}
+		await db.user.setUnclaimedBalance(req.userId, user.coinBalance - reward.coinValue);
+		reward.id = req.reward;
+		await coins.rewardPurchaseDone(user, reward);
 		res.send({});
 	});
 

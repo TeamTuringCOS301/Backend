@@ -26,9 +26,9 @@
     "express-session": "^1.15.6",
     "generate-password": "^1.4.0",
     "image-type": "^3.0.0",
-    "is-base64": "0.0.5",
     "mysql": "^2.15.0",
     "nocache": "^2.0.0",
+    "nodemailer": "^4.6.8",
     "truffle-contract": "^3.0.4",
     "web3": "^1.0.0-beta.34"
   },

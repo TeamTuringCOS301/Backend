@@ -1,24 +1,22 @@
 const express = require("express");
 const imageType = require("image-type");
 const inPolygon = require("../in-polygon.js");
-const isBase64 = require("is-base64");
 const objects = require("../objects.js");
+const validator = require("../validate.js");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
+	async function validate(info, initial = true) {
 		for(let key of ["title", "description"]) {
-			if(typeof info[key] !== "string") {
+			if(!validator.validateText(info[key])) {
 				return false;
 			}
 		}
-		for(let key of ["lat", "lng"]) {
-			if(!("location" in info) || typeof info.location[key] !== "number") {
-				return false;
-			}
+		if(!("location" in info) || !validator.validatePoint(info.location)){
+			return false;
 		}
-		return [0, 1, 2].includes(info.severity) && (!info.image || isBase64(info.image)
+		return [0, 1, 2].includes(info.severity) && (!info.image || typeof info.image === "string"
 				&& imageType(Buffer.from(info.image, "base64")) !== null)
 			&& inPolygon(info.location, await db.area.getBorder(info.area))
 			&& (initial || typeof info.broadcast === "boolean");
@@ -32,7 +30,10 @@ module.exports = (config, db, coins) => {
 		req.body.area = req.area;
 		if(await auth.isUser(req)) {
 			req.body.user = req.userId;
+			req.body.broadcast = false;
 		} else {
+			req.body.user = null;
+			req.body.broadcast = true;
 			await auth.requireAreaAdmin(req, req.area);
 		}
 		if(!await validate(req.body)) {
@@ -72,6 +73,7 @@ module.exports = (config, db, coins) => {
 
 	api.post("/update/:alert", async(req, res) => {
 		await auth.requireAreaAdmin(req, await db.alert.getArea(req.alert));
+		req.body.area = await db.alert.getArea(req.alert);
 		if(!await validate(req.body, false)) {
 			return res.sendStatus(400);
 		}

@@ -2,20 +2,18 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const generator = require("generate-password");
 const objects = require("../objects.js");
+const validator = require("../validate.js")
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
-		if(initial) {
-			if(typeof info.username !== "string") {
-				return false;
-			}
+	async function validate(info, initial = true) {
+		if(initial && !validator.validateUsername(info.username)) {
+			return false;
 		}
-		for(let key of ["email", "name", "surname"]) {
-			if(typeof info[key] !== "string") {
-				return false;
-			}
+		if(!validator.validateEmail(info.email) || !validator.validateName(info.name)
+				|| !validator.validateName(info.surname)) {
+			return false;
 		}
 		return !initial || typeof info.area === "number" && await db.area.validId(info.area);
 	}
@@ -41,7 +39,7 @@ module.exports = (config, db, coins) => {
 
 	api.get("/logout", async(req, res) => {
 		await auth.requireAdmin(req);
-		req.session.adminId = undefined;
+		delete req.session.adminId;
 		res.send({});
 	});
 
@@ -83,7 +81,14 @@ module.exports = (config, db, coins) => {
 			const password = generator.generate();
 			req.body.password = await bcrypt.hash(password, 10);
 			await db.admin.add(req.body);
-			return res.send({success: true, password});
+			const areaInfo = await db.area.getInfo(req.body.area);
+			await sendMail(req.body, "ERP-Coin Conservation Area Admin",
+				`You have been added as a conservation area admin for ${areaInfo.name}.\n\n`
+					+ "Your details for the admin portal are:\n"
+					+ `Username: ${req.body.username}\n`
+					+ `Password: ${password}\n`
+					+ "Please change your password as soon as possible.");
+			return res.send({success: true});
 		}
 		res.send({success: false});
 	});

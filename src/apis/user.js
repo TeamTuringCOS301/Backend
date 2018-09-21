@@ -1,30 +1,25 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
 const objects = require("../objects.js");
+const Web3 = require("web3");
+const validator = require("../validate.js");
 
-module.exports = (config, db, coins) => {
+module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
-	async function validate(info, initial = true) { // TODO: proper validation
-		if(initial) {
-			for(let key of ["username", "password"]) {
-				if(typeof info[key] !== "string") {
-					return false;
-				}
-			}
+	async function validate(info, initial = true) {
+		if(initial && (!validator.validateUsername(info.username)
+				|| !validator.validatePassword(info.password))) {
+			return false;
 		}
-		for(let key of ["email", "name", "surname", "walletAddress"]) {
-			if(typeof info[key] !== "string") {
-				return false;
-			}
-		}
-		return true;
+		return validator.validateEmail(info.email) && validator.validateName(info.name)
+			&& validator.validateName(info.surname);
 	}
 
 	const api = express();
 	objects.addParams(api, db);
 
-	api.post("/add", async(req, res) => {2
+	api.post("/add", async(req, res) => {
 		if(!await validate(req.body)) {
 			return res.sendStatus(400);
 		}
@@ -56,13 +51,17 @@ module.exports = (config, db, coins) => {
 
 	api.get("/logout", async(req, res) => {
 		await auth.requireUser(req);
-		req.session.userId = undefined;
+		delete req.session.userId;
 		res.send({});
 	});
 
 	api.get("/info", async(req, res) => {
 		await auth.requireUser(req);
-		res.send(await db.user.getInfo(req.userId));
+		const info = await db.user.getInfo(req.userId);
+		if(typeof info.walletAddress === "string") {
+			info.coinBalance = await coins.getBalance(info.walletAddress);
+		}
+		res.send(info);
 	});
 
 	api.post("/update", async(req, res) => {
@@ -71,6 +70,20 @@ module.exports = (config, db, coins) => {
 			return res.sendStatus(400);
 		}
 		await db.user.updateInfo(req.userId, req.body);
+		res.send({});
+	});
+
+	api.post("/address", async(req, res) => {
+		await auth.requireUser(req);
+		if(!req.body.walletAddress) {
+			await db.user.clearWalletAddress(req.userId);
+		} else if(Web3.utils.isAddress(req.body.walletAddress)) {
+			await coins.rewardCoins(req.body.walletAddress,
+				await db.user.getUnclaimedBalance(req.userId));
+			await db.user.setWalletAddress(req.userId, req.body.walletAddress);
+		} else {
+			return res.sendStatus(400);
+		}
 		res.send({});
 	});
 
@@ -89,14 +102,6 @@ module.exports = (config, db, coins) => {
 		res.send({success});
 	});
 
-	api.get("/coins", async(req, res) => {
-		await auth.requireUser(req);
-		const address = await db.user.getWalletAddress(req.userId);
-		const balance = await coins.getBalance(address);
-		const totalEarned = await coins.getTotalEarned(address);
-		res.send({balance, totalEarned});
-	});
-
 	api.post("/remove", async(req, res) => {
 		await auth.requireUser(req);
 		if(typeof req.body.password !== "string") {
@@ -106,7 +111,7 @@ module.exports = (config, db, coins) => {
 		let hash = await db.user.getPassword(req.userId);
 		if(await bcrypt.compare(req.body.password, hash)) {
 			await db.user.remove(req.userId);
-			req.session.userId = undefined;
+			delete req.session.userId;
 			success = true;
 		}
 		res.send({success});

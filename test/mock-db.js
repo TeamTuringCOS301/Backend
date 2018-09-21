@@ -21,32 +21,39 @@ module.exports = () => {
 
 		admin: {
 			async add(info) {
-				admins.push(info);
-			},
-
-			async remove(id) {
-				admins[id] = undefined;
-			},
-
-			async list() {
-				return admins.filter((admin) => admin !== undefined).map((admin) => {
-					const result = {};
-					for(let key in admin) {
-						if(key !== "password") {
-							result[key] = admin[key];
-						}
-					}
-					return result;
+				admins.push({
+					username: info.username,
+					email: info.email,
+					password: info.password,
+					name: info.name,
+					surname: info.surname,
+					area: info.area
 				});
 			},
 
+			async remove(id) {
+				delete admins[id];
+			},
+
+			async list() {
+				return admins.map((info, id) => ({
+					id,
+					username: info.username,
+					email: info.email,
+					name: info.name,
+					surname: info.surname,
+					area: info.area,
+					areaName: areas[info.area].name
+				})).filter(() => true);
+			},
+
 			async validId(id) {
-				return admins[id] !== undefined;
+				return id in admins;
 			},
 
 			async find(username) {
-				const index = admins.findIndex((admin) => admin !== undefined
-					&& admin.username === username);
+				const index = admins.findIndex((info) => info !== undefined
+					&& info.username === username);
 				return index >= 0 ? index : null;
 			},
 
@@ -59,20 +66,20 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				const admin = {};
-				for(let key in admins[id]) {
-					if(key !== "password") {
-						admin[key] = admins[id][key];
-					}
-				}
-				return admin;
+				return {
+					username: admins[id].username,
+					email: admins[id].email,
+					name: admins[id].name,
+					surname: admins[id].surname,
+					area: admins[id].area,
+					areaName: areas[admins[id].area].name
+				};
 			},
 
 			async updateInfo(id, info) {
-				info.username = admins[id].username;
-				info.password = admins[id].password;
-				info.area = admins[id].area;
-				admins[id] = info;
+				admins[id].email = info.email;
+				admins[id].name = info.name;
+				admins[id].surname = info.surname;
 			},
 
 			async getArea(id) {
@@ -82,26 +89,60 @@ module.exports = () => {
 
 		alert: {
 			async add(info) {
-				info.broadcast = false;
-				alerts.push(info);
+				alerts.push({
+					time: info.time,
+					title: info.title,
+					description: info.description,
+					severity: info.severity,
+					image: info.image ? Buffer.from(info.image, "base64") : null,
+					broadcast: info.broadcast,
+					location: info.location,
+					area: info.area,
+					user: info.user
+				});
 			},
 
 			async remove(id) {
-				alerts[id] = undefined;
+				delete alerts[id];
 			},
 
 			async list(area, since) {
-				return alerts.filter((alert) => alert !== undefined && alert.area === area
-					&& alert.time > since);
+				return alerts.map((info, id) => ({
+					id,
+					time: info.time,
+					title: info.title,
+					description: info.description,
+					severity: info.severity,
+					hasImage: info.image !== null,
+					broadcast: info.broadcast,
+					location: info.location,
+					area: info.area
+				})).filter((info) => info.area === area && info.time > since).map((info) => {
+					delete info.area;
+					return info;
+				});
 			},
 
 			async listBroadcasts(area, since) {
-				return alerts.filter((alert) => alert !== undefined && alert.area === area
-					&& alert.time > since && alert.broadcast);
+				return alerts.map((info, id) => ({
+					id,
+					time: info.time,
+					title: info.title,
+					description: info.description,
+					severity: info.severity,
+					hasImage: info.image !== null,
+					broadcast: info.broadcast,
+					location: info.location,
+					area: info.area
+				})).filter((info) => info.area === area && info.time > since).map((info) => {
+					delete info.broadcast;
+					delete info.area;
+					return info;
+				});
 			},
 
 			async validId(id) {
-				return alerts[id] !== undefined;
+				return id in alerts;
 			},
 
 			async getImage(id) {
@@ -113,25 +154,44 @@ module.exports = () => {
 			},
 
 			async updateInfo(id, info) {
-				alerts[id] = info;
+				alerts[id].title = info.title;
+				alerts[id].description = info.description;
+				alerts[id].severity = info.severity;
+				alerts[id].broadcast = info.broadcast;
+				alerts[id].location = info.location;
+				if(info.image) {
+					alerts[id].image = Buffer.from(info.image, "base64");
+				}
 			}
 		},
 
 		area: {
 			async add(info) {
-				areas.push(info);
+				areas.push({
+					name: info.name,
+					city: info.city,
+					province: info.province,
+					middle: info.middle,
+					border: info.border
+				});
 			},
 
 			async remove(id) {
-				areas[id] = undefined;
+				delete areas[id];
 			},
 
 			async list() {
-				return areas.filter((area) => area !== undefined);
+				return areas.map((info, id) => ({
+					id,
+					name: info.name,
+					city: info.city,
+					province: info.province,
+					middle: info.middle
+				})).filter(() => true);
 			},
 
 			async validId(id) {
-				return areas[id] !== undefined;
+				return id in areas;
 			},
 
 			async getBorder(id) {
@@ -139,57 +199,125 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				return areas[id];
+				return {
+					name: areas[id].name,
+					city: areas[id].city,
+					province: areas[id].province,
+					middle: areas[id].middle,
+					border: areas[id].border
+				};
 			},
 
 			async updateInfo(id, info) {
-				areas[id] = info;
+				areas[id].name = info.name;
+				areas[id].city = info.city;
+				areas[id].province = info.province;
+				areas[id].middle = info.middle;
+				areas[id].border = info.border;
+			},
+
+			async getPrimaryAdmin(id, info) {
+				const index = admins.findIndex((info) => info !== undefined
+					&& info.area === id);
+				return index >= 0 ? index : null;
 			}
 		},
 
-		points: {
+		point: {
 			async add(info) {
-				points.push(info);
+				points.push({
+					time: info.time,
+					lat: info.lat,
+					lng: info.lng,
+					area: info.area
+				});
+				users[info.user].latestTime = info.time;
 			},
 
 			async list(area, since) {
-				return points.filter((point) => point.area == area && point.time > since);
+				return points.filter((info) => info.area == area && info.time > since)
+					.map((info) => ({
+						time: info.time,
+						lat: info.lat,
+						lng: info.lng
+					}));
 			},
 
 			async countNearbyPoints(info) {
-				return points.filter((point) => {
-					const dLat = point.lat - points[id].lat;
-					const dLng = point.lng - points[id].lng;
-					return dLat * dLat + dLng * dLng <= 1;
-				}).length;
+				return points.filter((point) => Math.pow(point.lat - info.lat, 2)
+					+ Math.pow(point.lng - info.lng, 2) <= 1).length;
 			}
 		},
 
 		reward: {
 			async add(info) {
-				info.coinValue = 0;
-				info.verified = false;
-				rewards.push(info);
+				rewards.push({
+					name: info.name,
+					description: info.description,
+					image: Buffer.from(info.image, "base64"),
+					amount: info.amount,
+					randValue: info.randValue,
+					coinValue: 0,
+					verified: false,
+					area: info.area
+				});
 			},
 
 			async remove(id) {
-				rewards[id] = undefined;
+				delete rewards[id];
 			},
 
 			async list() {
-				return rewards.filter((reward) => reward !== undefined && reward.verified);
+				return rewards.map((info, id) => ({
+					id,
+					name: info.name,
+					description: info.description,
+					amount: info.amount,
+					randValue: info.randValue,
+					coinValue: info.coinValue,
+					verified: info.verified,
+					area: info.area,
+					areaName: areas[info.area].name
+				})).filter((info) => info.verified).map((info) => {
+					delete info.verified;
+					return info;
+				});
 			},
 
 			async listNew() {
-				return rewards.filter((reward) => reward !== undefined && !reward.verified);
+				return rewards.map((info, id) => ({
+					id,
+					name: info.name,
+					description: info.description,
+					amount: info.amount,
+					randValue: info.randValue,
+					verified: info.verified,
+					area: info.area,
+					areaName: areas[info.area].name
+				})).filter((info) => !info.verified).map((info) => {
+					delete info.verified;
+					return info;
+				});
 			},
 
 			async listOwned(area) {
-				return rewards.filter((reward) => reward !== undefined && reward.area === area);
+				return rewards.map((info, id) => ({
+					id,
+					name: info.name,
+					description: info.description,
+					amount: info.amount,
+					randValue: info.randValue,
+					coinValue: info.coinValue,
+					verified: info.verified,
+					area: info.area
+				})).filter((info) => info.area === area).map((info) => {
+					delete info.area;
+					return info;
+				});
 			},
 
 			async validId(id) {
-				return rewards[id] !== undefined;
+				return id in rewards;
 			},
 
 			async getImage(id) {
@@ -200,46 +328,71 @@ module.exports = () => {
 				return rewards[id].area;
 			},
 
-			async updateInfo(id, info) {
-				info.coinValue = rewards[id].coinValue;
-				info.verified = false;
-				rewards[id] = info;
+			async getInfo(id) {
+				return {
+					name: rewards[id].name,
+					description: rewards[id].description,
+					amount: rewards[id].amount,
+					randValue: rewards[id].randValue,
+					coinValue: rewards[id].coinValue,
+					verified: rewards[id].verified,
+					area: rewards[id].area,
+					areaName: areas[rewards[id].area].name
+				};
 			},
 
-			async verifyCoinValue(id, coinValue) {
+			async updateInfo(id, info) {
+				rewards[id].name = info.name;
+				rewards[id].description = info.description;
+				rewards[id].amount = info.amount;
+				rewards[id].randValue = info.randValue;
+				if(info.image) {
+					rewards[id].image = Buffer.from(info.image, "base64");
+				}
+			},
+
+			async setAmount(id, amount) {
+				rewards[id].amount = amount;
+			},
+
+			async verifyCoinValue(id, verify, coinValue) {
 				rewards[id].coinValue = coinValue;
-				rewards[id].verified = true;
+				rewards[id].verified = verify;
 			}
 		},
 
 		superadmin: {
 			async add(info) {
-				superadmins.push(info);
-			},
-
-			async remove(id) {
-				superadmins[id] = undefined;
-			},
-
-			async list() {
-				return superadmins.filter((admin) => admin !== undefined).map((admin) => {
-					const result = {};
-					for(let key in admin) {
-						if(key !== "password") {
-							result[key] = admin[key];
-						}
-					}
-					return result;
+				superadmins.push({
+					username: info.username,
+					email: info.email,
+					password: info.password,
+					name: info.name,
+					surname: info.surname
 				});
 			},
 
+			async remove(id) {
+				delete superadmins[id];
+			},
+
+			async list() {
+				return superadmins.map((info, id) => ({
+					id,
+					username: info.username,
+					email: info.email,
+					name: info.name,
+					surname: info.surname
+				})).filter(() => true);
+			},
+
 			async validId(id) {
-				return superadmins[id] !== undefined;
+				return id in superadmins;
 			},
 
 			async find(username) {
-				const index = superadmins.findIndex((admin) => admin !== undefined
-					&& admin.username === username);
+				const index = superadmins.findIndex((info) => info !== undefined
+					&& info.username === username);
 				return index >= 0 ? index : null;
 			},
 
@@ -252,39 +405,52 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				const admin = {};
-				for(let key in superadmins[id]) {
-					if(key !== "password") {
-						admin[key] = superadmins[id][key];
-					}
-				}
-				return admin;
+				return {
+					username: superadmins[id].username,
+					email: superadmins[id].email,
+					name: superadmins[id].name,
+					surname: superadmins[id].surname
+				};
 			},
 
 			async updateInfo(id, info) {
-				info.username = superadmins[id].username;
-				info.password = superadmins[id].password;
-				superadmins[id] = info;
+				superadmins[id].email = info.email;
+				superadmins[id].name = info.name;
+				superadmins[id].surname = info.surname;
 			}
 		},
 
 		user: {
 			async add(info) {
-				info.latestTime = 0;
-				users.push(info);
+				users.push({
+					username: info.username,
+					email: info.email,
+					password: info.password,
+					name: info.name,
+					surname: info.surname,
+					walletAddress: null,
+					coinBalance: 0,
+					latestTime: 0
+				});
 			},
 
 			async remove(id) {
-				users[id] = undefined;
+				delete users[id];
 			},
 
 			async validId(id) {
-				return users[id] !== undefined;
+				return id in users;
 			},
 
 			async find(username) {
-				const index = users.findIndex((user) => user !== undefined
-					&& user.username === username);
+				const index = users.findIndex((info) => info !== undefined
+					&& info.username === username);
+				return index >= 0 ? index : null;
+			},
+
+			async findByAddress(address) {
+				const index = users.findIndex((info) => info !== undefined
+					&& info.walletAddress === address);
 				return index >= 0 ? index : null;
 			},
 
@@ -297,24 +463,45 @@ module.exports = () => {
 			},
 
 			async getInfo(id) {
-				const user = {};
-				for(let key in users[id]) {
-					if(key !== "password" && key !== "latestTime") {
-						user[key] = users[id][key];
-					}
-				}
-				return user;
+				return {
+					username: users[id].username,
+					email: users[id].email,
+					name: users[id].name,
+					surname: users[id].surname,
+					walletAddress: users[id].walletAddress,
+					coinBalance: users[id].coinBalance
+				};
 			},
 
 			async updateInfo(id, info) {
-				info.username = users[id].username;
-				info.password = users[id].password;
-				info.latestTime = users[id].latestTime;
-				users[id] = info;
+				users[id].email = info.email;
+				users[id].name = info.name;
+				users[id].surname = info.surname;
+			},
+
+			async clearWalletAddress(id) {
+				users[id].walletAddress = null;
+			},
+
+			async setWalletAddress(id, address) {
+				users[id].walletAddress = address;
+				users[id].coinBalance = 0;
 			},
 
 			async getWalletAddress(id) {
 				return users[id].walletAddress;
+			},
+
+			async getUnclaimedBalance(id) {
+				return users[id].coinBalance;
+			},
+
+			async setUnclaimedBalance(id, balance) {
+				users[id].coinBalance = balance;
+			},
+
+			async rewardCoin(id) {
+				++users[id].coinBalance;
 			},
 
 			async getLatestTime(id) {

@@ -8,8 +8,18 @@
 		"newPointInterval": 1000,
 		"pointMaxAge": 600000
 	},
+	"email": {
+		"from": "ERP-Coin <erp.erpcoin@gmail.com>",
+		"transport": {
+			"service": "gmail",
+			"auth": {
+				"user": "erp.erpcoin@gmail.com",
+				"pass": "correcthorse"
+			}
+		}
+	},
 	"logRequests": false,
-	"maxImageSize": "5mb",
+	"maxImageSize": "10mb",
 	"mysql": {
 		"host": "localhost",
 		"user": "user",
@@ -17,7 +27,7 @@
 		"database": "dbERPCOIN"
 	},
 	"sessionCookie": {
-		"maxAge": 86400,
+		"maxAge": 86400000,
 		"secret": "correcthorsebatterystaple"
 	},
 	"tls": {

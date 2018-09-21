@@ -2,10 +2,9 @@ module.exports = (config, query) => ({
 	async add(info) {
 		await query(`
 			INSERT INTO tblUser (usrUsername, usrEmailAddress, usrPassword, usrName, usrSurname,
-				usrWalletAddress, usrLastPointTime)
-			VALUES (?, ?, ?, ?, ?, ?, 0)`,
-			[info.username, info.email, info.password, info.name, info.surname,
-				info.walletAddress]);
+				usrUnclaimedBalance, usrLastPointTime)
+			VALUES (?, ?, ?, ?, ?, 0, 0)`,
+			[info.username, info.email, info.password, info.name, info.surname]);
 	},
 
 	async remove(id) {
@@ -37,6 +36,19 @@ module.exports = (config, query) => ({
 		}
 	},
 
+	async findByAddress(address) {
+		const results = await query(`
+			SELECT usrID
+			FROM tblUser
+			WHERE usrWalletAddress = ?`,
+			[address]);
+		if(results.length) {
+			return results[0].usrID;
+		} else {
+			return null;
+		}
+	},
+
 	async getPassword(id) {
 		const results = await query(`
 			SELECT usrPassword
@@ -56,7 +68,8 @@ module.exports = (config, query) => ({
 
 	async getInfo(id) {
 		const results = await query(`
-			SELECT usrUsername, usrEmailAddress, usrName, usrSurname, usrWalletAddress
+			SELECT usrUsername, usrEmailAddress, usrName, usrSurname, usrWalletAddress,
+				usrUnclaimedBalance
 			FROM tblUser
 			WHERE usrID = ?`,
 			[id]);
@@ -65,16 +78,33 @@ module.exports = (config, query) => ({
 			email: results[0].usrEmailAddress,
 			name: results[0].usrName,
 			surname: results[0].usrSurname,
-			walletAddress: results[0].usrWalletAddress
+			walletAddress: results[0].usrWalletAddress,
+			coinBalance: results[0].usrUnclaimedBalance
 		};
 	},
 
 	async updateInfo(id, info) {
 		await query(`
 			UPDATE tblUser
-			SET usrEmailAddress = ?, usrName = ?, usrSurname = ?, usrWalletAddress = ?
+			SET usrEmailAddress = ?, usrName = ?, usrSurname = ?
 			WHERE usrID = ?`,
-			[info.email, info.name, info.surname, info.walletAddress, id]);
+			[info.email, info.name, info.surname, id]);
+	},
+
+	async clearWalletAddress(id) {
+		await query(`
+			UPDATE tblUser
+			SET usrWalletAddress = NULL
+			WHERE usrID = ?`,
+			[id]);
+	},
+
+	async setWalletAddress(id, address) {
+		await query(`
+			UPDATE tblUser
+			SET usrWalletAddress = ?, usrUnclaimedBalance = 0
+			WHERE usrID = ?`,
+			[address, id]);
 	},
 
 	async getWalletAddress(id) {
@@ -84,6 +114,31 @@ module.exports = (config, query) => ({
 			WHERE usrID = ?`,
 			[id]);
 		return results[0].usrWalletAddress;
+	},
+
+	async getUnclaimedBalance(id) {
+		const results = await query(`
+			SELECT usrUnclaimedBalance
+			FROM tblUser
+			WHERE usrID = ?`,
+			[id]);
+		return results[0].usrUnclaimedBalance;
+	},
+
+	async setUnclaimedBalance(id, balance) {
+		await query(`
+			UPDATE tblUser
+			SET usrUnclaimedBalance = ?
+			WHERE usrID = ?`,
+			[balance, id]);
+	},
+
+	async rewardCoin(id) {
+		await query(`
+			UPDATE tblUser
+			SET usrUnclaimedBalance = usrUnclaimedBalance + 1
+			WHERE usrID = ?`,
+			[id]);
 	},
 
 	async getLatestTime(id) {

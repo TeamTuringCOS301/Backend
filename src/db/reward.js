@@ -15,12 +15,14 @@ module.exports = (config, query) => ({
 			[id]);
 	},
 
-	async list() {//TODO: Change casVerified back to 1
+	async list() {
 		const results = await query(`
 			SELECT casID, casName, casDescription, casStockAmount, casRandValue, casCoinValue,
-				tblConservationArea_conID
+				conID, conName
 			FROM tblConservationAdminStock
-			WHERE casVerified = 0`);
+			JOIN tblConservationArea
+			ON tblConservationArea_conID = conID
+			WHERE casVerified = 1`);
 		const rewards = [];
 		for(let reward of results) {
 			rewards.push({
@@ -30,7 +32,8 @@ module.exports = (config, query) => ({
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
 				coinValue: reward.casCoinValue,
-				area: reward.tblConservationArea_conID
+				area: reward.conID,
+				areaName: reward.conName
 			});
 		}
 		return rewards;
@@ -39,8 +42,10 @@ module.exports = (config, query) => ({
 	async listNew() {
 		const results = await query(`
 			SELECT casID, casName, casDescription, casStockAmount, casRandValue,
-				tblConservationArea_conID
+				conID, conName
 			FROM tblConservationAdminStock
+			JOIN tblConservationArea
+			ON tblConservationArea_conID = conID
 			WHERE casVerified = 0`);
 		const rewards = [];
 		for(let reward of results) {
@@ -50,7 +55,8 @@ module.exports = (config, query) => ({
 				description: reward.casDescription,
 				amount: reward.casStockAmount,
 				randValue: reward.casRandValue,
-				area: reward.tblConservationArea_conID
+				area: reward.conID,
+				areaName: reward.conName
 			});
 		}
 		return rewards;
@@ -61,7 +67,8 @@ module.exports = (config, query) => ({
 			SELECT casID, casName, casDescription, casStockAmount, casRandValue, casCoinValue,
 				casVerified
 			FROM tblConservationAdminStock
-			WHERE tblConservationArea_conID = ?`,
+			WHERE tblConservationArea_conID = ?
+			ORDER BY casVerified DESC`,
 			[area]);
 		const rewards = [];
 		for(let reward of results) {
@@ -105,6 +112,27 @@ module.exports = (config, query) => ({
 		return results[0].tblConservationArea_conID;
 	},
 
+	async getInfo(id) {
+		const results = await query(`
+			SELECT casName, casDescription, casStockAmount, casRandValue, casCoinValue, casVerified,
+				conID, conName
+			FROM tblConservationAdminStock
+			JOIN tblConservationArea
+			ON tblConservationArea_conID = conID
+			WHERE casID = ?`,
+			[id]);
+		return {
+			name: results[0].casName,
+			description: results[0].casDescription,
+			amount: results[0].casStockAmount,
+			randValue: results[0].casRandValue,
+			coinValue: results[0].casCoinValue,
+			verified: results[0].casVerified[0] === 1,
+			area: results[0].conID,
+			areaName: results[0].conName
+		};
+	},
+
 	async updateInfo(id, info) {
 		await query(`
 			UPDATE tblConservationAdminStock
@@ -121,11 +149,19 @@ module.exports = (config, query) => ({
 		}
 	},
 
-	async verifyCoinValue(id, coinValue) {
+	async setAmount(id, amount) {
 		await query(`
 			UPDATE tblConservationAdminStock
-			SET casCoinValue = ?, casVerified = 1
+			SET casStockAmount = ?
 			WHERE casID = ?`,
-			[coinValue, id]);
+			[amount, id]);
+	},
+
+	async verifyCoinValue(id, verify, coinValue) {
+		await query(`
+			UPDATE tblConservationAdminStock
+			SET casCoinValue = ?, casVerified = ?
+			WHERE casID = ?`,
+			[coinValue, verify ? 1 : 0, id]);
 	}
 });

@@ -17,7 +17,28 @@ function query(...args) {
 	});
 }
 
-const db = {sessionStore: new Store(config.mysql), secureCookies: true};
+const db = {
+	sessionStore: new Store(config.mysql),
+	secureCookies: true,
+
+	async getLastPurchase() {
+		const results = await query(`
+			SELECT lrpBlockNumber, lrpLogIndex
+			FROM tblLastRewardPurchase`);
+		return {
+			blockNumber: results[0].lrpBlockNumber,
+			logIndex: results[0].lrpLogIndex
+		};
+	},
+
+	async setLastPurchase(purchase) {
+		await query(`
+			UPDATE tblLastRewardPurchase
+			SET lrpBlockNumber = ?, lrpLogIndex = ?`,
+			[purchase.blockNumber, purchase.logIndex]);
+	}
+};
+
 for(let object of objects.all) {
 	db[object] = require(`./db/${object}.js`)(config, query);
 }

@@ -1,5 +1,4 @@
 {
-	"apiPort": 8080,
 	"coinRewards": {
 		"clearInterval": 600000,
 		"expScale": 0.001,
@@ -18,8 +17,14 @@
 			}
 		}
 	},
+	"enableCors": false,
 	"logRequests": false,
 	"maxImageSize": "10mb",
+	"mount": {
+		"/superadmin": "../admin-front-end/www",
+		"/admin": "../conservation-front-end/www",
+		"/": "../user-front-end/www"
+	},
 	"mysql": {
 		"host": "localhost",
 		"user": "user",

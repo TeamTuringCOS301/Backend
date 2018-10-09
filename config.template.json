@@ -31,6 +31,10 @@
 		"password": "pass",
 		"database": "dbERPCOIN"
 	},
+	"ports": {
+		"http": 80,
+		"https": 443
+	},
 	"sessionCookie": {
 		"maxAge": 86400000,
 		"secret": "correcthorsebatterystaple"
@@ -40,5 +44,6 @@
 		"key": "tls-key.pem",
 		"passphrase": ""
 	},
+	"user": null,
 	"web3Provider": "http://localhost:9545"
 }

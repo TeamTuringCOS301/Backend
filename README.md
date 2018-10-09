@@ -20,8 +20,6 @@ To start the server, run:
 npm start
 ```
 
-Root privileges may be required to bind to ports 80 and 443.
-
 [`config.template.json`]: config.template.json
 [Node.js]: https://nodejs.org/en/
 
@@ -58,6 +56,11 @@ Root privileges may be required to bind to ports 80 and 443.
   Use [`create-tables.sql`] to create the required tables.
   [`create-admin.sql`] is provided to create a super admin with username `admin` and password `admin`, for testing.
 
+* `ports` - The ports to listen on.
+
+  * `http` - Requests on this port will be redirected to HTTPS.
+  * `https` - The apps and API are hosted on this port.
+
 * `sessionCookie` - Configuration for the cookie used to implement login sessions.
 
   * `maxAge` - The time (in milliseconds) after the user's last activity when the session will expire.
@@ -71,6 +74,13 @@ Root privileges may be required to bind to ports 80 and 443.
   ```
 
   Note that this certificate will have to be added to the browser.
+
+* `user` - The user to run the server as.
+
+  It may be necessary to run the server as `root` in order to bind to ports 80 and 443.
+  If this field is not `null`, it should be an object with `uid` and `gid` fields.
+  The server will then set its UID and GID to these values.
+  `uid` may also be set to a user name, and `gid` to a group name.
 
 * `web3Provider` - A `web3` provider to handle communication with the blockchain.
   The smart contract in [`token`] should already be deployed on the network.

@@ -3,7 +3,6 @@ const config = require("./src/config.js");
 const db = require("./src/database.js");
 const express = require("express");
 const fs = require("fs");
-const http = require("http");
 const https = require("https");
 const sendMail = require("./src/email.js");
 const api = require("./src/app.js")(config, db, coins, sendMail);
@@ -18,13 +17,19 @@ https.createServer({
 	cert: fs.readFileSync(config.tls.cert),
 	key: fs.readFileSync(config.tls.key),
 	passphrase: config.tls.passphrase
-}, app).listen(443);
-
-const redirect = express();
-redirect.use((req, res) => {
-	res.redirect(`https://${req.hostname}${req.url}`);
+}, app).listen(config.ports.https, () => {
+	const redirect = express();
+	redirect.use((req, res) => {
+		res.redirect(`https://${req.hostname}${req.url}`);
+	});
+	redirect.listen(config.ports.http, () => {
+		if(config.user !== null) {
+			process.setgroups([]);
+			process.setgid(config.user.gid);
+			process.setuid(config.user.uid);
+		}
+	});
 });
-http.createServer(redirect).listen(80);
 
 setInterval(() => {
 	const minTime = new Date().getTime() - config.coinRewards.pointMaxAge;

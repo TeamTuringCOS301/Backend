@@ -4,6 +4,7 @@ const db = require("./src/database.js");
 const express = require("express");
 const fs = require("fs");
 const https = require("https");
+const onExit = require("./src/on-exit.js");
 const sendMail = require("./src/email.js");
 const api = require("./src/app.js")(config, db, coins, sendMail);
 
@@ -13,16 +14,19 @@ for(let key in config.mount) {
 	app.use(key, express.static(config.mount[key]));
 }
 
-https.createServer({
+const httpsServer = https.createServer({
 	cert: fs.readFileSync(config.tls.cert),
 	key: fs.readFileSync(config.tls.key),
 	passphrase: config.tls.passphrase
 }, app).listen(config.ports.https, () => {
+	onExit(() => httpsServer.close(() => db.sessionStore.close()));
+
 	const redirect = express();
 	redirect.use((req, res) => {
 		res.redirect(`https://${req.hostname}${req.url}`);
 	});
-	redirect.listen(config.ports.http, () => {
+	const httpServer = redirect.listen(config.ports.http, () => {
+		onExit(() => httpServer.close());
 		if(config.user !== null) {
 			process.setgroups([]);
 			process.setgid(config.user.gid);
@@ -31,7 +35,8 @@ https.createServer({
 	});
 });
 
-setInterval(() => {
+const timer = setInterval(() => {
 	const minTime = new Date().getTime() - config.coinRewards.pointMaxAge;
 	db.point.limitPoints(minTime);
 }, config.coinRewards.clearInterval);
+onExit(() => clearInterval(timer));

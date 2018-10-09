@@ -5,6 +5,7 @@ const Store = require("express-mysql-session")(session);
 const objects = require("./objects.js");
 
 const pool = mysql.createPool(config.mysql);
+const sessionStore = new Store({endConnectionOnClose: true}, pool);
 function query(...args) {
 	return new Promise((resolve, reject) => {
 		pool.query(...args, (err, results) => {
@@ -18,7 +19,7 @@ function query(...args) {
 }
 
 const db = {
-	sessionStore: new Store(config.mysql),
+	sessionStore,
 	secureCookies: true,
 
 	async getLastPurchase() {

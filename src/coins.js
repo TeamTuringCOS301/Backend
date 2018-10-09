@@ -4,6 +4,7 @@ const db = require("./database.js");
 const fs = require("fs");
 const generator = require("generate-password");
 const imageType = require("image-type");
+const onExit = require("./on-exit.js");
 const sendMail = require("./email.js");
 const Web3 = require("web3");
 
@@ -53,7 +54,8 @@ async function handlePurchases() {
 	const lastPurchase = await db.getLastPurchase();
 
 	const contract = await ERPCoin.deployed();
-	contract.Purchase({}, {fromBlock: lastPurchase.blockNumber}).watch(async(err, purchase) => {
+	const event = contract.Purchase({}, {fromBlock: lastPurchase.blockNumber});
+	event.watch(async(err, purchase) => {
 		if(err) {
 			return console.error(err);
 		} else if(purchase.blockNumber == lastPurchase.blockNumber
@@ -97,6 +99,7 @@ async function handlePurchases() {
 		reward.id = rewardId;
 		await rewardPurchaseDone(user, reward);
 	});
+	onExit(() => event.stopWatching(() => {}));
 }
 handlePurchases();
 

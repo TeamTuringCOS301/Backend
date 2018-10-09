@@ -25,7 +25,7 @@ async function rewardPurchaseDone(user, reward) {
 	const purchaseId = generator.generate();
 	const image = await db.reward.getImage(reward.id);
 	const attachments = [{filename: `reward.${imageType(image).ext}`, content: image}];
-	await sendMail(user, "ERP-Coin Reward Purchased",
+	sendMail(user, "ERP-Coin Reward Purchased",
 		"Thank you for buying the following reward.\n\n"
 			+ `Reward: ${reward.name}\n`
 			+ `${reward.description}\n\n`
@@ -37,7 +37,7 @@ async function rewardPurchaseDone(user, reward) {
 			+ `Email: ${admin.email}\n`
 			+ `Purchase ID: ${purchaseId}`,
 		attachments);
-	await sendMail(admin, "ERP-Coin Reward Purchased",
+	sendMail(admin, "ERP-Coin Reward Purchased",
 		"A user has bought the following reward.\n\n"
 			+ `Reward: ${reward.name}\n`
 			+ `${reward.description}\n\n`
@@ -83,7 +83,7 @@ async function handlePurchases() {
 		const rewardId = purchase.args.reward.toNumber();
 		if(!await db.reward.validId(rewardId)) {
 			await refund();
-			return await sendMail(user, "ERP-Coin Reward Not Available",
+			return sendMail(user, "ERP-Coin Reward Not Available",
 				"The reward you attempted to buy is not currently available.\n\n"
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}
@@ -91,7 +91,7 @@ async function handlePurchases() {
 		if(purchase.args.value.toNumber() !== reward.coinValue || !reward.verified
 				|| await db.area.getPrimaryAdmin(reward.area) === null) {
 			await refund();
-			return await sendMail(user, "ERP-Coin Reward Not Available",
+			return sendMail(user, "ERP-Coin Reward Not Available",
 				"The reward you attempted to buy is not currently available.\n\n"
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}

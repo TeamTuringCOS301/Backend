@@ -48,9 +48,9 @@ module.exports = (config, db, coins, sendMail) => {
 						}
 					}
 				}
-				console.log();
 				console.log(req.method, path, body);
 				console.log(this.statusCode, output);
+				console.log();
 				this.send = oldSend;
 				this.send(arg);
 			};

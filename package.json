@@ -29,8 +29,7 @@
     "mysql": "^2.16.0",
     "nocache": "^2.0.0",
     "nodemailer": "^4.6.8",
-    "truffle-contract": "^3.0.4",
-    "web3": "^1.0.0-beta.34"
+    "web3": "^1.0.0-beta.36"
   },
   "devDependencies": {
     "eslint": "^5.1.0",

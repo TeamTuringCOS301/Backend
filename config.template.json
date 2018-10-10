@@ -44,6 +44,9 @@
 		"key": "tls-key.pem",
 		"passphrase": ""
 	},
-	"user": null,
-	"web3Provider": "http://localhost:9545"
+	"token": {
+		"contract": "0x0",
+		"rpc": "ws://localhost:9545"
+	},
+	"user": null
 }

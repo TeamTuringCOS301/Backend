@@ -75,15 +75,12 @@ npm start
 
   Note that this certificate will have to be added to the browser.
 
-* `user` - The user to run the server as.
+* `token` - Details for accessing the [`ERPCoin`] smart contract.
 
-  It may be necessary to run the server as `root` in order to bind to ports 80 and 443.
-  If this field is not `null`, it should be an object with `uid` and `gid` fields.
-  The server will then set its UID and GID to these values.
-  `uid` may also be set to a user name, and `gid` to a group name.
-
-* `web3Provider` - A `web3` provider to handle communication with the blockchain.
-  The smart contract in [`token`] should already be deployed on the network.
+  * `contract` - The address of the deployed contract.
+  * `rpc` - A JSON-RPC URL for the Ethereum node used to access the blockchain.
+    HTTP-RPC is not supported; use WS-RPC or IPC-RPC.
+    This node should have an unlocked private key for the account used to deploy the contract.
 
   The configuration in `config.template.json` is for a [Truffle] development provider.
   Start it with:
@@ -92,12 +89,19 @@ npm start
   npm run truffle develop
   ```
 
-  Then type `migrate --reset` to deploy the smart contract.
+  Then type `migrate --reset` to deploy the smart contract, and copy the `ERPCoin` address to `config.json`.
+
+* `user` - The user to run the server as.
+
+  It may be necessary to run the server as `root` in order to bind to ports 80 and 443.
+  If this field is not `null`, it should be an object with `uid` and `gid` fields.
+  The server will then set its UID and GID to these values.
+  `uid` may also be set to a user name, and `gid` to a group name.
 
 [`create-admin.sql`]: sql/create-admin.sql
 [`create-tables.sql`]: sql/create-tables.sql
+[`ERPCoin`]: token/contracts/ERPCoin.sol
 [`nodemailer`]: https://nodemailer.com/
-[`token`]: token
 [Truffle]: http://truffleframework.com/
 
 ## APIs

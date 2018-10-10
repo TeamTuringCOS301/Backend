@@ -1,7 +1,6 @@
-const config = require("./config.js");
 const erpCoin = require("./erp-coin.js");
 const readline = require("readline");
-const Web3 = require("web3");
+const web3 = require("./web3.js");
 
 function readInt(prompt) {
 	return new Promise((resolve, reject) => {
@@ -14,8 +13,6 @@ function readInt(prompt) {
 }
 
 async function deploy() {
-	const web3 = new Web3(config.token.rpc);
-
 	const accounts = await web3.eth.getAccounts();
 	if(accounts.length === 0) {
 		throw "The Ethereum node has no accounts unlocked.";
@@ -38,4 +35,4 @@ async function deploy() {
 	console.log(`Contract address: ${contract.options.address}`);
 }
 
-deploy().catch(console.error).finally(() => web3.currentProvider.disconnect());
+deploy().catch(console.error).finally(() => web3.disconnect());

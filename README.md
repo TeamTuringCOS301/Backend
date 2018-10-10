@@ -83,7 +83,7 @@ npm start
     To deploy the contract, execute `npm run deploy`, then copy the address to `config.json`.
     A running node, as given by the `rpc` key, is required.
   * `rpc` - A JSON-RPC URL for the Ethereum node used to access the blockchain.
-    HTTP-RPC is not supported; use WS-RPC or IPC-RPC.
+    WebSocket is used if this starts with `ws://` or `wss://`, otherwise IPC is used.
     This node should have an unlocked private key for the account used to deploy the contract.
     For testing, [Ganache] may be used as the Ethereum node, by executing `npm run ganache`.
 

@@ -5,10 +5,9 @@ const generator = require("generate-password");
 const imageType = require("image-type");
 const onExit = require("./on-exit.js");
 const sendMail = require("./email.js");
-const Web3 = require("web3");
+const web3 = require("./web3.js");
 
-const web3 = new Web3(config.token.rpc);
-onExit(() => web3.currentProvider.disconnect());
+onExit(() => web3.disconnect());
 
 const contract = new web3.eth.Contract(erpCoin.abi, config.token.contract);
 

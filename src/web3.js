@@ -6,7 +6,7 @@ if(/^ws(s)?:\/\//i.test(config.token.rpc)) {
 	web3.setProvider(new Web3.providers.WebsocketProvider(config.token.rpc));
 	web3.disconnect = () => web3.currentProvider.disconnect();
 } else {
-	web3.setProvider(new Web3.providers.IPCProvider(config.token.rpc));
+	web3.setProvider(new Web3.providers.IpcProvider(config.token.rpc));
 	web3.disconnect = () => {};
 }
 

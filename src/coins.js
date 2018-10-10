@@ -1,6 +1,6 @@
 const config = require("./config.js");
 const db = require("./database.js");
-const fs = require("fs");
+const erpCoin = require("./erp-coin.js");
 const generator = require("generate-password");
 const imageType = require("image-type");
 const onExit = require("./on-exit.js");
@@ -10,8 +10,7 @@ const Web3 = require("web3");
 const web3 = new Web3(config.token.rpc);
 onExit(() => web3.currentProvider.disconnect());
 
-const abi = JSON.parse(fs.readFileSync("token/build/contracts/ERPCoin.json")).abi;
-const contract = new web3.eth.Contract(abi, config.token.contract);
+const contract = new web3.eth.Contract(erpCoin.abi, config.token.contract);
 
 async function rewardPurchaseDone(user, reward) {
 	const image = await db.reward.getImage(reward.id);
@@ -102,7 +101,7 @@ handlePurchases();
 
 module.exports = {
 	async getContractJson() {
-		return {abi, address: config.token.contract};
+		return {abi: erpCoin.abi, address: config.token.contract};
 	},
 
 	async getBalance(address) {

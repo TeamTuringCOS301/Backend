@@ -46,7 +46,7 @@
 	},
 	"token": {
 		"contract": "0x0",
-		"rpc": "ws://localhost:9545"
+		"rpc": "ws://localhost:8545"
 	},
 	"user": null
 }

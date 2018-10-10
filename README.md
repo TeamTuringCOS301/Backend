@@ -78,18 +78,12 @@ npm start
 * `token` - Details for accessing the [`ERPCoin`] smart contract.
 
   * `contract` - The address of the deployed contract.
+    To deploy the contract, execute `npm run deploy`, then copy the address to `config.json`.
+    A running node, as given by the `rpc` key, is required.
   * `rpc` - A JSON-RPC URL for the Ethereum node used to access the blockchain.
     HTTP-RPC is not supported; use WS-RPC or IPC-RPC.
     This node should have an unlocked private key for the account used to deploy the contract.
-
-  The configuration in `config.template.json` is for a [Truffle] development provider.
-  Start it with:
-
-  ```
-  npm run truffle develop
-  ```
-
-  Then type `migrate --reset` to deploy the smart contract, and copy the `ERPCoin` address to `config.json`.
+    For testing, [Ganache] may be used as the Ethereum node, by executing `npm run ganache`.
 
 * `user` - The user to run the server as.
 
@@ -100,9 +94,9 @@ npm start
 
 [`create-admin.sql`]: sql/create-admin.sql
 [`create-tables.sql`]: sql/create-tables.sql
-[`ERPCoin`]: token/contracts/ERPCoin.sol
+[`ERPCoin`]: contracts/ERPCoin.sol
+[Ganache]: https://github.com/trufflesuite/ganache-cli
 [`nodemailer`]: https://nodemailer.com/
-[Truffle]: http://truffleframework.com/
 
 ## APIs
 

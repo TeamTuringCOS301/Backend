@@ -36,6 +36,8 @@ npm start
 
   Every time a user submits a visited point, the probability of earning a coin is calculated as `maxProbability * exp(-numPoints * expScale)`.
 
+* `disableCache` - Whether to disable caching of app resources.
+
 * `email` - Email configuration.
 
   * `from` - The "From" field to use for emails sent by the server.

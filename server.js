@@ -4,11 +4,15 @@ const db = require("./src/database.js");
 const express = require("express");
 const fs = require("fs");
 const https = require("https");
+const nocache = require("nocache");
 const onExit = require("./src/on-exit.js");
 const sendMail = require("./src/email.js");
 const api = require("./src/app.js")(config, db, coins, sendMail);
 
 const app = express();
+if(config.disableCache) {
+	app.use(nocache());
+}
 app.use("/api", api);
 for(let key in config.mount) {
 	app.use(key, express.static(config.mount[key]));

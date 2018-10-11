@@ -3,8 +3,10 @@ const https = require("https");
 
 module.exports = (alert, tokens, hostname) => {
 	for(let token of tokens) {
-		https.request("https://fcm.googleapis.com/fcm/send", {
+		https.request({
 			method: "POST",
+			path: "/fcm/send",
+			hostname: "fcm.googleapis.com",
 			headers: {
 				"Authorization": `key=${config.notification.firebaseKey}`,
 				"Content-Type": "application/json"

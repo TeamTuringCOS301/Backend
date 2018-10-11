@@ -25,7 +25,7 @@ async function rewardPurchaseDone(user, reward) {
 		"Thank you for buying the following reward.\n\n"
 			+ `Reward: ${reward.name}\n`
 			+ `${reward.description}\n\n`
-			+ `Value: R ${reward.randValue.toFixed(2)}\n`
+			+ `Value: R ${reward.randValue}\n`
 			+ `Price: ${reward.coinValue} coins\n`
 			+ `Offered by: ${reward.areaName}\n\n`
 			+ `Please contact the following representative, quoting the purchase ID.\n`
@@ -37,7 +37,7 @@ async function rewardPurchaseDone(user, reward) {
 		"A user has bought the following reward.\n\n"
 			+ `Reward: ${reward.name}\n`
 			+ `${reward.description}\n\n`
-			+ `Value: R ${reward.randValue.toFixed(2)}\n`
+			+ `Value: R ${reward.randValue}\n`
 			+ `Price: ${reward.coinValue} coins\n\n`
 			+ `Please expect a message from the user, with the following purchase ID.\n`
 			+ `Name: ${user.name} ${user.surname}\n`

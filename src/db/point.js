@@ -19,7 +19,7 @@ module.exports = (config, query) => ({
 			WHERE tblConservationArea_conID = ? AND cupDateTime > ?`,
 			[area, since]);
 		const points = [];
-		for(let point of results){
+		for(let point of results) {
 			points.push({
 				time: point.cupDateTime,
 				lat: point.cupLocationLatitude,

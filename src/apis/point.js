@@ -7,8 +7,9 @@ module.exports = (config, db, coins, sendMail) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info) {
-		return validator.validatePoint(info) && info.time - await db.user.getLatestTime(info.user)
-			>= config.coinRewards.newPointInterval;
+		return validator.validatePoint(info)
+			&& info.time - await db.user.getLatestTime(info.user)
+				>= config.coinRewards.newPointInterval;
 	}
 
 	const api = express();
@@ -38,7 +39,7 @@ module.exports = (config, db, coins, sendMail) => {
 		const prob = config.coinRewards.maxProbability
 			* Math.exp(-numPoints * config.coinRewards.expScale);
 		let coin = false;
-		if(Math.random() < prob){
+		if(Math.random() < prob) {
 			const address = await db.user.getWalletAddress(req.userId);
 			if(address === null) {
 				await db.user.rewardCoin(req.userId);

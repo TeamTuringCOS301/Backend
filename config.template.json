@@ -9,14 +9,8 @@
 	},
 	"disableCache": false,
 	"email": {
-		"from": "ERP-Coin <erp.erpcoin@gmail.com>",
-		"transport": {
-			"service": "gmail",
-			"auth": {
-				"user": "erp.erpcoin@gmail.com",
-				"pass": "correcthorse"
-			}
-		}
+		"from": "ERP-Coin <erpcoin@example.com>",
+		"transport": {}
 	},
 	"enableCors": false,
 	"logRequests": false,
@@ -32,13 +26,22 @@
 		"password": "pass",
 		"database": "dbERPCOIN"
 	},
+	"notification": {
+		"click": "/admin/#/tabs/new-alerts/alert",
+		"firebaseKey": "key",
+		"icons": [
+			"/assets/imgs/0Alert.png",
+			"/assets/imgs/1Alert.png",
+			"/assets/imgs/2Alert.png"
+		]
+	},
 	"ports": {
 		"http": 80,
 		"https": 443
 	},
 	"sessionCookie": {
 		"maxAge": 86400000,
-		"secret": "correcthorsebatterystaple"
+		"secret": "secret"
 	},
 	"tls": {
 		"cert": "tls-cert.pem",

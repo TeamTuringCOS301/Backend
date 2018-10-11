@@ -58,6 +58,12 @@ npm start
   Use [`create-tables.sql`] to create the required tables.
   [`create-admin.sql`] is provided to create a super admin with username `admin` and password `admin`, for testing.
 
+* `notification` - Configuration for push notifications of new alerts.
+
+  * `click` - A path, starting at one of the mount points, to visit when clicking on the notification.
+  * `icons` - An array of three paths, with an icon for each alert severity.
+  * `firebaseKey` - Firebase server key.
+
 * `ports` - The ports to listen on.
 
   * `http` - Requests on this port will be redirected to HTTPS.
@@ -269,6 +275,14 @@ The rest of the API requires that an admin has already logged in.
 
   ```
   success: boolean
+  ```
+
+* `POST /api/admin/token` - Set the admin's device token for push notifications.
+
+  Required request fields:
+
+  ```
+  token: string
   ```
 
 The rest of the API is only available to a super admin.

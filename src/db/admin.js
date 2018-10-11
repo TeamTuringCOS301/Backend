@@ -108,5 +108,28 @@ module.exports = (config, query) => ({
 			WHERE admID = ?`,
 			[id]);
 		return results[0].tblConservationArea_conID;
+	},
+
+	async setToken(id, token) {
+		await query(`
+			UPDATE tblAdminUser
+			SET admNotificationToken = ?
+			WHERE admID = ?`,
+			[token, id]);
+	},
+
+	async getAreaTokens(area) {
+		const results = await query(`
+			SELECT admNotificationToken
+			FROM tblAdminUser
+			WHERE tblConservationArea_conID = ?`,
+			[area]);
+		const tokens = [];
+		for(let admin of results) {
+			if(results.admNotificationToken !== null) {
+				tokens.push(results.admNotificationToken);
+			}
+		}
+		return tokens;
 	}
 });

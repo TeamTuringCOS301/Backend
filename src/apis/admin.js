@@ -71,6 +71,15 @@ module.exports = (config, db, coins, sendMail) => {
 		res.send({success});
 	});
 
+	api.post("/token", async(req, res) => {
+		await auth.requireAdmin(req);
+		if(typeof req.body.token !== "string" || req.body.token.length > 160) {
+			return res.sendStatus(400);
+		}
+		await db.admin.setToken(req.adminId, req.body.token);
+		res.send({});
+	});
+
 	api.post("/add", async(req, res) => {
 		await auth.requireSuperAdmin(req);
 		if(!await validate(req.body)) {

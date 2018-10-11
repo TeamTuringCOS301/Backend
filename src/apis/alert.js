@@ -1,6 +1,7 @@
 const express = require("express");
 const imageType = require("image-type");
 const inPolygon = require("../in-polygon.js");
+const notifyAdmins = require("../notify-admins.js");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
@@ -35,6 +36,7 @@ module.exports = (config, db, coins, sendMail) => {
 			return res.sendStatus(400);
 		}
 		await db.alert.add(req.body);
+		notifyAdmins(req.body, await db.admin.getAreaTokens(req.area), req.hostname);
 		res.send({});
 	});
 

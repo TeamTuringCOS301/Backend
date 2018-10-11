@@ -22,19 +22,19 @@ async function test() {
 			});
 
 			it("sets initial supply to zero", async() => {
-				assert.equal(Number.parseInt(await contract.methods.totalSupply().call()), 0);
+				assert.equal(parseInt(await contract.methods.totalSupply().call()), 0);
 			});
 
 			it("sets initial balances to zero", async() => {
 				for(let account of accounts) {
-					assert.equal(Number.parseInt(await contract.methods.balanceOf(account).call()), 0);
+					assert.equal(parseInt(await contract.methods.balanceOf(account).call()), 0);
 				}
 			});
 
 			it("sets initial allowances to zero", async() => {
 				for(let account1 of accounts) {
 					for(let account2 of accounts) {
-						assert.equal(Number.parseInt(
+						assert.equal(parseInt(
 							await contract.methods.allowance(account1, account2).call()), 0);
 					}
 				}
@@ -48,11 +48,11 @@ async function test() {
 			});
 
 			it("updates the total supply", async() => {
-				assert.equal(Number.parseInt(await contract.methods.totalSupply().call()), 10);
+				assert.equal(parseInt(await contract.methods.totalSupply().call()), 10);
 			});
 
 			it("updates the current balance", async() => {
-				assert.equal(Number.parseInt(await contract.methods.balanceOf(user1).call()), 10);
+				assert.equal(parseInt(await contract.methods.balanceOf(user1).call()), 10);
 			});
 		});
 
@@ -63,11 +63,11 @@ async function test() {
 			});
 
 			it("updates the total supply", async() => {
-				assert.equal(Number.parseInt(await contract.methods.totalSupply().call()), 8);
+				assert.equal(parseInt(await contract.methods.totalSupply().call()), 8);
 			});
 
 			it("updates the current balance", async() => {
-				assert.equal(Number.parseInt(await contract.methods.balanceOf(user1).call()), 8);
+				assert.equal(parseInt(await contract.methods.balanceOf(user1).call()), 8);
 			});
 		});
 
@@ -81,12 +81,12 @@ async function test() {
 			});
 
 			it("does not change the total supply", async() => {
-				assert.equal(Number.parseInt(await contract.methods.totalSupply().call()), 8);
+				assert.equal(parseInt(await contract.methods.totalSupply().call()), 8);
 			});
 
 			it("updates the current balances", async() => {
-				assert.equal(Number.parseInt(await contract.methods.balanceOf(user1).call()), 6);
-				assert.equal(Number.parseInt(await contract.methods.balanceOf(user2).call()), 2);
+				assert.equal(parseInt(await contract.methods.balanceOf(user1).call()), 6);
+				assert.equal(parseInt(await contract.methods.balanceOf(user2).call()), 2);
 			});
 		});
 
@@ -96,11 +96,11 @@ async function test() {
 			});
 
 			it("updates the allowance", async() => {
-				assert.equal(Number.parseInt(await contract.methods.allowance(user1, user2).call()), 3);
+				assert.equal(parseInt(await contract.methods.allowance(user1, user2).call()), 3);
 			});
 
 			it("does not affect the reverse allowance", async() => {
-				assert.equal(Number.parseInt(await contract.methods.allowance(user2, user1).call()), 0);
+				assert.equal(parseInt(await contract.methods.allowance(user2, user1).call()), 0);
 			});
 		});
 
@@ -114,16 +114,16 @@ async function test() {
 			});
 
 			it("does not change the total supply", async() => {
-				assert.equal(Number.parseInt(await contract.methods.totalSupply().call()), 8);
+				assert.equal(parseInt(await contract.methods.totalSupply().call()), 8);
 			});
 
 			it("updates the current balances", async() => {
-				assert.equal(Number.parseInt(await contract.methods.balanceOf(user1).call()), 4);
-				assert.equal(Number.parseInt(await contract.methods.balanceOf(user2).call()), 4);
+				assert.equal(parseInt(await contract.methods.balanceOf(user1).call()), 4);
+				assert.equal(parseInt(await contract.methods.balanceOf(user2).call()), 4);
 			});
 
 			it("decreases the allowance", async() => {
-				assert.equal(Number.parseInt(await contract.methods.allowance(user1, user2).call()), 1);
+				assert.equal(parseInt(await contract.methods.allowance(user1, user2).call()), 1);
 			});
 
 			it("is limited by the current balance", async() => {

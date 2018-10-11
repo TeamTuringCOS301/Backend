@@ -76,7 +76,7 @@ async function handlePurchases() {
 		}
 		const user = await db.user.getInfo(userId);
 
-		const rewardId = Number.parseInt(purchase.returnValues.reward);
+		const rewardId = parseInt(purchase.returnValues.reward);
 		if(!await db.reward.validId(rewardId)) {
 			await refund();
 			return sendMail(user, "ERP-Coin Reward Not Available",
@@ -84,7 +84,7 @@ async function handlePurchases() {
 					+ "Sorry for the inconvenience. Your coins have been refunded.");
 		}
 		const reward = await db.reward.getInfo(rewardId);
-		if(Number.parseInt(purchase.returnValues.value) !== reward.coinValue || !reward.verified
+		if(parseInt(purchase.returnValues.value) !== reward.coinValue || !reward.verified
 				|| await db.area.getPrimaryAdmin(reward.area) === null) {
 			await refund();
 			return sendMail(user, "ERP-Coin Reward Not Available",
@@ -104,7 +104,7 @@ module.exports = {
 	},
 
 	async getBalance(address) {
-		return Number.parseInt(await contract.methods.balanceOf(address).call());
+		return parseInt(await contract.methods.balanceOf(address).call());
 	},
 
 	async rewardCoins(address, coins) {

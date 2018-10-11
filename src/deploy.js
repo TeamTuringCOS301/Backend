@@ -7,7 +7,7 @@ function readInt(prompt) {
 		const rl = readline.createInterface({input: process.stdin, output: process.stdout});
 		rl.question(prompt, (answer) => {
 			rl.close();
-			resolve(Number.parseInt(answer));
+			resolve(parseInt(answer));
 		});
 	});
 }

@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
 	`admPassword` VARCHAR(60) NOT NULL,
 	`admName` VARCHAR(100) NOT NULL,
 	`admSurname` VARCHAR(100) NOT NULL,
-	`admNotificationToken VARCHAR(160),
+	`admNotificationToken` VARCHAR(160),
 	`tblConservationArea_conID` INT UNSIGNED NOT NULL,
 	PRIMARY KEY (`admID`, `tblConservationArea_conID`),
 	INDEX `fk_tblAdminUser_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),

@@ -126,8 +126,8 @@ module.exports = (config, query) => ({
 			[area]);
 		const tokens = [];
 		for(let admin of results) {
-			if(results.admNotificationToken !== null) {
-				tokens.push(results.admNotificationToken);
+			if(admin.admNotificationToken !== null) {
+				tokens.push(admin.admNotificationToken);
 			}
 		}
 		return tokens;

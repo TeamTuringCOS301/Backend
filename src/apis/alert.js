@@ -1,11 +1,10 @@
 const express = require("express");
 const imageType = require("image-type");
 const inPolygon = require("../in-polygon.js");
-const notifyAdmins = require("../notify-admins.js");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {

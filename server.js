@@ -5,9 +5,10 @@ const express = require("express");
 const fs = require("fs");
 const https = require("https");
 const nocache = require("nocache");
+const notifyAdmins = require("./src/notify-admins.js");
 const onExit = require("./src/on-exit.js");
 const sendMail = require("./src/email.js");
-const api = require("./src/app.js")(config, db, coins, sendMail);
+const api = require("./src/app.js")(config, db, coins, sendMail, notifyAdmins);
 
 const app = express();
 if(config.disableCache) {

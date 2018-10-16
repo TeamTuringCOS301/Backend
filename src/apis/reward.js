@@ -3,7 +3,7 @@ const imageType = require("image-type");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {

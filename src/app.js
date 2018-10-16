@@ -5,7 +5,7 @@ const nocache = require("nocache");
 const objects = require("./objects.js");
 require("express-async-errors");
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdins) => {
 	const auth = require("./auth.js")(db);
 
 	const app = express();
@@ -59,7 +59,8 @@ module.exports = (config, db, coins, sendMail) => {
 	}
 
 	for(let object of objects.all) {
-		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins, sendMail));
+		app.use(`/${object}`,
+			require(`./apis/${object}.js`)(config, db, coins, sendMail, notifyAdins));
 	}
 
 	app.get("/contract", async(req, res) => {

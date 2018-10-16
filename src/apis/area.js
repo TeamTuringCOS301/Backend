@@ -2,7 +2,7 @@ const express = require("express");
 const objects = require("../objects.js");
 const validator = require("../validate.js")
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	function validateBorder(info) {

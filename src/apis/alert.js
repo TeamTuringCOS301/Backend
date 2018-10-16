@@ -4,21 +4,16 @@ const inPolygon = require("../in-polygon.js");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {
-		for(let key of ["title", "description"]) {
-			if(!validator.validateText(info[key])) {
-				return false;
-			}
-		}
-		if(!("location" in info) || !validator.validatePoint(info.location)){
-			return false;
-		}
-		return [0, 1, 2].includes(info.severity) && (!info.image || typeof info.image === "string"
-				&& imageType(Buffer.from(info.image, "base64")) !== null)
+		return validator.validateText(info.title)
+			&& validator.validateDescription(info.title)
+			&& [0, 1, 2].includes(info.severity)
+			&& validator.validatePoint(info.location)
 			&& inPolygon(info.location, await db.area.getBorder(info.area))
+			&& (!info.image || validator.validateImage(info.image))
 			&& (initial || typeof info.broadcast === "boolean");
 	}
 
@@ -40,6 +35,7 @@ module.exports = (config, db, coins, sendMail) => {
 			return res.sendStatus(400);
 		}
 		await db.alert.add(req.body);
+		notifyAdmins(req.body, await db.admin.getAreaTokens(req.area), req.hostname);
 		res.send({});
 	});
 

@@ -4,9 +4,10 @@
   "description": "Source code for the application and database layers.",
   "main": "server.js",
   "scripts": {
+    "deploy": "node src/deploy.js",
+    "ganache": "ganache-cli",
     "lint": "eslint src",
-    "test": "mocha",
-    "truffle": "cd token && truffle"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -26,16 +27,16 @@
     "express-session": "^1.15.6",
     "generate-password": "^1.4.0",
     "image-type": "^3.0.0",
-    "mysql": "^2.15.0",
+    "mysql": "^2.16.0",
     "nocache": "^2.0.0",
     "nodemailer": "^4.6.8",
-    "truffle-contract": "^3.0.4",
-    "web3": "^1.0.0-beta.34"
+    "solc": "^0.4.25",
+    "web3": "^1.0.0-beta.36"
   },
   "devDependencies": {
     "eslint": "^5.1.0",
+    "ganache-cli": "^6.1.8",
     "mocha": "^5.1.0",
-    "supertest": "^3.0.0",
-    "truffle": "^4.1.12"
+    "supertest": "^3.0.0"
   }
 }

@@ -3,26 +3,17 @@ const imageType = require("image-type");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {
-		for(let key of ["name", "description"]) {
-			if(!validator.validateText(info[key])) {
-				return false;
-			}
-		}
-		for(let key of ["amount", "randValue"]) {
-			if(typeof info[key] !== "number") {
-				return false;
-			}
-		}
-		if(info.randValue <= 0 || info.amount <= 0 && info.amount !== -1
-				|| !Number.isInteger(info.amount)) {
-			return false;
-		}
-		return !initial && !info.image || typeof info.image === "string"
-			&& imageType(Buffer.from(info.image, "base64")) !== null;
+		return validator.validateText(info.name)
+			&& validator.validateDescription(info.description)
+			&& validator.validateInt(info.amount)
+			&& (info.amount > 0 || info.amount === -1)
+			&& validator.validateInt(info.randValue)
+			&& info.randValue > 0
+			&& (!initial && !info.image || validator.validateImage(info.image))
 	}
 
 	const api = express();

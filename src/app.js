@@ -5,11 +5,13 @@ const nocache = require("nocache");
 const objects = require("./objects.js");
 require("express-async-errors");
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdins) => {
 	const auth = require("./auth.js")(db);
 
 	const app = express();
-	app.use(cors({origin: true, credentials: true}));
+	if(config.enableCors) {
+		app.use(cors({origin: true, credentials: true}));
+	}
 	app.use(express.json({limit: config.maxImageSize}));
 	app.use(nocache());
 	app.use(session({
@@ -26,7 +28,7 @@ module.exports = (config, db, coins, sendMail) => {
 
 	if(config.logRequests) {
 		app.use((req, res, next) => {
-			const path = req.path;
+			const path = req.originalUrl;
 			const body = Object.assign({}, req.body);
 			for(let key of ["password", "old", "new", "image"]) {
 				if(typeof body[key] === "string") {
@@ -46,9 +48,9 @@ module.exports = (config, db, coins, sendMail) => {
 						}
 					}
 				}
-				console.log();
 				console.log(req.method, path, body);
 				console.log(this.statusCode, output);
+				console.log();
 				this.send = oldSend;
 				this.send(arg);
 			};
@@ -57,7 +59,8 @@ module.exports = (config, db, coins, sendMail) => {
 	}
 
 	for(let object of objects.all) {
-		app.use(`/${object}`, require(`./apis/${object}.js`)(config, db, coins, sendMail));
+		app.use(`/${object}`,
+			require(`./apis/${object}.js`)(config, db, coins, sendMail, notifyAdins));
 	}
 
 	app.get("/contract", async(req, res) => {

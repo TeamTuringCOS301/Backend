@@ -1,7 +1,7 @@
 module.exports = () => {
 	let email = {user: {}, subject: "", message: "", attachments: []};
 
-	async function sendMail(user, subject, message, attachments = []) {
+	function sendMail(user, subject, message, attachments = []) {
 		email = {user, subject, message, attachments};
 	}
 

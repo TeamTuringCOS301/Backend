@@ -40,7 +40,7 @@ module.exports = (config, query) => ({
 				title: alert.aleHeader,
 				description: alert.aleDescription,
 				severity: alert.aleSeverity,
-				hasImage: alert.hasImage,
+				hasImage: alert.hasImage === 1,
 				broadcast: alert.aleBroadcast[0] === 1,
 				location: JSON.parse(alert.aleLocation)
 			});
@@ -63,7 +63,7 @@ module.exports = (config, query) => ({
 				title: alert.aleHeader,
 				description: alert.aleDescription,
 				severity: alert.aleSeverity,
-				hasImage: alert.hasImage,
+				hasImage: alert.hasImage === 1,
 				location: JSON.parse(alert.aleLocation)
 			});
 		}

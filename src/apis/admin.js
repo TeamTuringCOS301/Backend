@@ -4,18 +4,17 @@ const generator = require("generate-password");
 const objects = require("../objects.js");
 const validator = require("../validate.js")
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {
-		if(initial && !validator.validateUsername(info.username)) {
-			return false;
-		}
-		if(!validator.validateEmail(info.email) || !validator.validateName(info.name)
-				|| !validator.validateName(info.surname)) {
-			return false;
-		}
-		return !initial || typeof info.area === "number" && await db.area.validId(info.area);
+		return validator.validateEmail(info.email)
+			&& validator.validateName(info.name)
+			&& validator.validateName(info.surname)
+			&& (!initial
+				|| validator.validateUsername(info.username)
+				&& Number.isInteger(info.area)
+				&& await db.area.validId(info.area));
 	}
 
 	const api = express();
@@ -72,6 +71,15 @@ module.exports = (config, db, coins, sendMail) => {
 		res.send({success});
 	});
 
+	api.post("/token", async(req, res) => {
+		await auth.requireAdmin(req);
+		if(typeof req.body.token !== "string" || req.body.token.length > 160) {
+			return res.sendStatus(400);
+		}
+		await db.admin.setToken(req.adminId, req.body.token);
+		res.send({});
+	});
+
 	api.post("/add", async(req, res) => {
 		await auth.requireSuperAdmin(req);
 		if(!await validate(req.body)) {
@@ -82,7 +90,7 @@ module.exports = (config, db, coins, sendMail) => {
 			req.body.password = await bcrypt.hash(password, 10);
 			await db.admin.add(req.body);
 			const areaInfo = await db.area.getInfo(req.body.area);
-			await sendMail(req.body, "ERP-Coin Conservation Area Admin",
+			sendMail(req.body, "ERP-Coin Conservation Area Admin",
 				`You have been added as a conservation area admin for ${areaInfo.name}.\n\n`
 					+ "Your details for the admin portal are:\n"
 					+ `Username: ${req.body.username}\n`

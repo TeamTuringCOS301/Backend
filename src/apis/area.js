@@ -2,7 +2,7 @@ const express = require("express");
 const objects = require("../objects.js");
 const validator = require("../validate.js")
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	function validateBorder(info) {
@@ -25,12 +25,10 @@ module.exports = (config, db, coins, sendMail) => {
 	}
 
 	async function validate(info, initial = true) {
-		for(let key of ["name", "city", "province"]) {
-			if(!validator.validateText(info[key])) {
-				return false;
-			}
-		}
-		return validateBorder(info);
+		return validator.validateText(info.name)
+			&& validator.validateText(info.city)
+			&& validator.validateText(info.province)
+			&& validateBorder(info);
 	}
 
 	const api = express();

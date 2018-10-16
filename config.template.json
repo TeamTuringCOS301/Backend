@@ -1,5 +1,4 @@
 {
-	"apiPort": 8080,
 	"coinRewards": {
 		"clearInterval": 600000,
 		"expScale": 0.001,
@@ -8,32 +7,50 @@
 		"newPointInterval": 1000,
 		"pointMaxAge": 600000
 	},
+	"disableCache": false,
 	"email": {
-		"from": "ERP-Coin <erp.erpcoin@gmail.com>",
-		"transport": {
-			"service": "gmail",
-			"auth": {
-				"user": "erp.erpcoin@gmail.com",
-				"pass": "correcthorse"
-			}
-		}
+		"from": "ERP-Coin <erpcoin@example.com>",
+		"transport": {}
 	},
+	"enableCors": false,
 	"logRequests": false,
 	"maxImageSize": "10mb",
+	"mount": {
+		"/superadmin": "../admin-front-end/www",
+		"/admin": "../conservation-front-end/www",
+		"/": "../user-front-end/www"
+	},
 	"mysql": {
 		"host": "localhost",
 		"user": "user",
 		"password": "pass",
 		"database": "dbERPCOIN"
 	},
+	"notification": {
+		"click": "/admin/#/tabs/new-alerts/alert",
+		"firebaseKey": "key",
+		"icons": [
+			"/assets/imgs/0Alert.png",
+			"/assets/imgs/1Alert.png",
+			"/assets/imgs/2Alert.png"
+		]
+	},
+	"ports": {
+		"http": 80,
+		"https": 443
+	},
 	"sessionCookie": {
 		"maxAge": 86400000,
-		"secret": "correcthorsebatterystaple"
+		"secret": "secret"
 	},
 	"tls": {
 		"cert": "tls-cert.pem",
 		"key": "tls-key.pem",
 		"passphrase": ""
 	},
-	"web3Provider": "http://localhost:9545"
+	"token": {
+		"contract": "0x0",
+		"rpc": "ws://localhost:8545"
+	},
+	"user": null
 }

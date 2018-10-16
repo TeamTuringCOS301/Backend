@@ -13,7 +13,7 @@ npm install
 
 A file named `config.json` must be created.
 See [`config.template.json`] for an example.
-See the following sections for more information on what is required.
+See the following section for more information on what is required.
 To start the server, run:
 
 ```
@@ -23,56 +23,88 @@ npm start
 [`config.template.json`]: config.template.json
 [Node.js]: https://nodejs.org/en/
 
-### MySQL Server
+### The Configuration File
 
-A running MySQL server is required.
-Use [`create-tables.sql`] to create the required tables.
-[`create-admin.sql`] is provided to create a super admin with username `admin` and password `admin`, for testing.
+* `coinRewards` - Various parameters that determine when users are rewarded with coins.
+
+  * `newPointInterval` - The minimum interval (in milliseconds) that a user must wait between submitting visited points.
+  * `pointMaxAge` - The maximum time (in milliseconds) that a point may stay on the map.
+  * `clearInterval` - The interval (in milliseconds) used to clear points exceeding the maximum age.
+  * `nearRadius` - The radius (in metres) for which points are considered near a user's location.
+  * `expScale` - The number of nearby points are scaled by this factor before calculating the probability of earning a coin.
+  * `maxProbability` - The probability when there are no points nearby.
+
+  Every time a user submits a visited point, the probability of earning a coin is calculated as `maxProbability * exp(-numPoints * expScale)`.
+
+* `disableCache` - Whether to disable caching of app resources.
+
+* `email` - Email configuration.
+
+  * `from` - The "From" field to use for emails sent by the server.
+  * `transport` - Options to create a [`nodemailer`] transport.
+
+* `enableCors` - Whether to enable CORS, allowing other origins to access the HTTPS API.
+
+* `logRequests` - Whether to log API requests to standard output.
+
+* `maxImageSize` - The maximum size for images uploaded by users.
+
+* `mount` - This contains an entry for each front-end app.
+  The key specifies at which URL to mount the app.
+  The value is the location of the `www` directory of the app.
+  Note that the `ionic build` command must be run for each app to update its `www` directory.
+
+* `mysql` - Connection information for the MySQL server.
+  Use [`create-tables.sql`] to create the required tables.
+  [`create-admin.sql`] is provided to create a super admin with username `admin` and password `admin`, for testing.
+
+* `notification` - Configuration for push notifications of new alerts.
+
+  * `click` - A path, starting at one of the mount points, to visit when clicking on the notification.
+  * `icons` - An array of three paths, with an icon for each alert severity.
+  * `firebaseKey` - Firebase server key.
+
+* `ports` - The ports to listen on.
+
+  * `http` - Requests on this port will be redirected to HTTPS.
+  * `https` - The apps and API are hosted on this port.
+
+* `sessionCookie` - Configuration for the cookie used to implement login sessions.
+
+  * `maxAge` - The time (in milliseconds) after the user's last activity when the session will expire.
+  * `secret` - A secret value. Please change this from the default.
+
+* `tls` - The certificate to be used when establishing a TLS connection for HTTPS, as well as its associated key and passphrase.
+  A self-signed certificate, to be used for testing, can be generated with:
+
+  ```
+  openssl req -new -x509 -out tls-cert.pem -keyout tls-key.pem -nodes -batch
+  ```
+
+  Note that this certificate will have to be added to the browser.
+
+* `token` - Details for accessing the [`ERPCoin`] smart contract.
+
+  * `contract` - The address of the deployed contract.
+    To deploy the contract, execute `npm run deploy`, then copy the address to `config.json`.
+    A running node, as given by the `rpc` key, is required.
+  * `rpc` - A JSON-RPC URL for the Ethereum node used to access the blockchain.
+    WebSocket is used if this starts with `ws://` or `wss://`, otherwise IPC is used.
+    This node should have an unlocked private key for the account used to deploy the contract.
+    For testing, [Ganache] may be used as the Ethereum node, by executing `npm run ganache`.
+
+* `user` - The user to run the server as.
+
+  It may be necessary to run the server as `root` in order to bind to ports 80 and 443.
+  If this field is not `null`, it should be an object with `uid` and `gid` fields.
+  The server will then set its UID and GID to these values.
+  `uid` may also be set to a user name, and `gid` to a group name.
 
 [`create-admin.sql`]: sql/create-admin.sql
 [`create-tables.sql`]: sql/create-tables.sql
-
-### Web3 Provider
-
-The configuration in `config.template.json` is for a [Truffle] development provider.
-Start it with:
-
-```
-npm run truffle develop
-```
-
-Then type `migrate --reset` to deploy the smart contract.
-
-[Truffle]: http://truffleframework.com/
-
-### TLS Certificate
-
-A self-signed certificate, to be used for testing, can be generated with:
-
-```
-openssl req -new -x509 -out tls-cert.pem -keyout tls-key.pem -nodes -batch
-```
-
-Note that this certificate will have to be added to the browser.
-
-### Email Configuration
-
-The `email` key in `config.json` must contain the desired "From" field, and options to create a [`nodemailer`] transport.
-
+[`ERPCoin`]: contracts/ERPCoin.sol
+[Ganache]: https://github.com/trufflesuite/ganache-cli
 [`nodemailer`]: https://nodemailer.com/
-
-### Coin Reward Parameters
-
-The following parameters must be specified in `config.json`:
-
-* `pointMaxAge` - The maximum time a point may stay on the map in milliseconds.
-* `clearInterval` - The interval used to clear point exceeding the maximum time.
-* `newPointInterval` - The minimum interval (in milliseconds) that a user must wait between submitting visited points.
-* `nearRadius` - The radius (in metres) for which points are considered near a user's location.
-* `expScale` - The number of nearby points are scaled by this factor before calculating the probability of earning a coin.
-* `maxProbability` - The probability when there are no points nearby.
-
-Every time a user submits a visited point, the probability of earning a coin is calculated as `maxProbability * exp(-numPoints * expScale)`.
 
 ## APIs
 
@@ -88,7 +120,7 @@ To list all objects, use the timestamp 0.
 
 ### User API
 
-* `POST /user/add` - Register a new user.
+* `POST /api/user/add` - Register a new user.
   This will also perform a login.
 
   Required request fields:
@@ -107,7 +139,7 @@ To list all objects, use the timestamp 0.
   success: boolean
   ```
 
-* `POST /user/login` - Login as an existing user.
+* `POST /api/user/login` - Login as an existing user.
 
   Required request fields:
 
@@ -124,9 +156,9 @@ To list all objects, use the timestamp 0.
 
 The rest of the API requires that a user has already logged in.
 
-* `GET /user/logout` - Terminate a login session.
+* `GET /api/user/logout` - Terminate a login session.
 
-* `GET /user/info` - Request the information stored for the current user.
+* `GET /api/user/info` - Request the information stored for the current user.
 
   Response fields:
 
@@ -139,7 +171,7 @@ The rest of the API requires that a user has already logged in.
   coinBalance: integer
   ```
 
-* `POST /user/update` - Update the information stored for the current user.
+* `POST /api/user/update` - Update the information stored for the current user.
 
   Required request fields:
 
@@ -149,7 +181,7 @@ The rest of the API requires that a user has already logged in.
   surname: string
   ```
 
-* `POST /user/address` - Update the user's Ethereum wallet address.
+* `POST /api/user/address` - Update the user's Ethereum wallet address.
 
   Optional request fields:
 
@@ -157,7 +189,7 @@ The rest of the API requires that a user has already logged in.
   walletAddress: string
   ```
 
-* `POST /user/password` - Change password.
+* `POST /api/user/password` - Change password.
 
   Required request fields:
 
@@ -172,7 +204,7 @@ The rest of the API requires that a user has already logged in.
   success: boolean
   ```
 
-* `POST /user/remove` - Delete the current user's account.
+* `POST /api/user/remove` - Delete the current user's account.
 
   Required request fields:
 
@@ -188,7 +220,7 @@ The rest of the API requires that a user has already logged in.
 
 ### Conservation Area Admin API
 
-* `POST /admin/login` - Login as an existing admin.
+* `POST /api/admin/login` - Login as an existing admin.
 
   Required request fields:
 
@@ -205,9 +237,9 @@ The rest of the API requires that a user has already logged in.
 
 The rest of the API requires that an admin has already logged in.
 
-* `GET /admin/logout` - Terminate a login session.
+* `GET /api/admin/logout` - Terminate a login session.
 
-* `GET /admin/info` - Request the information stored for the current admin.
+* `GET /api/admin/info` - Request the information stored for the current admin.
 
   Response fields:
 
@@ -220,7 +252,7 @@ The rest of the API requires that an admin has already logged in.
   areaName: string
   ```
 
-* `POST /admin/update` - Update the information stored for the current admin.
+* `POST /api/admin/update` - Update the information stored for the current admin.
 
   Required request fields:
 
@@ -230,7 +262,7 @@ The rest of the API requires that an admin has already logged in.
   surname: string
   ```
 
-* `POST /admin/password` - Change password.
+* `POST /api/admin/password` - Change password.
 
   Required request fields:
 
@@ -245,9 +277,17 @@ The rest of the API requires that an admin has already logged in.
   success: boolean
   ```
 
+* `POST /api/admin/token` - Set the admin's device token for push notifications.
+
+  Required request fields:
+
+  ```
+  token: string
+  ```
+
 The rest of the API is only available to a super admin.
 
-* `POST /admin/add` - Create a new admin user.
+* `POST /api/admin/add` - Create a new admin user.
 
   Required request fields:
 
@@ -265,9 +305,9 @@ The rest of the API is only available to a super admin.
   success: boolean
   ```
 
-* `GET /admin/remove/:admin` - Remove an admin user.
+* `GET /api/admin/remove/:admin` - Remove an admin user.
 
-* `GET /admin/list` - List all conservation area admins.
+* `GET /api/admin/list` - List all conservation area admins.
 
   Response fields:
 
@@ -289,7 +329,7 @@ The rest of the API is only available to a super admin.
 
 ### Super Admin API
 
-* `POST /superadmin/login` - Login as an existing admin.
+* `POST /api/superadmin/login` - Login as an existing admin.
 
   Required request fields:
 
@@ -306,9 +346,9 @@ The rest of the API is only available to a super admin.
 
 The rest of the API requires that a super admin has already logged in.
 
-* `GET /superadmin/logout` - Terminate a login session.
+* `GET /api/superadmin/logout` - Terminate a login session.
 
-* `GET /superadmin/info` - Request the information stored for the current admin.
+* `GET /api/superadmin/info` - Request the information stored for the current admin.
 
   Response fields:
 
@@ -319,7 +359,7 @@ The rest of the API requires that a super admin has already logged in.
   surname: string
   ```
 
-* `POST /superadmin/update` - Update the information stored for the current admin.
+* `POST /api/superadmin/update` - Update the information stored for the current admin.
 
   Required request fields:
 
@@ -329,7 +369,7 @@ The rest of the API requires that a super admin has already logged in.
   surname: string
   ```
 
-* `POST /superadmin/password` - Change password.
+* `POST /api/superadmin/password` - Change password.
 
   Required request fields:
 
@@ -346,7 +386,7 @@ The rest of the API requires that a super admin has already logged in.
 
 ### Conservation Area API
 
-* `GET /area/list` - List all conservation areas.
+* `GET /api/area/list` - List all conservation areas.
 
   Response fields:
 
@@ -364,7 +404,7 @@ The rest of the API requires that a super admin has already logged in.
   middle: point
   ```
 
-* `GET /area/info/:area` - Request information about the given area.
+* `GET /api/area/info/:area` - Request information about the given area.
 
   Response fields:
 
@@ -378,7 +418,7 @@ The rest of the API requires that a super admin has already logged in.
 
 The rest of the API is only available to a super admin.
 
-* `POST /area/update/:area` - Update the information stored for the given area.
+* `POST /api/area/update/:area` - Update the information stored for the given area.
 
   Required request fields:
 
@@ -389,7 +429,7 @@ The rest of the API is only available to a super admin.
   border: array of points
   ```
 
-* `POST /area/add` - Add a new conservation area.
+* `POST /api/area/add` - Add a new conservation area.
 
   Required request fields:
 
@@ -400,11 +440,11 @@ The rest of the API is only available to a super admin.
   border: array of points
   ```
 
-* `GET /area/remove/:area` - Remove the given conservation area.
+* `GET /api/area/remove/:area` - Remove the given conservation area.
 
 ### Visited Point API
 
-* `GET /point/list/:area/:since` - List recently visited points in the given conservation area.
+* `GET /api/point/list/:area/:since` - List recently visited points in the given conservation area.
 
   Response fields:
 
@@ -415,7 +455,7 @@ The rest of the API is only available to a super admin.
 
 The rest of the API is only available to a registered user.
 
-* `POST /point/add/:area` - Report the user's current location in the given conservation area.
+* `POST /api/point/add/:area` - Report the user's current location in the given conservation area.
   This will sometimes award the user a coin, but can only be used at limited intervals.
 
   Required request fields:
@@ -433,7 +473,7 @@ The rest of the API is only available to a registered user.
 
 ### Alert API
 
-* `POST /alert/add/:area` - Post a new alert in the given conservation area.
+* `POST /api/alert/add/:area` - Post a new alert in the given conservation area.
   This is only available to a user or the admin of the conservation area.
 
   Required request fields:
@@ -451,7 +491,7 @@ The rest of the API is only available to a registered user.
   image: base64 string
   ```
 
-* `GET /alert/broadcasts/:area/:since` - List broadcasted alerts for the given area.
+* `GET /api/alert/broadcasts/:area/:since` - List broadcasted alerts for the given area.
 
   Response fields:
 
@@ -472,12 +512,12 @@ The rest of the API is only available to a registered user.
   location: point
   ```
 
-* `GET /alert/image/:alert` - Respond with the image submitted for this alert.
+* `GET /api/alert/image/:alert` - Respond with the image submitted for this alert.
   The response is not encoded as JSON.
 
 The rest of the API is only available to the admin associated with the conservation area.
 
-* `GET /alert/list/:area/:since` - List all alerts for the given area.
+* `GET /api/alert/list/:area/:since` - List all alerts for the given area.
 
   Response fields:
 
@@ -499,7 +539,7 @@ The rest of the API is only available to the admin associated with the conservat
   location: point
   ```
 
-* `POST /alert/update/:alert` - Update the information stored for the given alert.
+* `POST /api/alert/update/:alert` - Update the information stored for the given alert.
 
   Required request field:
 
@@ -517,11 +557,11 @@ The rest of the API is only available to the admin associated with the conservat
   image: base64 string
   ```
 
-* `GET /alert/remove/:alert` - Remove an alert.
+* `GET /api/alert/remove/:alert` - Remove an alert.
 
 ### Reward Store API
 
-* `GET /reward/list` - List available awards.
+* `GET /api/reward/list` - List available awards.
 
   Response fields:
 
@@ -542,17 +582,17 @@ The rest of the API is only available to the admin associated with the conservat
   areaName: string
   ```
 
-* `GET /reward/image/:reward` - Respond with the image submitted for this reward.
+* `GET /api/reward/image/:reward` - Respond with the image submitted for this reward.
   The response is not encoded as JSON.
 
 The following request is only available to a registered user.
 
-* `GET /reward/buy/:reward` - Buy a reward.
+* `GET /api/reward/buy/:reward` - Buy a reward.
   If the user's coins have already been exported to an Ethereum wallet, use the contract function instead.
 
 The rest of the API is only available to an admin.
 
-* `GET /reward/list/own` - List rewards added by this user.
+* `GET /api/reward/list/own` - List rewards added by this user.
 
   Response fields:
 
@@ -572,7 +612,7 @@ The rest of the API is only available to an admin.
   verified: boolean
   ```
 
-* `POST /reward/add` - Suggest a new reward.
+* `POST /api/reward/add` - Suggest a new reward.
 
   Required request fields:
 
@@ -584,7 +624,7 @@ The rest of the API is only available to an admin.
   randValue: integer
   ```
 
-* `POST /reward/update/:reward` - Update the information stored for a reward.
+* `POST /api/reward/update/:reward` - Update the information stored for a reward.
 
   Required request fields:
 
@@ -601,11 +641,11 @@ The rest of the API is only available to an admin.
   image: base64 string
   ```
 
-* `GET /reward/remove/:reward` - Remove the given reward.
+* `GET /api/reward/remove/:reward` - Remove the given reward.
 
 The rest of the API is only available to a super admin.
 
-* `GET /reward/list/new` - List rewards that have not yet been verified.
+* `GET /api/reward/list/new` - List rewards that have not yet been verified.
 
   Response fields:
 
@@ -626,7 +666,7 @@ The rest of the API is only available to a super admin.
   areaName: string
   ```
 
-* `POST /reward/verify/:reward` - Verify a suggested reward and set its coin value.
+* `POST /api/reward/verify/:reward` - Verify a suggested reward and set its coin value.
 
   Required request fields:
 
@@ -637,7 +677,7 @@ The rest of the API is only available to a super admin.
 
 ### Smart Contract API
 
-* `GET /contract` - Get information about the `ERPCoin` smart contract.
+* `GET /api/contract` - Get information about the `ERPCoin` smart contract.
 
   Response fields:
 

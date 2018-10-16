@@ -4,14 +4,13 @@ const generator = require("generate-password");
 const objects = require("../objects.js");
 const validator = require("../validate.js");
 
-module.exports = (config, db, coins, sendMail) => {
+module.exports = (config, db, coins, sendMail, notifyAdmins) => {
 	const auth = require("../auth.js")(db);
 
 	async function validate(info, initial = true) {
-		if(initial && !validator.validateUsername(info.username)) {
-			return false;
-		}
-		return validator.validateEmail(info.email) && validator.validateName(info.name)
+		return (!initial || validator.validateUsername(info.username))
+			&& validator.validateEmail(info.email)
+			&& validator.validateName(info.name)
 			&& validator.validateName(info.surname);
 	}
 

@@ -54,20 +54,21 @@ USE `dbERPCOIN` ;
 -- Description: Stores basic information of an administrator.
 -- admSuperAdmin: flag to indicate this is a super user.
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAdminUser` (
-  `admID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `admUsername` VARCHAR(50) NOT NULL,
-  `admEmailAddress` VARCHAR(100) NOT NULL,
-  `admPassword` VARCHAR(60) NOT NULL,
-  `admName` VARCHAR(40) NOT NULL,
-  `admSurname` VARCHAR(40) NOT NULL,
-  `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`admID`, `tblConservationArea_conID`),
-  INDEX `fk_tblAdminUser_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
-  CONSTRAINT `fk_tblAdminUser_tblConservationArea1`
-    FOREIGN KEY (`tblConservationArea_conID`)
-    REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+	`admID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`admUsername` VARCHAR(100) NOT NULL,
+	`admEmailAddress` VARCHAR(100) NOT NULL,
+	`admPassword` VARCHAR(60) NOT NULL,
+	`admName` VARCHAR(100) NOT NULL,
+	`admSurname` VARCHAR(100) NOT NULL,
+	`admNotificationToken` VARCHAR(160),
+	`tblConservationArea_conID` INT UNSIGNED NOT NULL,
+	PRIMARY KEY (`admID`, `tblConservationArea_conID`),
+	INDEX `fk_tblAdminUser_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
+	CONSTRAINT `fk_tblAdminUser_tblConservationArea1`
+	FOREIGN KEY (`tblConservationArea_conID`)
+	REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
+	ON DELETE NO ACTION
+	ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
@@ -75,12 +76,12 @@ DEFAULT CHARACTER SET = latin1;
 -- Table `dbERPCOIN`.`tblSuperAdmin`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblSuperAdminUser` (
-	`sadID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `sadUsername` VARCHAR(50) NOT NULL,
+	`sadID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`sadUsername` VARCHAR(100) NOT NULL,
 	`sadEmailAddress` VARCHAR(100) NOT NULL,
 	`sadPassword` VARCHAR(60) NOT NULL,
-	`sadName` VARCHAR(40) NOT NULL,
-	`sadSurname` VARCHAR(40) NOT NULL,
+	`sadName` VARCHAR(100) NOT NULL,
+	`sadSurname` VARCHAR(100) NOT NULL,
 	PRIMARY KEY(`sadID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
@@ -94,13 +95,13 @@ DEFAULT CHARACTER SET = latin1;
 -- conMiddlePointCoordinate: Stores the longitude and latitude of of the middle
 -- point of the conservation area. This is also a JSON object.
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationArea` (
-  `conID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `conName` VARCHAR(100) NOT NULL,
-  `conBorderNodeJSONObject` VARCHAR(30000) NOT NULL,
-  `conMiddlePointCoordinate` VARCHAR(100) NOT NULL,
-  `conCity` VARCHAR(30) NOT NULL,
-  `conProvince` VARCHAR(30) NOT NULL,
-  PRIMARY KEY (`conID`))
+	`conID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`conName` VARCHAR(100) NOT NULL,
+	`conBorderNodeJSONObject` VARCHAR(30000) NOT NULL,
+	`conMiddlePointCoordinate` VARCHAR(100) NOT NULL,
+	`conCity` VARCHAR(100) NOT NULL,
+	`conProvince` VARCHAR(100) NOT NULL,
+	PRIMARY KEY (`conID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
@@ -111,16 +112,16 @@ DEFAULT CHARACTER SET = latin1;
 -- usrWalletAddress: The address of the user's blockchain wallet.
 -- usrLastPointTime: The time when the user previously sent his coordinate
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblUser` (
-  `usrID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `usrUsername` VARCHAR(50) NOT NULL,
-  `usrEmailAddress` VARCHAR(100) NOT NULL,
-  `usrPassword` VARCHAR(60) NOT NULL,
-  `usrName` VARCHAR(40) NOT NULL,
-  `usrSurname` VARCHAR(40) NOT NULL,
-  `usrWalletAddress` varchar(50) NULL,
-  `usrUnclaimedBalance` INT UNSIGNED NOT NULL,
-  `usrLastPointTime` BIGINT NOT NULL,
-  PRIMARY KEY (`usrID`))
+	`usrID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`usrUsername` VARCHAR(100) NOT NULL,
+	`usrEmailAddress` VARCHAR(100) NOT NULL,
+	`usrPassword` VARCHAR(60) NOT NULL,
+	`usrName` VARCHAR(100) NOT NULL,
+	`usrSurname` VARCHAR(100) NOT NULL,
+	`usrWalletAddress` varchar(42) NULL,
+	`usrUnclaimedBalance` INT UNSIGNED NOT NULL,
+	`usrLastPointTime` BIGINT NOT NULL,
+	PRIMARY KEY (`usrID`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
@@ -129,29 +130,29 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Description: Stores informtion about an alert that is sent by an user.
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblAlert` (
-	`aleID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`aleHeader` VARCHAR(30) NOT NULL,
-  `aleDescription` VARCHAR(300) NOT NULL,
-  `aleSeverity` INT(10) UNSIGNED NOT NULL,
-  `aleImage` mediumblob ,
-  `aleBroadcast` BIT(1) NOT NULL,
-  `aleLocation` VARCHAR(100) NOT NULL,
-  `aleTimeSent`  BIGINT NOT NULL,
-  `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
-  `tblUser_usrID` INT(10) UNSIGNED,
-  PRIMARY KEY (`aleID`),
-  INDEX `fk_tblAlert_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
-  CONSTRAINT `fk_tblAlert_tblConservationArea1`
-    FOREIGN KEY (`tblConservationArea_conID`)
-    REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  INDEX `fk_tblAlert_tblUser1_idx` (`tblUser_usrID` ASC),
-  CONSTRAINT `fk_tblAlert_tblUser1`
-    FOREIGN KEY (`tblUser_usrID`)
-    REFERENCES `dbERPCOIN`.`tblUser` (`usrID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+	`aleID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`aleHeader` VARCHAR(100) NOT NULL,
+	`aleDescription` VARCHAR(255) NOT NULL,
+	`aleSeverity` INT UNSIGNED NOT NULL,
+	`aleImage` mediumblob ,
+	`aleBroadcast` BIT(1) NOT NULL,
+	`aleLocation` VARCHAR(100) NOT NULL,
+	`aleTimeSent`  BIGINT NOT NULL,
+	`tblConservationArea_conID` INT UNSIGNED NOT NULL,
+	`tblUser_usrID` INT UNSIGNED,
+	PRIMARY KEY (`aleID`),
+	INDEX `fk_tblAlert_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
+	CONSTRAINT `fk_tblAlert_tblConservationArea1`
+	FOREIGN KEY (`tblConservationArea_conID`)
+	REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
+	ON DELETE NO ACTION
+	ON UPDATE NO ACTION,
+	INDEX `fk_tblAlert_tblUser1_idx` (`tblUser_usrID` ASC),
+	CONSTRAINT `fk_tblAlert_tblUser1`
+	FOREIGN KEY (`tblUser_usrID`)
+	REFERENCES `dbERPCOIN`.`tblUser` (`usrID`)
+	ON DELETE NO ACTION
+	ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
@@ -161,18 +162,18 @@ DEFAULT CHARACTER SET = latin1;
 -- Description: Stores informtion about locations users have visited at a
 -- conservation area.
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAreaUserPoints` (
-	`cupID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`cupID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`cupDateTime` BIGINT NOT NULL,
-  `cupLocationLatitude` VARCHAR(50) NOT NULL,
-  `cupLocationLongitude` VARCHAR(50) NOT NULL,
-  `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`cupID`, `tblConservationArea_conID`),
-  INDEX `fk_tblConservationAreaUserPoints_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
-  CONSTRAINT `fk_tblConservationAreaUserPoints_tblConservationArea1`
-    FOREIGN KEY (`tblConservationArea_conID`)
-    REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+	`cupLocationLatitude` DOUBLE NOT NULL,
+	`cupLocationLongitude` DOUBLE NOT NULL,
+	`tblConservationArea_conID` INT UNSIGNED NOT NULL,
+	PRIMARY KEY (`cupID`, `tblConservationArea_conID`),
+	INDEX `fk_tblConservationAreaUserPoints_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
+	CONSTRAINT `fk_tblConservationAreaUserPoints_tblConservationArea1`
+	FOREIGN KEY (`tblConservationArea_conID`)
+	REFERENCES `dbERPCOIN`.`tblConservationArea` (`conID`)
+	ON DELETE NO ACTION
+	ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
@@ -180,15 +181,15 @@ DEFAULT CHARACTER SET = latin1;
 -- Table `dbERPCOIN`.`tblConservationAdminStock`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblConservationAdminStock` (
-	`casID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `casName` VARCHAR(50) NOT NULL,
-    `casRandValue` INT(10) UNSIGNED NOT NULL,
-    `casCoinValue` INT(10) UNSIGNED NOT NULL,
-    `casDescription` VARCHAR(255) NOT NULL,
-    `casImage` mediumblob,
-    `casVerified` BIT(1) NOT NULL,
-    `casStockAmount` INT(10) NOT NULL,
-    `tblConservationArea_conID` INT(10) UNSIGNED NOT NULL,
+	`casID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`casName` VARCHAR(100) NOT NULL,
+	`casRandValue` INT UNSIGNED NOT NULL,
+	`casCoinValue` INT UNSIGNED NOT NULL,
+	`casDescription` VARCHAR(255) NOT NULL,
+	`casImage` mediumblob,
+	`casVerified` BIT(1) NOT NULL,
+	`casStockAmount` INT NOT NULL,
+	`tblConservationArea_conID` INT UNSIGNED NOT NULL,
 	PRIMARY KEY (`casID`, `tblConservationArea_conID`),
 	INDEX `fk_tblConservationAdminStock_tblConservationArea1_idx` (`tblConservationArea_conID` ASC),
 	CONSTRAINT `fk_tblConservationAdminStock_tblConservationArea1`
@@ -203,8 +204,8 @@ DEFAULT CHARACTER SET = latin1;
 -- Table `dbERPCOIN`.`tblLastRewardPurchase`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dbERPCOIN`.`tblLastRewardPurchase` (
-	`lrpBlockNumber` INT(10) UNSIGNED NOT NULL,
-	`lrpLogIndex` INT(10) UNSIGNED NOT NULL)
+	`lrpBlockNumber` INT UNSIGNED NOT NULL,
+	`lrpLogIndex` INT UNSIGNED NOT NULL)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 

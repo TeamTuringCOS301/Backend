@@ -1,53 +1,59 @@
+const imageType = require("image-type");
+
 module.exports = {
-	validateEmail(email){
-		if(typeof email !== "string"){
-			return false;
-		}
-		var regexEmail = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-		if(regexEmail.test(email)){
-			return true;
-		}else{
-			return false;
-		}
+	validateEmail(email) {
+		return typeof email === "string"
+			&& email.length <= 100
+			&& /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email);
 	},
 
-	validateName(name){
-		if(typeof name !== "string" || name.length == 0){
-			return false;
-		}else{
-			return true;
-		}
+	validateName(name) {
+		return typeof name === "string"
+			&& name.length > 0
+			&& name.length <= 100;
 	},
 
-	validateUsername(username){
-		if(typeof username !== "string" || username.length == 0){
-			return false;
-		}
-		return true;
+	validateUsername(username) {
+		return typeof username === "string"
+			&& username.length > 0
+			&& username.length <= 100;
 	},
 
-	validatePassword(password){
-		if(typeof password !== "string" || password.length == 0){
-			return false;
-		}
-		return true;
+	validatePassword(password) {
+		return typeof password === "string"
+			&& password.length > 0;
 	},
 
-	validateText(text){
-		if(typeof text !== "string" || text.length == 0){
-			return false;
-		}else{
-			return true;
-		}
+	validateText(text) {
+		return typeof text === "string"
+			&& text.length > 0
+			&& text.length <= 100;
 	},
 
-	validatePoint(point){
-		if(typeof point.lat !== "number" || typeof point.lng !== "number" ){
-			return false;
-		}
-		if(point.lat < -90 || point.lat > 90 || point.lng < -180 || point.lng > 180){
-			return false;
-		}
-		return true;
+	validateDescription(description) {
+		return typeof description === "string"
+			&& description.length > 0
+			&& description.length <= 255;
+	},
+
+	validateInt(int) {
+		return Number.isInteger(int)
+			&& int >= -2147483648
+			&& int < 2147483648;
+	},
+
+	validateImage(image) {
+		return typeof image === "string"
+			&& imageType(Buffer.from(image, "base64")) !== null;
+	},
+
+	validatePoint(point) {
+		return typeof point === "object"
+			&& typeof point.lat === "number"
+			&& point.lat >= -90
+			&& point.lat <= 90
+			&& typeof point.lng === "number"
+			&& point.lng >= -180
+			&& point.lng <= 180;
 	}
 };
